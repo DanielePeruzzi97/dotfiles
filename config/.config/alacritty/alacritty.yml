@@ -247,8 +247,8 @@ shell:
 #   `command` must be a map containing a `program` string, and `args` array of
 #     strings. For example:
 #     - { ... , command: { program: "alacritty", args: ["-e", "vttest"] } }
-  key_bindings:
-    - { key: V, mods: Control|Shift, action: ToggleVimMode }
+  # key_bindings:
+  #   - { key: V, mods: Control|Shift, action: ToggleVimMode }
 
   vim:
     active: true
