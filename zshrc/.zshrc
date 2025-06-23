@@ -70,7 +70,7 @@ zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git compleat copyfile history history-substring-search sudo vagrant zsh-autosuggestions)
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-history-substring-search history)
  
 source $ZSH/oh-my-zsh.sh
 
@@ -102,10 +102,18 @@ fi
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 #
-alias dc="docker-compose"
-alias bw="/opt/Bitwarden-2023.5.0-x86_64.AppImage"
 alias vim="nvim"
 alias sudov="sudo -E nvim"
+alias set-proxy="git config --global http.proxy http://172.17.205.1:3128"
+alias unset-proxy="git config --global --unset http.proxy"
+alias ma='cd ~/git/myarca/'
+alias dn='cd ~/git/danni/'
+alias dos='cd ~/git/devops/'
+alias run-podman="source ~/run_podman.sh"
+
+# alias podman-service="podman system service -t 0 &"
+# export HTTP_PROXY="http://172.17.205.1:3128"
+# DOCKER_HOST="unix:$XDG_RUNTIME_DIR/podman/podman.sock"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
