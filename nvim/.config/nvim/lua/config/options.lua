@@ -4,8 +4,8 @@ local o = vim.o
 o.termguicolors = true -- terminal support colors
 opt.mouse = "a" -- allow the mouse to be used in Nvim
 
-opt.tabstop = 2 -- number of visual spaces per TAB
-opt.shiftwidth = 2 -- insert 4 spaces on a tab
+opt.tabstop = 4 -- number of visual spaces per TAB
+opt.shiftwidth = 4 -- insert 2 spaces on a tab
 opt.expandtab = true -- tabs are spaces, mainly because of python
 opt.scrolloff = 8
 opt.smartindent = true
@@ -24,8 +24,14 @@ opt.smartcase = true -- but make it case sensitive if an uppercase is entered
 opt.undofile = true
 opt.breakindent = true
 opt.signcolumn = "yes"
-opt.list = true
-opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
+
+-- opt.list = false
+-- opt.listchars = {
+--   tab = "» ",
+--   trail = "·",
+--   nbsp = "␣",
+-- }
+
 opt.inccommand = "split"
 opt.cursorline = true
 opt.confirm = false
