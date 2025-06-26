@@ -101,7 +101,11 @@ fi
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-#
+
+if [[ -f "$HOME/.credentials.sh" ]]; then
+  source $HOME/.credentials.sh
+fi
+
 alias vim="nvim"
 alias sudov="sudo -E nvim"
 alias set-proxy="git config --global http.proxy http://172.17.205.1:3128"
@@ -110,6 +114,7 @@ alias ma='cd ~/git/myarca/'
 alias dn='cd ~/git/danni/'
 alias dos='cd ~/git/devops/'
 alias run-podman="source ~/run_podman.sh"
+alias jl="jenkins-lint -u $JENKINS_USERNAME -p $JENKINS_PASSWORD"
 
 # alias podman-service="podman system service -t 0 &"
 # export HTTP_PROXY="http://172.17.205.1:3128"
