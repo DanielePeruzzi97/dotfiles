@@ -51,3 +51,5 @@ set("v", "K", ":m '<-2<CR>gv=gv")
 
 set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 set("i", "jj", "<Esc>")
+
+set("n", "<leader>nr", "<cmd>lua require('neotest').run.run()<cr>", { desc = "Run nearest test" })
