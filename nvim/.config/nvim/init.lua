@@ -41,8 +41,8 @@ require("lazy").setup({
 
 vim.keymap.set("n", "<leader>L", "<cmd>Lazy<cr>", { desc = "Lazy" })
 
+require("config.clipboard")
 require("config.options")
 require("config.keymaps")
 require("config.autocmds")
 require("config.terminal")
-require("config.clipboard")
