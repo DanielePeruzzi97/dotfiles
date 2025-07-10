@@ -115,6 +115,7 @@ alias dn='cd ~/git/danni/'
 alias dos='cd ~/git/devops/'
 alias run-podman="source ~/run_podman.sh"
 alias jl="jenkins-lint -u $JENKINS_USERNAME -p $JENKINS_PASSWORD"
+alias gp="git fetch --prune && git branch -vv | grep 'gone]' | awk '{print $1}' | xargs git branch -D"
 
 # alias podman-service="podman system service -t 0 &"
 # export HTTP_PROXY="http://172.17.205.1:3128"

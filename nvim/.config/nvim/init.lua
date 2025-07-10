@@ -1,5 +1,6 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -41,8 +42,8 @@ require("lazy").setup({
 
 vim.keymap.set("n", "<leader>L", "<cmd>Lazy<cr>", { desc = "Lazy" })
 
-require("config.clipboard")
 require("config.options")
 require("config.keymaps")
 require("config.autocmds")
 require("config.terminal")
+require("config.clipboard")

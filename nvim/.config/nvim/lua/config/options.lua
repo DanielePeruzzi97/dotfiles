@@ -1,6 +1,7 @@
 local opt = vim.opt
 local o = vim.o
 
+opt.clipboard = "unnamedplus"
 o.termguicolors = true -- terminal support colors
 opt.mouse = "a" -- allow the mouse to be used in Nvim
 
