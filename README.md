@@ -8,6 +8,7 @@
 - Tmux
 - stow
 - A nerd font
+- xclip
 
 ## Utiliy script
 
