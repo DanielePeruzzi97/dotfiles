@@ -128,9 +128,7 @@ return {
       },
       dotls = {},
       marksman = {},
-      bashls = {
-        filetypes = { "sh" },
-      },
+      bashls = {},
       ansiblels = {},
       docker_compose_language_service = {},
       yamlls = {
