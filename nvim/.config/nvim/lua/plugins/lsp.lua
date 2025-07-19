@@ -109,7 +109,7 @@ return {
       gopls = {},
       pyright = {},
       jsonls = {},
-      lemminx = {},
+      eslint = {},
       lua_ls = {
         settings = {
           format = {
