@@ -6,7 +6,7 @@ return {
     {
       "<leader>f",
       function()
-        require("conform").format({ async = true, lsp_format = "fallback" })
+        require("conform").format({ async = false, lsp_format = "fallback" })
       end,
       mode = "",
       desc = "[F]ormat buffer",
@@ -23,7 +23,7 @@ return {
       go = { "gofmt" },
       python = { "black" },
       javascript = { "prettierd", "prettier", stop_after_first = true },
-      xml = { "xmlformatter" },
+      -- xml = { "xmlformatter" },
       -- yaml = { "yamlfmt" },
       -- ["yaml.ansible"] = { "yamlfmt" },
       bash = { "shfmt" },

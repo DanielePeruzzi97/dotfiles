@@ -109,6 +109,7 @@ return {
       gopls = {},
       pyright = {},
       jsonls = {},
+      lemminx = {},
       lua_ls = {
         settings = {
           format = {
@@ -189,7 +190,7 @@ return {
       "shfmt",
       "prettierd",
       "prettier",
-      "xmlformatter",
+      -- "xmlformatter",
       -- "yamlfmt",
 
       -- Linters
