@@ -132,6 +132,7 @@ return {
       bashls = {},
       ansiblels = {},
       docker_compose_language_service = {},
+      terraformls = {},
       yamlls = {
         filetypes = { "yaml", "yaml.ansible" },
         capabilities = {
