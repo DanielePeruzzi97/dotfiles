@@ -5,7 +5,7 @@ style = 'Block'
 render_timer = false
 
 [general]
-import = ['~/.config/alacritty/rose-pine.toml']
+import = ['C:\\Users\dperuzzi\AppData\Roaming\alacritty\rose-pine.toml']
 live_config_reload = true
 
 [[mouse.bindings]]
@@ -87,7 +87,8 @@ hide_when_typing = true
 semantic_escape_chars = ''',│`|:"' ()[]{}<>'''
 
 [terminal.shell]
-program = "/bin/zsh"
+program = "wsl.exe"
+args = ['~']
 
 [window]
 decorations = "full"
@@ -102,4 +103,3 @@ lines = 80
 [window.padding]
 x = 4
 y = 4
-
