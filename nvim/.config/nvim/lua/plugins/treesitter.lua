@@ -29,6 +29,7 @@ return {
           "jinja",
           "jinja_inline",
           "json",
+          "terraform",
         },
       })
     end,
