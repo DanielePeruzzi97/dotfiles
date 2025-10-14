@@ -16,7 +16,7 @@ set("n", "<C-Up>", ":resize +2<CR>", opts)
 set("n", "<C-Right>", ":vertical resize -2<CR>", opts)
 set("n", "<C-Left>", ":vertical resize +2<CR>", opts)
 
-set("n", "<leader>ws", "<cmd>split<cr>", { desc = "Horizontal split" })
+set("n", "<leader>wh", "<cmd>split<cr>", { desc = "Horizontal split" })
 set("n", "<leader>wv", "<cmd>vsplit<cr>", { desc = "Vertical split" })
 set("n", "<leader>wc", "<cmd>close<cr>", { desc = "Close" })
 

@@ -70,7 +70,7 @@ zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-history-substring-search history)
+plugins=(git z fzf colorize web-search zsh-autosuggestions zsh-syntax-highlighting zsh-history-substring-search history)
  
 source $ZSH/oh-my-zsh.sh
 
@@ -117,6 +117,9 @@ alias run-podman="source ~/run_podman.sh"
 alias jl="jenkins-lint -u $JENKINS_USERNAME -p $JENKINS_PASSWORD"
 alias gp="git fetch --prune && git branch -vv | grep 'gone]' | awk '{print $1}' | xargs git branch -D"
 alias vsb="veeamconfig job start --name 'CompleteBackup'"
+alias aws-test="aws --profile omnys-test-daniele"
+alias tf-clean="find . -type d -name ".terraform" -prune -exec rm -rf {} \;"
+alias tg-clean="find . -type d -name ".terragrunt-cache" -prune -exec rm -rf {} \;"
 
 # alias podman-service="podman system service -t 0 &"
 # export HTTP_PROXY="http://172.17.205.1:3128"
@@ -127,3 +130,10 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 export PATH=$PATH:/usr/local/go/bin
+
+# To load aws cli auto completion
+autoload bashcompinit && bashcompinit
+autoload -Uz compinit && compinit
+if [ -f /usr/local/bin/aws_completer ]; then
+  complete -C '/usr/local/bin/aws_completer' aws
+fi

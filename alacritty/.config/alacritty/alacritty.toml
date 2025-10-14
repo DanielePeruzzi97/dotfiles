@@ -8,7 +8,7 @@ render_timer = false
 import = ['~/.config/alacritty/rose-pine.toml']
 live_config_reload = true
 
-[[mouse.bindings]]
+[[mouse.bindings]] 
 action = "PasteSelection"
 mouse = "Middle"
 
@@ -19,47 +19,11 @@ duration = 0
 [colors]
 draw_bold_text_with_bright_colors = true
 
-[[colors.indexed_colors]]
-color = "0xF8BD96"
-index = 16
-
-[[colors.indexed_colors]]
-color = "0xF5E0DC"
-index = 17
-
-[colors.bright]
-black = "0x988BA2"
-blue = "0x96CDFB"
-cyan = "0x89DCEB"
-green = "0xABE9B3"
-magenta = "0xF5C2E7"
-red = "0xF28FAD"
-white = "0xD9E0EE"
-yellow = "0xFAE3B0"
-
-[colors.cursor]
-cursor = "0xF5E0DC"
-text = "0x1E1D2F"
-
-[colors.normal]
-black = "0x6E6C7E"
-blue = "0x96CDFB"
-cyan = "0x89DCEB"
-green = "0xABE9B3"
-magenta = "0xF5C2E7"
-red = "0xF28FAD"
-white = "0xD9E0EE"
-yellow = "0xFAE3B0"
-
-[colors.primary]
-background = "0x1E1D2F"
-foreground = "0xD9E0EE"
-
 [env]
 TERM = "xterm-256color"
 
 [font]
-size = 20
+size = 17
 
 [font.bold]
 family = "JetBrainsMonoNL Nerd Font"
@@ -90,10 +54,13 @@ semantic_escape_chars = ''',│`|:"' ()[]{}<>'''
 program = "/bin/zsh"
 
 [window]
-decorations = "full"
+decorations = "None"
 dynamic_title = true
 option_as_alt = "Both"
 startup_mode = "Maximized"
+opacity = 0.9
+# Enabled via gnome blur extension
+blur = false
 
 [window.dimensions]
 columns = 160
@@ -103,3 +70,27 @@ lines = 80
 x = 4
 y = 4
 
+[[keyboard.bindings]]
+action = "Paste"
+key = "V"
+mods = "Alt"
+
+[[keyboard.bindings]]
+action = "Copy"
+key = "C"
+mods = "Alt"
+
+[[keyboard.bindings]]
+action = "Quit"
+key = "Q"
+mods = "Alt"
+
+[[keyboard.bindings]]
+action = "SpawnNewInstance"
+key = "N"
+mods = "Alt"
+
+[[keyboard.bindings]]
+action = "CreateNewWindow"
+key = "W"
+mods = "Alt"

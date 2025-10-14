@@ -19,3 +19,13 @@ Usage:
 ```bash
 dotfiles sync options
 ```
+
+## To look after
+
+### NVIM
+
+- kevinhwang91/nvim-bqf
+- gpanders/nvim-parinfer
+- glacambre/firenvim
+- nvim-tree
+- kndndrj/nvim-dbee
