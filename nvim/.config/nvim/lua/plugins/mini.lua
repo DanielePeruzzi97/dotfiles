@@ -1,6 +1,7 @@
 return { -- Collection of various small independent plugins/modules
-  "echasnovski/mini.nvim",
+  "nvim-mini/mini.nvim",
   config = function()
+    vim.g.minicomment_disable = true -- Use comment.lua instead
     -- Better Around/Inside textobjects
     --
     -- Examples:
