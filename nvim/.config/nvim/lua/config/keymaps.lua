@@ -4,7 +4,7 @@ local opts = {
   silent = true,
 }
 
-set("n", "<leader>X", "<cmd>source %<CR>", { desc = "Execute the current file" })
+-- set("n", "<leader>X", "<cmd>source %<CR>", { desc = "Execute the current file" })
 
 -- set("n", "<A-h>", "<C-w>h", opts)
 -- set("n", "<A-j>", "<C-w>j", opts)

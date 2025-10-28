@@ -87,7 +87,7 @@ export LC_ALL=en_US.UTF-8
 if [[ -n $SSH_CONNECTION ]]; then
   export EDITOR='nvim'
 else
-  export EDITOR='vim'
+  export EDITOR='nvim'
 fi
 
 # Compilation flags
@@ -110,9 +110,6 @@ alias vim="nvim"
 alias sudov="sudo -E nvim"
 alias set-proxy="git config --global http.proxy http://172.17.205.1:3128"
 alias unset-proxy="git config --global --unset http.proxy"
-alias ma='cd ~/git/myarca/'
-alias dn='cd ~/git/danni/'
-alias dos='cd ~/git/devops/'
 alias run-podman="source ~/run_podman.sh"
 alias jl="jenkins-lint -u $JENKINS_USERNAME -p $JENKINS_PASSWORD"
 alias gp="git fetch --prune && git branch -vv | grep 'gone]' | awk '{print $1}' | xargs git branch -D"
@@ -120,6 +117,7 @@ alias vsb="veeamconfig job start --name 'CompleteBackup'"
 alias aws-test="aws --profile omnys-test-daniele"
 alias tf-clean="find . -type d -name ".terraform" -prune -exec rm -rf {} \;"
 alias tg-clean="find . -type d -name ".terragrunt-cache" -prune -exec rm -rf {} \;"
+alias og="cd ~/omnys/git/"
 
 # alias podman-service="podman system service -t 0 &"
 # export HTTP_PROXY="http://172.17.205.1:3128"
@@ -137,3 +135,12 @@ autoload -Uz compinit && compinit
 if [ -f /usr/local/bin/aws_completer ]; then
   complete -C '/usr/local/bin/aws_completer' aws
 fi
+
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	yazi "$@" --cwd-file="$tmp"
+	if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+		builtin cd -- "$cwd"
+	fi
+	rm -f -- "$tmp"
+}

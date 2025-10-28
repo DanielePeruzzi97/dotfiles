@@ -6,6 +6,7 @@ return {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     { "j-hui/fidget.nvim", opts = {} },
     "saghen/blink.cmp",
+    "b0o/schemastore.nvim",
   },
   config = function()
     vim.api.nvim_create_autocmd("LspAttach", {
@@ -108,7 +109,12 @@ return {
     local servers = {
       gopls = {},
       pyright = {},
-      jsonls = {},
+      jsonls = {
+        settings = {
+          validate = { enable = true },
+          schemas = require("schemastore").json.schemas(),
+        },
+      },
       eslint = {},
       lua_ls = {
         settings = {
@@ -132,7 +138,22 @@ return {
       bashls = {},
       ansiblels = {},
       docker_compose_language_service = {},
-      terraformls = {},
+      terraformls = {
+        on_attach = function(client, bufnr)
+          local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+          for _, line in ipairs(lines) do
+            if line:match("<<%s*['\"]?BUILD_SPEC['\"]?") then
+              vim.notify(
+                "terraform-ls disabled for files containing heredoc BUILD_SPEC: " .. vim.api.nvim_buf_get_name(bufnr),
+                vim.log.levels.WARN
+              )
+              client.stop()
+              return
+            end
+          end
+        end,
+        filetypes = { "terraform", "terraform-vars", "terraform-stack" },
+      },
       yamlls = {
         filetypes = { "yaml", "yaml.ansible" },
         capabilities = {
@@ -147,30 +168,15 @@ return {
           redhat = { telemetry = { enabled = false } },
           yaml = {
             schemaStore = {
-              enable = true,
-              url = "https://www.schemastore.org/api/json/catalog.json",
+              enable = false,
+              url = "",
             },
-            -- Doesn't work
             format = { enabled = true },
-            -- enabling this conflicts between Kubernetes resources, kustomization.yaml, and Helmreleases
-            validate = false,
+            validate = true,
             completion = true,
             hover = true,
             schemas = {
-              kubernetes = { "*.yml", "*.yaml" },
-              ["http://json.schemastore.org/github-workflow"] = ".github/workflows/*",
-              ["http://json.schemastore.org/github-action"] = ".github/action.{yml,yaml}",
-              ["https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks"] = "roles/tasks/*.{yml,yaml}",
-              ["https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook"] = "*play*.{yml,yaml}",
-              ["http://json.schemastore.org/prettierrc"] = ".prettierrc.{yml,yaml}",
-              ["http://json.schemastore.org/kustomization"] = "kustomization.{yml,yaml}",
-              ["http://json.schemastore.org/chart"] = "Chart.{yml,yaml}",
-              ["https://json.schemastore.org/dependabot-v2"] = ".github/dependabot.{yml,yaml}",
-              ["https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json"] = "*gitlab-ci*.{yml,yaml}",
-              ["https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/schemas/v3.1/schema.json"] = "*api*.{yml,yaml}",
-              ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "*docker-compose*.{yml,yaml}",
-              -- ["https://raw.githubusercontent.com/argoproj/argo-workflows/master/api/jsonschema/schema.json"] =
-              -- "*flow*.{yml,yaml}",
+              require("schemastore").yaml.schemas(),
             },
           },
         },
