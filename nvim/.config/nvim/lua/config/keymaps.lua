@@ -55,13 +55,13 @@ set("i", "jj", "<Esc>")
 set("n", "<leader>nr", "<cmd>lua require('neotest').run.run()<cr>", { desc = "Run nearest test" })
 
 -- Easily hit escape in terminal mode.
-set("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+-- set("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
 -- Open a terminal at the bottom of the screen with a fixed height.
-set("n", ",t", function()
-  vim.cmd.new()
-  vim.cmd.wincmd("J")
-  vim.api.nvim_win_set_height(0, 12)
-  vim.wo.winfixheight = true
-  vim.cmd.term()
-end)
+-- set("n", ",t", function()
+--   vim.cmd.new()
+--   vim.cmd.wincmd("J")
+--   vim.api.nvim_win_set_height(0, 12)
+--   vim.wo.winfixheight = true
+--   vim.cmd.term()
+-- end)

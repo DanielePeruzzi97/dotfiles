@@ -90,7 +90,17 @@ action = "SpawnNewInstance"
 key = "N"
 mods = "Alt"
 
+# [[keyboard.bindings]]
+# action = "CreateNewWindow"
+# key = "W"
+# mods = "Alt"
+
 [[keyboard.bindings]]
-action = "CreateNewWindow"
-key = "W"
+key = "C"
 mods = "Alt"
+chars = "\u001bc"
+
+[[keyboard.bindings]]
+key = "L"
+mods = "Alt"
+chars = "\u001bl"

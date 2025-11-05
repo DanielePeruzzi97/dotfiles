@@ -2,9 +2,9 @@
 	helper = store
 
 [user]
-	email = peruzzi.daniele868@gmail.com
-	name = Daniele Peruzzi 
-	signingkey = 1395B76D386CE4BA
+	email = daniele.peruzzi@omnys.com
+	name = Daniele Peruzzi
+    signingkey = B14E233ED2FF6215
 
 [push]
 	autosetupremote = true
@@ -17,6 +17,3 @@
 
 [commit]
 	gpgsign = true
-
-[includeif "gitdir:~/omnys/git/"]
-    path = ~/.gitconfig-work

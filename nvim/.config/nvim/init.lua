@@ -24,6 +24,18 @@ require("lazy").setup({
   checker = {
     enabled = false,
   },
+  install = {
+    missing = true,
+    colorscheme = { "rose-pine" },
+  },
+  ui = {
+    border = "none",
+    size = {
+      width = 1,
+      height = 1,
+    },
+    title = nil,
+  },
   change_detection = { notify = false },
   performance = {
     rtp = {

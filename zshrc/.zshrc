@@ -70,7 +70,7 @@ zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git z fzf colorize web-search zsh-autosuggestions zsh-syntax-highlighting zsh-history-substring-search history)
+plugins=(git z aws fzf colorize web-search zsh-autosuggestions zsh-syntax-highlighting zsh-history-substring-search history)
  
 source $ZSH/oh-my-zsh.sh
 
@@ -144,3 +144,7 @@ function y() {
 	fi
 	rm -f -- "$tmp"
 }
+
+eval "$(zoxide init zsh --cmd cd)"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

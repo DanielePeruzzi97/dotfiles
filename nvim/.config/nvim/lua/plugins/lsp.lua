@@ -1,7 +1,16 @@
 return {
   "neovim/nvim-lspconfig",
   dependencies = {
-    { "williamboman/mason.nvim", opts = {} },
+    {
+      "williamboman/mason.nvim",
+      opts = {
+        ui = {
+          width = 1,
+          heigth = 1,
+          border = nil,
+        },
+      },
+    },
     "williamboman/mason-lspconfig.nvim",
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     { "j-hui/fidget.nvim", opts = {} },
@@ -19,13 +28,13 @@ return {
 
         map("grn", vim.lsp.buf.rename, "[R]e[n]ame")
         map("gra", vim.lsp.buf.code_action, "[G]oto Code [A]ction", { "n", "x" })
-        map("grr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
-        map("gri", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
-        map("grd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
-        map("grD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-        map("gO", require("telescope.builtin").lsp_document_symbols, "Open Document Symbols")
-        map("gW", require("telescope.builtin").lsp_dynamic_workspace_symbols, "Open Workspace Symbols")
-        map("grt", require("telescope.builtin").lsp_type_definitions, "[G]oto [T]ype Definition")
+        -- map("grr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
+        -- map("gri", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
+        -- map("grd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
+        -- map("grD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
+        -- map("gO", require("telescope.builtin").lsp_document_symbols, "Open Document Symbols")
+        -- map("gW", require("telescope.builtin").lsp_dynamic_workspace_symbols, "Open Workspace Symbols")
+        -- map("grt", require("telescope.builtin").lsp_type_definitions, "[G]oto [T]ype Definition")
 
         -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
         ---@param client vim.lsp.Client
@@ -128,8 +137,6 @@ return {
           },
         },
       },
-      hadolint = {},
-      dockerls = {},
       groovyls = {
         filetypes = { "Jenkinsfile", "groovy" },
       },
@@ -137,7 +144,7 @@ return {
       marksman = {},
       bashls = {},
       ansiblels = {},
-      docker_compose_language_service = {},
+      docker_language_server = {},
       terraformls = {
         on_attach = function(client, bufnr)
           local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
@@ -156,6 +163,7 @@ return {
       },
       yamlls = {
         filetypes = { "yaml", "yaml.ansible" },
+        -- filetypes = { "yaml" },
         capabilities = {
           textDocument = {
             foldingRange = {
@@ -201,9 +209,8 @@ return {
       -- "yamlfmt",
 
       -- Linters
-      "markdownlint",
-      "hadolint",
-      "jsonlint",
+      -- "markdownlint",
+      -- "jsonlint",
     })
     require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
