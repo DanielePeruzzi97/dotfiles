@@ -28,6 +28,9 @@ return {
       -- ["yaml.ansible"] = { "yamlfmt" },
       bash = { "shfmt" },
       sh = { "shfmt" },
+      json = { "prettier" },
+      yaml = { "prettier" },
+      markdown = { "prettier" },
     },
   },
   config = function(_, opts)

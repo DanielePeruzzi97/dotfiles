@@ -106,6 +106,8 @@ if [[ -f "$HOME/.credentials.sh" ]]; then
   source $HOME/.credentials.sh
 fi
 
+bindkey '^p' autosuggest-accept
+
 alias vim="nvim"
 alias sudov="sudo -E nvim"
 alias set-proxy="git config --global http.proxy http://172.17.205.1:3128"
@@ -118,6 +120,9 @@ alias aws-test="aws --profile omnys-test-daniele"
 alias tf-clean="find . -type d -name ".terraform" -prune -exec rm -rf {} \;"
 alias tg-clean="find . -type d -name ".terragrunt-cache" -prune -exec rm -rf {} \;"
 alias og="cd ~/omnys/git/"
+alias sts='stskeygen refresh --profile packstyle --account "packstyle" --role "AWS-PACKSTYLE"'
+alias fd='fdfind'
+alias eza='eza -1l'
 
 # alias podman-service="podman system service -t 0 &"
 # export HTTP_PROXY="http://172.17.205.1:3128"
@@ -147,4 +152,11 @@ function y() {
 
 eval "$(zoxide init zsh --cmd cd)"
 
+export FZF_DEFAULT_COMMAND="fd --hidden"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND --type d"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+export FPATH="$HOME/.config/eza/completions/zsh:$FPATH"

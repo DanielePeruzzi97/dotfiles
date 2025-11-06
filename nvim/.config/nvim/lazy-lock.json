@@ -22,6 +22,7 @@
   "mini.surround": { "branch": "main", "commit": "88c52297ed3e69ecf9f8652837888ecc727a28ee" },
   "neovim": { "branch": "main", "commit": "72a04c4065345b51b56aed4859ea1d884f734097" },
   "nvim-autopairs": { "branch": "master", "commit": "7a2c97cccd60abc559344042fefb1d5a85b3e33b" },
+  "nvim-lint": { "branch": "master", "commit": "8c694e1a1ee2ac14df931679cd54e6b8d402c2c2" },
   "nvim-lspconfig": { "branch": "master", "commit": "2010fc6ec03e2da552b4886fceb2f7bc0fc2e9c0" },
   "nvim-treesitter": { "branch": "master", "commit": "42fc28ba918343ebfd5565147a42a26580579482" },
   "nvim-web-devicons": { "branch": "master", "commit": "8dcb311b0c92d460fac00eac706abd43d94d68af" },
