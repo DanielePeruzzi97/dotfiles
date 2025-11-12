@@ -6,7 +6,7 @@ return {
       opts = {
         ui = {
           width = 1,
-          heigth = 1,
+          height = 1,
           border = nil,
         },
       },
@@ -14,6 +14,7 @@ return {
     "williamboman/mason-lspconfig.nvim",
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     { "j-hui/fidget.nvim", opts = {} },
+    "stevearc/conform.nvim",
     "saghen/blink.cmp",
     "b0o/schemastore.nvim",
   },
@@ -28,13 +29,6 @@ return {
 
         map("grn", vim.lsp.buf.rename, "[R]e[n]ame")
         map("gra", vim.lsp.buf.code_action, "[G]oto Code [A]ction", { "n", "x" })
-        -- map("grr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
-        -- map("gri", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
-        -- map("grd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
-        -- map("grD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-        -- map("gO", require("telescope.builtin").lsp_document_symbols, "Open Document Symbols")
-        -- map("gW", require("telescope.builtin").lsp_dynamic_workspace_symbols, "Open Workspace Symbols")
-        -- map("grt", require("telescope.builtin").lsp_type_definitions, "[G]oto [T]ype Definition")
 
         -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
         ---@param client vim.lsp.Client
@@ -111,10 +105,6 @@ return {
       },
     })
 
-    local capabilities = vim.lsp.protocol.make_client_capabilities()
-    local blink_capabilities = require("blink.cmp").get_lsp_capabilities()
-    capabilities = vim.tbl_deep_extend("force", capabilities, blink_capabilities)
-
     local servers = {
       gopls = {},
       pyright = {},
@@ -179,7 +169,7 @@ return {
               enable = false,
               url = "",
             },
-            format = { enabled = true },
+            format = { enabled = false },
             validate = true,
             completion = true,
             hover = true,
@@ -190,13 +180,6 @@ return {
         },
       },
     }
-    ---@type MasonLspconfigSettings
-    ---@diagnostic disable-next-line: missing-fields
-    require("mason-lspconfig").setup({
-      automatic_enable = vim.tbl_keys(servers or {}),
-    })
-
-    capabilities = vim.tbl_deep_extend("force", capabilities, blink_capabilities)
 
     local ensure_installed = vim.tbl_keys(servers or {})
     vim.list_extend(ensure_installed, {
@@ -206,17 +189,26 @@ return {
       "shfmt",
       "prettierd",
       "prettier",
-      -- "xmlformatter",
-      -- "yamlfmt",
-
+      "yamlfmt",
       -- Linters
       "markdownlint",
       "jsonlint",
       "shellcheck",
       "ansible-lint",
       "tflint",
+      "hadolint",
+      "yamllint",
     })
+
     require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
+
+    local capabilities = vim.lsp.protocol.make_client_capabilities()
+    local blink_capabilities = require("blink.cmp").get_lsp_capabilities()
+    capabilities = vim.tbl_deep_extend("force", capabilities, blink_capabilities)
+
+    require("mason-lspconfig").setup({
+      automatic_enable = vim.tbl_keys(servers or {}),
+    })
 
     for server_name, config in pairs(servers) do
       vim.lsp.config(server_name, config)

@@ -119,7 +119,6 @@ alias vsb="veeamconfig job start --name 'CompleteBackup'"
 alias aws-test="aws --profile omnys-test-daniele"
 alias tf-clean="find . -type d -name ".terraform" -prune -exec rm -rf {} \;"
 alias tg-clean="find . -type d -name ".terragrunt-cache" -prune -exec rm -rf {} \;"
-alias og="cd ~/omnys/git/"
 alias sts='stskeygen refresh --profile packstyle --account "packstyle" --role "AWS-PACKSTYLE"'
 alias fd='fdfind'
 alias eza='eza -1l'

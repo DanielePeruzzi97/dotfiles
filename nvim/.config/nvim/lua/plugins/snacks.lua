@@ -94,10 +94,10 @@ return {
     { "<leader>lg", function() Snacks.lazygit.open() end, desc = "Lazygit"},
     { "<leader>sR", function() Snacks.picker.resume() end, desc = "Resume" },
     { "<C-t>",      function() Snacks.terminal.open() end, desc = "Toggle Terminal" },
-    { "<leader>sp", function() Snacks.picker.projects() end, desc = "Projects" },
+    { "<leader>sp", function() Snacks.picker.projects({dev = {"~/.dotfiles/", "~/omnys/git/"}}) end, desc = "Projects" },
     { '<leader>s"', function() Snacks.picker.registers() end, desc = "Registers" },
     {"<leader>man", function() Snacks.picker.man() end, desc = "Man Pages"},
-    --  add for man, current file dir, projects, better lsp, history
+    -- better lsp, history
     {
       "<leader>dir",
       function()
@@ -147,89 +147,10 @@ return {
       end,
       desc = "Find and change directory with Oil",
     },
-    {
-      "<leader>aws",
-      function()
-        local find_aws_profiles = function(opts, ctx)
-          local profiles = {}
-
-          -- Get all profiles from AWS config and credentials
-          local config_file = vim.fn.expand("~/.aws/config")
-          local credentials_file = vim.fn.expand("~/.aws/credentials")
-
-          -- Read and extract profile names from config
-          local function read_profiles(file)
-            if vim.fn.filereadable(file) == 1 then
-              local content = vim.fn.readfile(file)
-              for _, line in ipairs(content) do
-                if line:match("%[.*%]") then
-                  local profile = line:match("%[([^%]]+)%]")
-                  if profile then
-                    -- Get the sso-session if available (optional)
-                    local sso_session = vim.fn.system("aws configure get sso-session --profile " .. profile)
-                    local display_text = profile .. (sso_session ~= "" and " (SSO: " .. sso_session:match("%S+") .. ")" or "")
-
-                    -- Insert profile into the profiles list with formatted text
-                    table.insert(profiles, { text = display_text, profile = profile, sso_session = sso_session })
-                  end
-                end
-              end
-            end
-          end
-
-          -- Parse both config and credentials files
-          read_profiles(config_file)
-          read_profiles(credentials_file)
-
-          return profiles
-        end
-
-        -- Preview Profile: Format properly
-        local preview_profile = function(item)
-          -- Extract profile and sso-session if available
-          local profile = item.profile
-          local sso_session = item.sso_session
-
-          -- Format the preview text
-          local preview_text = "Profile: " .. profile
-          if sso_session ~= "" then
-            preview_text = preview_text .. "\nSSO Session: " .. sso_session:match("%S+")
-          end
-          return preview_text
-        end
-
-        local change_profile = function(picker)
-          picker:close()
-          local item = picker:current()
-          if not item then
-            return
-          end
-          local profile = item.profile -- Access the profile field
-          -- Set AWS_PROFILE environment variable
-          vim.fn.setenv("AWS_PROFILE", profile)
-          -- Optionally: Print to let user know the profile is set
-          vim.notify("Switched to AWS profile: " .. profile, vim.log.levels.INFO)
-        end
-
-        Snacks.picker.pick({
-          source = "AWS Profiles",
-          finder = find_aws_profiles,
-          format = "text",
-          confirm = change_profile,
-          preview = preview_profile,  -- Preview with profile info
-          layout = {
-            preset = "select",
-            preview = { enabled = true, width = 40, height = 10 }, -- Show preview with profile details
-          },
-        })
-      end,
-      desc = "Select AWS profile and set AWS_PROFILE",
-    },
   },
 
   config = function(_, opts)
     require("snacks").setup(opts)
-
     vim.api.nvim_create_autocmd("TermOpen", {
       callback = function(args)
         local bufnr = args.buf

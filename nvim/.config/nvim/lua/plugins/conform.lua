@@ -23,13 +23,13 @@ return {
       go = { "gofmt" },
       python = { "black" },
       javascript = { "prettierd", "prettier", stop_after_first = true },
-      -- xml = { "xmlformatter" },
-      -- yaml = { "yamlfmt" },
-      -- ["yaml.ansible"] = { "yamlfmt" },
+      terraform = { "terraform_fmt" },
+      ["terraform-vars"] = { "terraform_fmt" },
+      -- dockerfile = { "dockerfmt" },
       bash = { "shfmt" },
       sh = { "shfmt" },
       json = { "prettier" },
-      yaml = { "prettier" },
+      yaml = { "yamlfmt" },
       markdown = { "prettier" },
     },
   },
@@ -42,9 +42,10 @@ return {
     conform.formatters.stylua = {
       prepend_args = { "--indent-type", "Spaces", "--indent-width", "2" },
     }
-    -- conform.formatters.yamlfmt = {
-    --   prepend_args = { "-formatter", "indent=2,include_document_start=true,retain_line_breaks_single=true" },
-    -- }
+    conform.formatters.yamlfmt = {
+      prepend_args = { "-formatter", "indent=2,include_document_start=true,retain_line_breaks_single=true" },
+    }
+    vim.g.autoformat = vim.g.autoformat
     vim.api.nvim_create_autocmd("BufWritePre", {
       pattern = "*",
       callback = function(args)
