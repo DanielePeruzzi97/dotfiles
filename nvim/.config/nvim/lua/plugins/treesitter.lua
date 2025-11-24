@@ -30,6 +30,7 @@ return {
           "jinja_inline",
           "json",
           "terraform",
+          "hcl",
         },
       })
     end,

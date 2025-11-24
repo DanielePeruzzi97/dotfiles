@@ -4,7 +4,7 @@ local opts = {
   silent = true,
 }
 
-set("n", "<leader>X", "<cmd>source %<CR>", { desc = "Execute the current file" })
+-- set("n", "<leader>X", "<cmd>source %<CR>", { desc = "Execute the current file" })
 
 -- set("n", "<A-h>", "<C-w>h", opts)
 -- set("n", "<A-j>", "<C-w>j", opts)
@@ -40,7 +40,7 @@ set("c", "<C-v>", "<C-r>+")
 set({ "n", "v" }, "<leader>d", '"_d')
 
 -- Substitue globally the word under the cursor
-set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
+set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>//gI<Left><Left><Left>]])
 
 set("v", "<", "<gv", opts)
 set("v", ">", ">gv", opts)
@@ -55,13 +55,14 @@ set("i", "jj", "<Esc>")
 set("n", "<leader>nr", "<cmd>lua require('neotest').run.run()<cr>", { desc = "Run nearest test" })
 
 -- Easily hit escape in terminal mode.
-set("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+-- set("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
 -- Open a terminal at the bottom of the screen with a fixed height.
-set("n", ",t", function()
-  vim.cmd.new()
-  vim.cmd.wincmd("J")
-  vim.api.nvim_win_set_height(0, 12)
-  vim.wo.winfixheight = true
-  vim.cmd.term()
-end)
+-- set("n", ",t", function()
+--   vim.cmd.new()
+--   vim.cmd.wincmd("J")
+--   vim.api.nvim_win_set_height(0, 12)
+--   vim.wo.winfixheight = true
+--   vim.cmd.term()
+-- end)
+

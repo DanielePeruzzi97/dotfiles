@@ -1,11 +1,22 @@
 return {
   "neovim/nvim-lspconfig",
   dependencies = {
-    { "williamboman/mason.nvim", opts = {} },
+    {
+      "williamboman/mason.nvim",
+      opts = {
+        ui = {
+          width = 1,
+          height = 1,
+          border = nil,
+        },
+      },
+    },
     "williamboman/mason-lspconfig.nvim",
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     { "j-hui/fidget.nvim", opts = {} },
+    "stevearc/conform.nvim",
     "saghen/blink.cmp",
+    "b0o/schemastore.nvim",
   },
   config = function()
     vim.api.nvim_create_autocmd("LspAttach", {
@@ -18,13 +29,6 @@ return {
 
         map("grn", vim.lsp.buf.rename, "[R]e[n]ame")
         map("gra", vim.lsp.buf.code_action, "[G]oto Code [A]ction", { "n", "x" })
-        map("grr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
-        map("gri", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
-        map("grd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
-        map("grD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-        map("gO", require("telescope.builtin").lsp_document_symbols, "Open Document Symbols")
-        map("gW", require("telescope.builtin").lsp_dynamic_workspace_symbols, "Open Workspace Symbols")
-        map("grt", require("telescope.builtin").lsp_type_definitions, "[G]oto [T]ype Definition")
 
         -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
         ---@param client vim.lsp.Client
@@ -101,14 +105,15 @@ return {
       },
     })
 
-    local capabilities = vim.lsp.protocol.make_client_capabilities()
-    local blink_capabilities = require("blink.cmp").get_lsp_capabilities()
-    capabilities = vim.tbl_deep_extend("force", capabilities, blink_capabilities)
-
     local servers = {
       gopls = {},
       pyright = {},
-      jsonls = {},
+      jsonls = {
+        settings = {
+          validate = { enable = true },
+          schemas = require("schemastore").json.schemas(),
+        },
+      },
       eslint = {},
       lua_ls = {
         settings = {
@@ -122,8 +127,6 @@ return {
           },
         },
       },
-      hadolint = {},
-      dockerls = {},
       groovyls = {
         filetypes = { "Jenkinsfile", "groovy" },
       },
@@ -131,10 +134,25 @@ return {
       marksman = {},
       bashls = {},
       ansiblels = {},
-      docker_compose_language_service = {},
-      terraformls = {},
+      docker_language_server = {},
+      terraformls = {
+        on_attach = function(client, bufnr)
+          local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+          for _, line in ipairs(lines) do
+            if line:match("<<%s*['\"]?BUILD_SPEC['\"]?") then
+              vim.notify(
+                "terraform-ls disabled for files containing heredoc BUILD_SPEC: " .. vim.api.nvim_buf_get_name(bufnr),
+                vim.log.levels.WARN
+              )
+              client.stop()
+              return
+            end
+          end
+        end,
+        filetypes = { "terraform", "terraform-vars", "terraform-stack" },
+      },
       yamlls = {
-        filetypes = { "yaml", "yaml.ansible" },
+        filetypes = { "yaml" },
         capabilities = {
           textDocument = {
             foldingRange = {
@@ -147,59 +165,49 @@ return {
           redhat = { telemetry = { enabled = false } },
           yaml = {
             schemaStore = {
-              enable = true,
-              url = "https://www.schemastore.org/api/json/catalog.json",
+              enable = false,
+              url = "",
             },
-            -- Doesn't work
-            format = { enabled = true },
-            -- enabling this conflicts between Kubernetes resources, kustomization.yaml, and Helmreleases
-            validate = false,
+            format = { enabled = false },
+            validate = true,
             completion = true,
             hover = true,
             schemas = {
-              kubernetes = { "*.yml", "*.yaml" },
-              ["http://json.schemastore.org/github-workflow"] = ".github/workflows/*",
-              ["http://json.schemastore.org/github-action"] = ".github/action.{yml,yaml}",
-              ["https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/tasks"] = "roles/tasks/*.{yml,yaml}",
-              ["https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook"] = "*play*.{yml,yaml}",
-              ["http://json.schemastore.org/prettierrc"] = ".prettierrc.{yml,yaml}",
-              ["http://json.schemastore.org/kustomization"] = "kustomization.{yml,yaml}",
-              ["http://json.schemastore.org/chart"] = "Chart.{yml,yaml}",
-              ["https://json.schemastore.org/dependabot-v2"] = ".github/dependabot.{yml,yaml}",
-              ["https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json"] = "*gitlab-ci*.{yml,yaml}",
-              ["https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/schemas/v3.1/schema.json"] = "*api*.{yml,yaml}",
-              ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "*docker-compose*.{yml,yaml}",
-              -- ["https://raw.githubusercontent.com/argoproj/argo-workflows/master/api/jsonschema/schema.json"] =
-              -- "*flow*.{yml,yaml}",
+              require("schemastore").yaml.schemas(),
             },
           },
         },
       },
     }
-    ---@type MasonLspconfigSettings
-    ---@diagnostic disable-next-line: missing-fields
-    require("mason-lspconfig").setup({
-      automatic_enable = vim.tbl_keys(servers or {}),
-    })
-
-    capabilities = vim.tbl_deep_extend("force", capabilities, blink_capabilities)
 
     local ensure_installed = vim.tbl_keys(servers or {})
     vim.list_extend(ensure_installed, {
+      -- Formatters
       "stylua",
       "black",
       "shfmt",
       "prettierd",
       "prettier",
-      -- "xmlformatter",
-      -- "yamlfmt",
-
+      "yamlfmt",
       -- Linters
       "markdownlint",
-      "hadolint",
       "jsonlint",
+      "shellcheck",
+      "ansible-lint",
+      "tflint",
+      "hadolint",
+      "yamllint",
     })
+
     require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
+
+    local capabilities = vim.lsp.protocol.make_client_capabilities()
+    local blink_capabilities = require("blink.cmp").get_lsp_capabilities()
+    capabilities = vim.tbl_deep_extend("force", capabilities, blink_capabilities)
+
+    require("mason-lspconfig").setup({
+      automatic_enable = vim.tbl_keys(servers or {}),
+    })
 
     for server_name, config in pairs(servers) do
       vim.lsp.config(server_name, config)

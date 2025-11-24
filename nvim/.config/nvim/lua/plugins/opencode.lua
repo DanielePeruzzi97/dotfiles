@@ -1,0 +1,24 @@
+return {
+  "NickvanDyke/opencode.nvim",
+  dependencies = {
+    "folke/snacks.nvim",
+  },
+  config = function()
+    vim.g.opencode_opts = {
+      -- provider = {
+      --   enabled = "tmux",
+      --   tmux = {
+      --     options = "-h",
+      --   },
+      -- },
+    }
+    -- stylua: ignore start
+    vim.o.autoread = true
+    vim.keymap.set("n", "<leader>ot", function()require("opencode").toggle()end, { desc = "Toggle opencode" })
+    vim.keymap.set("n", "<leader>oA", function()require("opencode").ask()end, { desc = "Ask opencode" })
+    vim.keymap.set({"n", "v" }, "<leader>oa", function()require("opencode").ask("@this", {submit = true})end, { desc = "Ask opencode about this" })
+    vim.keymap.set("n", "<leader>os", function()require("opencode").select()end, { desc = "Select opencode prompt" })
+    vim.keymap.set("n", "<leader>on", function()require("opencode").command("session_new")end, { desc = "New session" })
+    vim.keymap.set("n", "<leader>oy", function()require("opencode").command("messages_copy")end, { desc = "Copy last opencode message" })
+  end,
+}

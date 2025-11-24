@@ -36,5 +36,6 @@ opt.signcolumn = "yes"
 opt.inccommand = "split"
 opt.cursorline = true
 opt.confirm = false
+opt.laststatus = 3 -- suggested by avante docs
 
 opt.completeopt = { "menu", "menuone", "noselect" }

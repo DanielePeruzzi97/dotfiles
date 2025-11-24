@@ -58,7 +58,7 @@ decorations = "None"
 dynamic_title = true
 option_as_alt = "Both"
 startup_mode = "Maximized"
-opacity = 0.9
+# opacity = 0.9
 # Enabled via gnome blur extension
 blur = false
 
@@ -90,7 +90,17 @@ action = "SpawnNewInstance"
 key = "N"
 mods = "Alt"
 
+# [[keyboard.bindings]]
+# action = "CreateNewWindow"
+# key = "W"
+# mods = "Alt"
+
 [[keyboard.bindings]]
-action = "CreateNewWindow"
-key = "W"
+key = "C"
 mods = "Alt"
+chars = "\u001bc"
+
+[[keyboard.bindings]]
+key = "L"
+mods = "Alt"
+chars = "\u001bl"
