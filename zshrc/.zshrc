@@ -20,22 +20,21 @@ if [[ -f "$HOME/.credentials.sh" ]]; then
   source $HOME/.credentials.sh
 fi
 
+export PATH=/home/daniele.peruzzi@omnys.lan/.opencode/bin:$PATH
+export PATH=/home/daniele.peruzzi@omnys.lan/.local/bin:$PATH
+
 bindkey '^p' autosuggest-accept
 
 alias vim="nvim"
 alias sudov="sudo -E nvim"
-alias set-proxy="git config --global http.proxy http://172.17.205.1:3128"
-alias unset-proxy="git config --global --unset http.proxy"
 alias run-podman="source ~/run_podman.sh"
 alias jl="jenkins-lint -u $JENKINS_USERNAME -p $JENKINS_PASSWORD"
 alias gp="git fetch --prune && git branch -vv | grep 'gone]' | awk '{print $1}' | xargs git branch -D"
 alias vsb="veeamconfig job start --name 'CompleteBackup'"
-alias aws-test="aws --profile omnys-test-daniele"
 alias tf-clean="find . -type d -name ".terraform" -prune -exec rm -rf {} \;"
 alias tg-clean="find . -type d -name ".terragrunt-cache" -prune -exec rm -rf {} \;"
 alias sts='stskeygen refresh --profile packstyle --account "packstyle" --role "AWS-PACKSTYLE"'
 alias fd='fdfind'
-alias eza='eza -1l'
 
 # alias podman-service="podman system service -t 0 &"
 # export HTTP_PROXY="http://172.17.205.1:3128"
@@ -65,6 +64,22 @@ function y() {
 
 eval "$(zoxide init zsh --cmd cd)"
 
+# tmux-sessionizer integration - consistent and self-explanatory
+# Main aliases
+alias ts="~/.local/bin/tmux-sessionizer"
+
+# Keybindings (matching tmux and nvim)
+bindkey -s '^f' "~/.local/bin/tmux-sessionizer\n"     # Ctrl-f: fuzzy finder
+bindkey -s '\eh' "~/.local/bin/tmux-sessionizer -s 0\n"  # Alt-h: htop
+bindkey -s '\eg' "~/.local/bin/tmux-sessionizer -s 1\n"  # Alt-g: lazygit
+bindkey -s '\eo' "~/.local/bin/tmux-sessionizer -s 2\n"  # Alt-o: opencode
+
+# Quick directory shortcuts (as aliases for convenience)
+alias tso="~/.local/bin/tmux-sessionizer ~/omnys/git"
+alias tsd="~/.local/bin/tmux-sessionizer ~/.dotfiles"
+alias tsp="~/.local/bin/tmux-sessionizer ~/.dotfiles-private"
+alias tsc="~/.local/bin/tmux-sessionizer ~/.config"
+
 export FZF_DEFAULT_COMMAND="fd --hidden"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND --type d"
@@ -72,7 +87,3 @@ export FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND --type d"
 
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
-export FPATH="$HOME/.config/eza/completions/zsh:$FPATH"
-
-# opencode
-export PATH=/home/daniele.peruzzi@omnys.lan/.opencode/bin:$PATH

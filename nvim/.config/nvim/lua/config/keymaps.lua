@@ -54,6 +54,15 @@ set("i", "jj", "<Esc>")
 
 set("n", "<leader>nr", "<cmd>lua require('neotest').run.run()<cr>", { desc = "Run nearest test" })
 
+-- tmux-sessionizer bindings - consistent with tmux and zsh
+-- Main sessionizer fuzzy finder
+set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>", { desc = "Tmux sessionizer" })
+
+-- Session commands (self-explanatory keys)
+set("n", "<M-h>", "<cmd>silent !tmux neww tmux-sessionizer -s 0<CR>", { desc = "Htop" })
+set("n", "<M-g>", "<cmd>silent !tmux neww tmux-sessionizer -s 1<CR>", { desc = "Lazygit" })
+set("n", "<M-o>", "<cmd>silent !tmux neww tmux-sessionizer -s 2<CR>", { desc = "Opencode" })
+
 -- Easily hit escape in terminal mode.
 -- set("t", "<Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
