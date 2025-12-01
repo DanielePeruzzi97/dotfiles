@@ -5,8 +5,8 @@ return {
     dependencies = { "nvim-tree/nvim-web-devicons" },
     lazy = false,
     config = function()
-      vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
-      vim.keymap.set("n", "<space>-", require("oil").toggle_float, { desc = "Toggle oil float" })
+      vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Oil parent directory" })
+      vim.keymap.set("n", "<space>-", require("oil").toggle_float, { desc = "Oil toggle float" })
 
       -- Winbar function to show current directory
       function _G.get_oil_winbar()

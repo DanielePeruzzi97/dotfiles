@@ -27,8 +27,12 @@ return {
           vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
         end
 
-        map("grn", vim.lsp.buf.rename, "[R]e[n]ame")
-        map("gra", vim.lsp.buf.code_action, "[G]oto Code [A]ction", { "n", "x" })
+        map("grn", vim.lsp.buf.rename, "LSP [R]e[n]ame")
+        map("gra", vim.lsp.buf.code_action, "LSP Code [A]ction", { "n", "x" })
+
+        -- LSP keymaps under <leader>l prefix
+        map("<leader>ln", vim.lsp.buf.rename, "[L]SP Re[n]ame")
+        map("<leader>la", vim.lsp.buf.code_action, "[L]SP Code [A]ction", { "n", "x" })
 
         -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
         ---@param client vim.lsp.Client
@@ -71,9 +75,9 @@ return {
         end
 
         if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
-          map("<leader>th", function()
+          map("<leader>lh", function()
             vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
-          end, "[T]oggle Inlay [H]ints")
+          end, "[L]SP Inlay [H]ints")
         end
       end,
     })

@@ -11,14 +11,14 @@ return {
       function()
         Snacks.picker.todo_comments()
       end,
-      desc = "Todo",
+      desc = "[S]earch [T]odo",
     },
     {
       "<leader>sT",
       function()
         Snacks.picker.todo_comments({ keywords = { "TODO", "FIX", "FIXME" } })
       end,
-      desc = "Todo/Fix/Fixme",
+      desc = "[S]earch [T]odo/Fix/Fixme",
     },
   },
 }

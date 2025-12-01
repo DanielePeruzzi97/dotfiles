@@ -16,11 +16,11 @@ return {
     -- Add/prepend files
     vim.keymap.set("n", "<leader>a", function()
       harpoon:list():add()
-    end, { desc = "Harpoon add" })
+    end, { desc = "[A]dd file to Harpoon" })
 
     vim.keymap.set("n", "<leader>A", function()
       harpoon:list():prepend()
-    end, { desc = "Harpoon prepend" })
+    end, { desc = "[A]dd file to Harpoon (prepend)" })
 
     -- Replace at position
     vim.keymap.set("n", "<C-1>", function()
@@ -49,10 +49,10 @@ return {
     -- Navigation
     vim.keymap.set("n", "<leader><C-p>", function()
       harpoon:list():prev()
-    end, { desc = "Harpoon prev" })
+    end, { desc = "Harpoon [P]revious" })
 
     vim.keymap.set("n", "<leader><C-n>", function()
       harpoon:list():next()
-    end, { desc = "Harpoon next" })
+    end, { desc = "Harpoon [N]ext" })
   end,
 }

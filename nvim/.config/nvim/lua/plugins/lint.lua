@@ -28,7 +28,7 @@ return {
     -- Manual lint trigger
     vim.keymap.set("n", "<leader>l", function()
       lint.try_lint()
-    end, { desc = "Trigger linting for current file" })
+    end, { desc = "[L]int current file" })
 
     -- Linter customization
     lint.linters.markdownlint.args = {

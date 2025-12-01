@@ -8,26 +8,26 @@ return {
 
     vim.keymap.set("n", "<leader>ot", function()
       require("opencode").toggle()
-    end, { desc = "Toggle opencode" })
+    end, { desc = "[O]pencode [T]oggle" })
 
     vim.keymap.set("n", "<leader>oA", function()
       require("opencode").ask()
-    end, { desc = "Ask opencode" })
+    end, { desc = "[O]pencode [A]sk" })
 
     vim.keymap.set({ "n", "v" }, "<leader>oa", function()
       require("opencode").ask("@this", { submit = true })
-    end, { desc = "Ask opencode about this" })
+    end, { desc = "[O]pencode [A]sk @this" })
 
     vim.keymap.set("n", "<leader>os", function()
       require("opencode").select()
-    end, { desc = "Select opencode prompt" })
+    end, { desc = "[O]pencode [S]elect prompt" })
 
     vim.keymap.set("n", "<leader>on", function()
       require("opencode").command("session_new")
-    end, { desc = "New session" })
+    end, { desc = "[O]pencode [N]ew session" })
 
     vim.keymap.set("n", "<leader>oy", function()
       require("opencode").command("messages_copy")
-    end, { desc = "Copy last opencode message" })
+    end, { desc = "[O]pencode [Y]ank message" })
   end,
 }
