@@ -4,6 +4,7 @@ return {
   config = function()
     local lint = require("lint")
 
+    -- Linter configuration by filetype
     lint.linters_by_ft = {
       python = { "pylint" },
       bash = { "shellcheck" },
@@ -14,6 +15,7 @@ return {
       yaml = { "yamllint" },
     }
 
+    -- Auto-lint on specific events
     local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
 
     vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
@@ -23,10 +25,12 @@ return {
       end,
     })
 
+    -- Manual lint trigger
     vim.keymap.set("n", "<leader>l", function()
       lint.try_lint()
     end, { desc = "Trigger linting for current file" })
 
+    -- Linter customization
     lint.linters.markdownlint.args = {
       "--disable",
       "MD013", -- Disable line length rule

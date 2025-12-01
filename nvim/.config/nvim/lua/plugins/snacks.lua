@@ -106,7 +106,7 @@ return {
     { "<leader>gB", function() Snacks.git.blame_line() end, desc = "Git Blame Line" },
     { "<leader>go", mode = {"n", "v"}, function() Snacks.gitbrowse() end, desc = "Open git link" },
     { "<leader>gc", mode = {"n", "v"}, function() Snacks.gitbrowse({ open = function(url) vim.fn.setreg("+", url) end, notify = false })end, desc = "Copy git link" },
-    { "<leader>sb", function() Snacks.picker.git_branches() end, desc = "Branches" },
+    { "<leader>sgb", function() Snacks.picker.git_branches() end, desc = "Branches" },
     { "<leader>su", function() Snacks.picker.undo() end, desc = "Undo Tree" },
     { "<leader>fR", function() Snacks.rename.rename_file() end, desc = "Rename File" },
     { "<leader>sg", function() Snacks.picker.grep() end, desc = "Strings" },

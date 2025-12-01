@@ -136,6 +136,7 @@ return {
       ansiblels = {},
       docker_language_server = {},
       terraformls = {
+        -- Disable terraform-ls for files containing heredoc BUILD_SPEC because i had issues with it hanging
         on_attach = function(client, bufnr)
           local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
           for _, line in ipairs(lines) do

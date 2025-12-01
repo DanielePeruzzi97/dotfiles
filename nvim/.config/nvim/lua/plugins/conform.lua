@@ -9,7 +9,7 @@ return {
         require("conform").format({ async = false, lsp_format = "fallback" })
       end,
       mode = "",
-      desc = "[F]ormat buffer",
+      desc = "Format buffer",
     },
   },
   opts = {
@@ -25,7 +25,6 @@ return {
       javascript = { "prettierd", "prettier", stop_after_first = true },
       terraform = { "terraform_fmt" },
       ["terraform-vars"] = { "terraform_fmt" },
-      -- dockerfile = { "dockerfmt" },
       bash = { "shfmt" },
       sh = { "shfmt" },
       json = { "prettier" },
@@ -36,16 +35,19 @@ return {
   config = function(_, opts)
     local conform = require("conform")
     conform.setup(opts)
+
     conform.formatters.shfmt = {
-      prepend_args = { "-i", "2" }, -- 2 spaces instead of tab
+      prepend_args = { "-i", "2" },
     }
+
     conform.formatters.stylua = {
       prepend_args = { "--indent-type", "Spaces", "--indent-width", "2" },
     }
+
     conform.formatters.yamlfmt = {
       prepend_args = { "-formatter", "indent=2,include_document_start=true,retain_line_breaks_single=true" },
     }
-    vim.g.autoformat = vim.g.autoformat
+
     vim.api.nvim_create_autocmd("BufWritePre", {
       pattern = "*",
       callback = function(args)
