@@ -49,6 +49,10 @@ export PATH=$PATH:/usr/local/go/bin
 # To load aws cli auto completion
 autoload bashcompinit && bashcompinit
 autoload -Uz compinit && compinit
+
+# Add argcomplete to fpath for proper zsh completion
+fpath=(/usr/local/share/zsh/site-functions $fpath)
+
 if [ -f /usr/local/bin/aws_completer ]; then
   complete -C '/usr/local/bin/aws_completer' aws
 fi

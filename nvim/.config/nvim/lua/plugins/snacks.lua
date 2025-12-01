@@ -19,7 +19,7 @@ return {
       timeout = 2000,
     },
     gitbrowse = { enabled = true },
-    lazygit = { enabled = true },
+    lazygit = { enabled = false }, -- Using tmux integration instead
     picker = {
       enabled = true,
       layout = {
@@ -136,7 +136,6 @@ return {
     { "<leader>lr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References" },
     { "<leader>lI", function() Snacks.picker.lsp_implementations() end, desc = "Implementation" },
     { "<leader>lt", function() Snacks.picker.lsp_type_definitions() end, desc = "Type Definition" },
-    { "<leader>lg", function() Snacks.lazygit.open() end, desc = "Lazygit"},
     { "<leader>sR", function() Snacks.picker.resume() end, desc = "Resume" },
     { "<C-t>",      function() Snacks.terminal.open() end, desc = "Toggle Terminal" },
     { "<leader>sp", function() Snacks.picker.projects({dev = {"~/.dotfiles/", "~/omnys/git/"}}) end, desc = "Projects" },
