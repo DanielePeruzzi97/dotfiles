@@ -1,5 +1,4 @@
-local opt = vim.opt
-
+-- Use OSC 52 for clipboard when connected via SSH
 if vim.env.SSH_CONNECTION then
   local function vim_paste()
     local content = vim.fn.getreg('"')

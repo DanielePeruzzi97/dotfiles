@@ -13,8 +13,6 @@ return {
       },
       render_modes = { "n", "c", "t" },
       anti_conceal = { enabled = false },
-      file_types = { "markdown", "codecompanion" },
-      ft = { "markdown", "codecompanion" },
     })
   end,
 }
