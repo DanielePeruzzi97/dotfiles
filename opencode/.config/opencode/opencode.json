@@ -41,6 +41,7 @@
       "enabled": true
     }
   },
+  "plugin": ["@franlol/opencode-md-table-formatter@0.0.3"],
   "keybinds": {
     "leader": "alt+a",
     "app_exit": "ctrl+c,<leader>q",
@@ -74,7 +75,6 @@
     "agent_cycle": "tab",
     "agent_cycle_reverse": "shift+tab",
     "input_clear": "ctrl+c",
-    "input_forward_delete": "ctrl+d",
     "input_paste": "ctrl+v",
     "input_submit": "enter",
     "input_newline": "shift+enter,ctrl+j",

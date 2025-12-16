@@ -6,7 +6,7 @@ return {
 
     -- Linter configuration by filetype
     lint.linters_by_ft = {
-      python = { "pylint" },
+      -- python = { "pylint" },
       bash = { "shellcheck" },
       terraform = { "tflint" },
       markdown = { "markdownlint" },
