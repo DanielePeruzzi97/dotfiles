@@ -74,7 +74,9 @@ install_system_packages() {
       build-essential \
       python3-pip \
       unzip \
-      fontconfig
+      fontconfig \
+      lazygit \
+      zoxide
 
     # Create symlink for fd if it doesn't exist
     if command_exists fdfind && ! command_exists fd; then
@@ -100,7 +102,9 @@ install_system_packages() {
       make \
       python3-pip \
       unzip \
-      fontconfig
+      fontconfig \
+      lazygit \
+      zoxide
     ;;
 
   arch | manjaro)
@@ -119,8 +123,11 @@ install_system_packages() {
       base-devel \
       python-pip \
       unzip \
-      fontconfig
+      fontconfig \
+      lazygit \
+      zoxide
     ;;
+
 
   *)
     log_error "Unsupported distribution: $distro"
@@ -165,6 +172,39 @@ install_neovim() {
   esac
 
   log_success "Neovim installed"
+}
+
+# Install Homebrew for additional tools
+install_homebrew() {
+  log_info "Phase 3: Installing Homebrew..."
+
+  if command_exists brew; then
+    log_warning "Homebrew already installed"
+    return 0
+  fi
+
+  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+  # Add brew to PATH for this session
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+  log_success "Homebrew installed"
+}
+
+# Install tools from Homebrew
+install_brew_tools() {
+  log_info "Phase 4: Installing tools from Homebrew..."
+
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+  # Install tools that are ONLY available via brew or easier to update
+  # k9s is already installed in Phase 8 via brew
+  # Most other tools should use system package managers
+  
+  # Currently keeping Homebrew minimal - only for tools not in system repos
+  log_info "Homebrew kept minimal - install additional tools via system package manager"
+
+  log_success "Brew tools installed"
 }
 
 # Install oh-my-zsh and plugins
@@ -252,9 +292,100 @@ install_go() {
   log_success "Go installed"
 }
 
+# Install Kubernetes and Homelab tools
+install_k8s_tools() {
+  log_info "Phase 8: Installing Kubernetes and Homelab tools..."
+
+  # Install kubectl
+  if ! command_exists kubectl; then
+    log_info "Installing kubectl..."
+    local KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
+    curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+    chmod +x kubectl
+    sudo mv kubectl /usr/local/bin/
+    log_success "kubectl ${KUBECTL_VERSION} installed"
+  else
+    log_warning "kubectl already installed: $(kubectl version --client --short 2>/dev/null || kubectl version --client)"
+  fi
+
+  # Install Helm
+  if ! command_exists helm; then
+    log_info "Installing Helm..."
+    curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+    log_success "Helm installed"
+  else
+    log_warning "Helm already installed: $(helm version --short)"
+  fi
+
+  # Install Talosctl
+  if ! command_exists talosctl; then
+    log_info "Installing Talosctl..."
+    curl -sL https://talos.dev/install | sh
+    log_success "Talosctl installed"
+  else
+    log_warning "Talosctl already installed: $(talosctl version --client --short 2>/dev/null || echo 'version check failed')"
+  fi
+
+  # Install k9s (via Homebrew for easier updates)
+  if ! command_exists k9s; then
+    log_info "Installing k9s..."
+    if command_exists brew; then
+      eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+      brew install derailed/k9s/k9s
+      log_success "k9s installed"
+    else
+      log_warning "Homebrew not found, skipping k9s installation"
+    fi
+  else
+    log_warning "k9s already installed"
+  fi
+
+  # Install kubeseal (Sealed Secrets CLI)
+  if ! command_exists kubeseal; then
+    log_info "Installing kubeseal..."
+    local KUBESEAL_VERSION=$(curl -s https://api.github.com/repos/bitnami-labs/sealed-secrets/releases/latest | grep tag_name | cut -d '"' -f 4 | sed 's/v//')
+    wget "https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION}/kubeseal-${KUBESEAL_VERSION}-linux-amd64.tar.gz" -O /tmp/kubeseal.tar.gz
+    tar -xzf /tmp/kubeseal.tar.gz -C /tmp kubeseal
+    chmod +x /tmp/kubeseal
+    sudo mv /tmp/kubeseal /usr/local/bin/
+    rm /tmp/kubeseal.tar.gz
+    log_success "kubeseal v${KUBESEAL_VERSION} installed"
+  else
+    log_warning "kubeseal already installed: $(kubeseal --version 2>/dev/null | grep version || echo 'version check failed')"
+  fi
+
+  # Install SOPS (Secrets OPerationS)
+  if ! command_exists sops; then
+    log_info "Installing SOPS..."
+    local SOPS_VERSION=$(curl -s https://api.github.com/repos/getsops/sops/releases/latest | grep tag_name | cut -d '"' -f 4)
+    wget "https://github.com/getsops/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux.amd64" -O /tmp/sops
+    chmod +x /tmp/sops
+    sudo mv /tmp/sops /usr/local/bin/
+    log_success "SOPS ${SOPS_VERSION} installed"
+  else
+    log_warning "SOPS already installed: $(sops --version 2>/dev/null | head -1 || echo 'version check failed')"
+  fi
+
+  # Install age (encryption tool for SOPS)
+  if ! command_exists age; then
+    log_info "Installing age..."
+    local AGE_VERSION=$(curl -s https://api.github.com/repos/FiloSottile/age/releases/latest | grep tag_name | cut -d '"' -f 4)
+    wget "https://github.com/FiloSottile/age/releases/download/${AGE_VERSION}/age-${AGE_VERSION}-linux-amd64.tar.gz" -O /tmp/age.tar.gz
+    tar -xzf /tmp/age.tar.gz -C /tmp
+    chmod +x /tmp/age/age /tmp/age/age-keygen
+    sudo mv /tmp/age/age /tmp/age/age-keygen /usr/local/bin/
+    rm -rf /tmp/age.tar.gz /tmp/age
+    log_success "age ${AGE_VERSION} installed"
+  else
+    log_warning "age already installed: $(age --version 2>/dev/null || echo 'version check failed')"
+  fi
+
+  log_success "Kubernetes and Homelab tools installation complete"
+}
+
 # Install a Nerd Font
 install_nerd_font() {
-  log_info "Phase 8: Installing Nerd Font (JetBrainsMono)..."
+  log_info "Phase 9: Installing Nerd Font (JetBrainsMono)..."
 
   local FONT_DIR="$HOME/.local/share/fonts"
   mkdir -p "$FONT_DIR"
@@ -278,7 +409,7 @@ install_nerd_font() {
 
 # Install TPM (Tmux Plugin Manager)
 install_tpm() {
-  log_info "Phase 9: Installing TPM (Tmux Plugin Manager)..."
+  log_info "Phase 10: Installing TPM (Tmux Plugin Manager)..."
 
   if [ -d "$HOME/.tmux/plugins/tpm" ]; then
     log_warning "TPM already installed"
@@ -293,7 +424,7 @@ install_tpm() {
 
 # Backup existing dotfiles
 backup_existing_configs() {
-  log_info "Phase 10: Backing up existing configurations..."
+  log_info "Phase 11: Backing up existing configurations..."
 
   local files_to_backup=(
     ".zshrc"
@@ -322,7 +453,7 @@ backup_existing_configs() {
 
 # Stow dotfiles
 stow_dotfiles() {
-  log_info "Phase 11: Installing dotfiles with stow..."
+  log_info "Phase 12: Installing dotfiles with stow..."
 
   cd "$DOTFILES_DIR" || {
     log_error "Could not cd into $DOTFILES_DIR"
@@ -341,7 +472,7 @@ stow_dotfiles() {
 
 # Change default shell to zsh
 change_shell() {
-  log_info "Phase 12: Setting zsh as default shell..."
+  log_info "Phase 13: Setting zsh as default shell..."
 
   if [ "$SHELL" = "$(which zsh)" ]; then
     log_warning "zsh is already the default shell"
@@ -375,9 +506,12 @@ main() {
   # Run installation phases
   install_system_packages
   install_neovim
+  install_homebrew
+  install_brew_tools
   install_oh_my_zsh
   install_nvm
   install_go
+  install_k8s_tools
   install_nerd_font
   install_tpm
   backup_existing_configs
@@ -396,6 +530,7 @@ main() {
   echo "  2. Open tmux and press Alt+a followed by I to install tmux plugins"
   echo "  3. Open nvim - plugins will auto-install via lazy.nvim"
   echo "  4. Configure Alacritty to use JetBrainsMono Nerd Font"
+  echo "  5. For Kubernetes: Configure kubeconfig and credentials"
   echo ""
 
   if [ -d "$BACKUP_DIR" ]; then
