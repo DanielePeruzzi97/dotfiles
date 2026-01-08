@@ -139,6 +139,7 @@ return {
       bashls = {},
       ansiblels = {},
       docker_language_server = {},
+      hyprls = {},
       terraformls = {
         -- Disable terraform-ls for files containing heredoc BUILD_SPEC because i had issues with it hanging
         on_attach = function(client, bufnr)

@@ -1,56 +1,85 @@
 {
-    "layer": "top",
-    "position": "top",
-    "height": 30,
-    "spacing": 4,
-    "modules-left": ["hyprland/workspaces", "hyprland/window"],
-    "modules-center": ["clock"],
-    "modules-right": ["pulseaudio", "network", "cpu", "memory", "battery", "tray"],
+  "layer": "top",
+  "position": "top",
+  "modules-left": ["hyprland/workspaces", "hyprland/language"],
+  "modules-center": ["clock"],
+  "modules-right": [
+    "pulseaudio",
+    "bluetooth",
+    "battery",
+    "network",
+    "cpu",
+    "memory",
+    "tray",
+    "custom/lock"
+  ],
 
-    "hyprland/workspaces": {
-        "format": "{name}",
-        "on-click": "activate"
-    },
+  "hyprland/workspaces": {
+    "format": "{name}",
+    "on-click": "activate"
+  },
 
-    "hyprland/window": {
-        "max-length": 50
-    },
+  "hyprland/language": {
+    "format": "󰌌 {}",
+    "format-en": "EN",
+    "format-it": "IT",
+    "on-click": "hyprctl switchxkblayout current next"
+  },
 
-    "clock": {
-        "format": "{:%H:%M}",
-        "format-alt": "{:%Y-%m-%d %H:%M}",
-        "tooltip-format": "<tt>{calendar}</tt>"
-    },
+  "tray": {
+    "icon-size": 18,
+    "spacing": 10
+  },
 
-    "cpu": {
-        "format": "CPU {usage}%",
-        "interval": 2
-    },
+  "clock": {
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+    "format": "{:%d - %H:%M}"
+  },
 
-    "memory": {
-        "format": "RAM {}%"
-    },
+  "network": {
+    "format-wifi": "󰤨 {signalStrength}%",
+    "format-ethernet": "󰈀",
+    "format-disconnected": "󰤭",
+    "interval": 5,
+    "tooltip-format": "{ifname}: {ipaddr}",
+    "on-click": "nm-connection-editor"
+  },
 
-    "battery": {
-        "format": "BAT {capacity}%",
-        "format-charging": "CHG {capacity}%",
-        "format-plugged": "PLG {capacity}%"
-    },
+  "cpu": {
+    "interval": 2,
+    "format": "󰻠 {usage}%"
+  },
 
-    "network": {
-        "format-wifi": "WiFi {signalStrength}%",
-        "format-ethernet": "ETH",
-        "format-disconnected": "OFF",
-        "tooltip-format": "{ifname}: {ipaddr}"
-    },
+  "memory": {
+    "interval": 30,
+    "format": "󰍛 {used:0.1f}G"
+  },
 
-    "pulseaudio": {
-        "format": "VOL {volume}%",
-        "format-muted": "MUTE",
-        "on-click": "pavucontrol"
-    },
+  "pulseaudio": {
+    "format": "󰕾 {volume}%",
+    "format-muted": "󰖁",
+    "on-click": "pavucontrol"
+  },
 
-    "tray": {
-        "spacing": 10
-    }
+  "battery": {
+    "format": "󰁹 {capacity}%",
+    "format-charging": "󰂄 {capacity}%",
+    "format-plugged": "󰚥 {capacity}%",
+    "format-warning": "󰁻 {capacity}%",
+    "format-critical": "󰁺 {capacity}%"
+  },
+
+  "bluetooth": {
+    "format": "󰂯",
+    "format-connected": "󰂱 {device_alias}",
+    "format-disabled": "󰂲",
+    "tooltip-format": "{controller_alias}\n{status}",
+    "on-click": "blueman-manager"
+  },
+
+  "custom/lock": {
+    "tooltip": false,
+    "on-click": "hyprlock",
+    "format": "󰌾"
+  }
 }

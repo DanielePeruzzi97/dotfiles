@@ -167,35 +167,6 @@ install_neovim() {
   log_success "Neovim installed"
 }
 
-# Install Homebrew for additional tools
-install_homebrew() {
-  log_info "Phase 3: Installing Homebrew..."
-
-  if command_exists brew; then
-    log_warning "Homebrew already installed"
-    return 0
-  fi
-
-  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-  # Add brew to PATH for this session
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
-  log_success "Homebrew installed"
-}
-
-# Install tools from Homebrew
-install_brew_tools() {
-  log_info "Phase 4: Installing tools from Homebrew..."
-
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
-  # Install tools that are easier via brew
-  brew install lazygit yazi zoxide
-
-  log_success "Brew tools installed"
-}
-
 # Install oh-my-zsh and plugins
 install_oh_my_zsh() {
   log_info "Phase 5: Installing oh-my-zsh..."
@@ -404,8 +375,6 @@ main() {
   # Run installation phases
   install_system_packages
   install_neovim
-  install_homebrew
-  install_brew_tools
   install_oh_my_zsh
   install_nvm
   install_go
