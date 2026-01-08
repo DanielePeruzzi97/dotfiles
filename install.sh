@@ -74,11 +74,18 @@ install_system_packages() {
       build-essential \
       python3-pip \
       unzip \
-      fontconfig
+      fontconfig \
+      lazygit \
+      zoxide
 
     # Create symlink for fd if it doesn't exist
     if command_exists fdfind && ! command_exists fd; then
       sudo ln -sf $(which fdfind) /usr/local/bin/fd
+    fi
+    
+    # Install yazi if not available in repos (newer package)
+    if ! command_exists yazi; then
+      log_info "yazi not in repos, will install via cargo or download binary"
     fi
     ;;
 
@@ -100,7 +107,9 @@ install_system_packages() {
       make \
       python3-pip \
       unzip \
-      fontconfig
+      fontconfig \
+      lazygit \
+      zoxide
     ;;
 
   arch | manjaro)
@@ -119,8 +128,12 @@ install_system_packages() {
       base-devel \
       python-pip \
       unzip \
-      fontconfig
+      fontconfig \
+      lazygit \
+      zoxide \
+      yazi
     ;;
+
 
   *)
     log_error "Unsupported distribution: $distro"
@@ -190,8 +203,12 @@ install_brew_tools() {
 
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
-  # Install tools that are easier via brew
-  brew install lazygit yazi zoxide
+  # Install tools that are ONLY available via brew or easier to update
+  # k9s is already installed in Phase 8 via brew
+  # Most other tools should use system package managers
+  
+  # Currently keeping Homebrew minimal - only for tools not in system repos
+  log_info "Homebrew kept minimal - install additional tools via system package manager"
 
   log_success "Brew tools installed"
 }
