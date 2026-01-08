@@ -82,11 +82,6 @@ install_system_packages() {
     if command_exists fdfind && ! command_exists fd; then
       sudo ln -sf $(which fdfind) /usr/local/bin/fd
     fi
-    
-    # Install yazi if not available in repos (newer package)
-    if ! command_exists yazi; then
-      log_info "yazi not in repos, will install via cargo or download binary"
-    fi
     ;;
 
   fedora | rhel | centos)
@@ -130,8 +125,7 @@ install_system_packages() {
       unzip \
       fontconfig \
       lazygit \
-      zoxide \
-      yazi
+      zoxide
     ;;
 
 
