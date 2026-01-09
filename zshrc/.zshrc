@@ -2,7 +2,16 @@ export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
 zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
-plugins=(git z aws fzf colorize web-search zsh-autosuggestions zsh-syntax-highlighting zsh-history-substring-search history)
+plugins=(kubectl k9s git z aws fzf colorize web-search zsh-autosuggestions zsh-syntax-highlighting zsh-history-substring-search history vi-mode)
+
+# Vi-mode settings (oh-my-zsh vi-mode plugin)
+VI_MODE_RESET_PROMPT_ON_MODE_CHANGE=true
+VI_MODE_SET_CURSOR=true
+VI_MODE_CURSOR_NORMAL=2   # Block cursor in normal mode
+VI_MODE_CURSOR_VISUAL=2   # Block cursor in visual mode
+VI_MODE_CURSOR_INSERT=2   # Block cursor in insert mode
+VI_MODE_CURSOR_OPPEND=2   # Block cursor in operator pending mode
+export KEYTIMEOUT=15      # Low enough for responsiveness, high enough for key combos
  
 source $ZSH/oh-my-zsh.sh
 
@@ -57,14 +66,10 @@ if [ -f /usr/local/bin/aws_completer ]; then
   complete -C '/usr/local/bin/aws_completer' aws
 fi
 
-function y() {
-	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
-	yazi "$@" --cwd-file="$tmp"
-	if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
-		builtin cd -- "$cwd"
-	fi
-	rm -f -- "$tmp"
-}
+# Talosctl completions
+if command -v talosctl &> /dev/null; then
+  source <(talosctl completion zsh)
+fi
 
 eval "$(zoxide init zsh --cmd cd)"
 
@@ -72,11 +77,10 @@ eval "$(zoxide init zsh --cmd cd)"
 # Main aliases
 alias ts="~/.local/bin/tmux-sessionizer"
 
-# Keybindings (matching tmux and nvim)
-bindkey -s '^f' "~/.local/bin/tmux-sessionizer\n"     # Ctrl-f: fuzzy finder
-bindkey -s '\eh' "~/.local/bin/tmux-sessionizer -s 0\n"  # Alt-h: htop
-bindkey -s '\eg' "~/.local/bin/tmux-sessionizer -s 1\n"  # Alt-g: lazygit
-bindkey -s '\eo' "~/.local/bin/tmux-sessionizer -s 2\n"  # Alt-o: opencode
+# Keybindings (matching tmux and nvim) - Alt+1/2/3
+bindkey -s '\e1' "~/.local/bin/tmux-sessionizer -s 0\n"  # Alt-1: htop
+bindkey -s '\e2' "~/.local/bin/tmux-sessionizer -s 1\n"  # Alt-2: lazygit
+bindkey -s '\e3' "~/.local/bin/tmux-sessionizer -s 2\n"  # Alt-3: opencode
 
 # Quick directory shortcuts (as aliases for convenience)
 alias tso="~/.local/bin/tmux-sessionizer ~/omnys/git"
@@ -84,12 +88,41 @@ alias tsd="~/.local/bin/tmux-sessionizer ~/.dotfiles"
 alias tsp="~/.local/bin/tmux-sessionizer ~/.dotfiles-private"
 alias tsc="~/.local/bin/tmux-sessionizer ~/.config"
 
-export FZF_DEFAULT_COMMAND="fd --hidden"
+# FZF Configuration
+# -----------------
+export FZF_DEFAULT_COMMAND="fd --hidden --exclude .git"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND --type d"
+
+# SSH completion already works with fzf via ** trigger:
+#   ssh **<TAB>  - shows hosts from ~/.ssh/config and known_hosts
+
+# AWS profile switcher with fzf - usage: awsp
+awsp() {
+  local profile
+  profile=$(aws configure list-profiles 2>/dev/null | fzf --prompt="AWS Profile > ")
+  if [[ -n "$profile" ]]; then
+    export AWS_PROFILE="$profile"
+    echo "Switched to AWS profile: $profile"
+  fi
+}
+
+# SSH with fzf host selection - usage: sshf
+sshf() {
+  local host
+  host=$(grep -E "^Host " ~/.ssh/config 2>/dev/null | awk '{print $2}' | grep -v '\*' | fzf --prompt="SSH Host > ")
+  if [[ -n "$host" ]]; then
+    ssh "$host"
+  fi
+}
+
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-  # eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# Keep Ctrl-r for fzf history search in vi mode (both insert and normal)
+bindkey -M viins '^r' fzf-history-widget
+bindkey -M vicmd '^r' fzf-history-widget
+
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 
 # opencode

@@ -1,10 +1,10 @@
 local set = vim.keymap.set
 
--- Window resizing
-set("n", "<C-Down>", ":resize -2<CR>", { desc = "Decrease window height" })
-set("n", "<C-Up>", ":resize +2<CR>", { desc = "Increase window height" })
-set("n", "<C-Right>", ":vertical resize -2<CR>", { desc = "Decrease window width" })
-set("n", "<C-Left>", ":vertical resize +2<CR>", { desc = "Increase window width" })
+-- Window resizing (Alt+hjkl - matches tmux)
+set("n", "<M-h>", ":vertical resize +2<CR>", { desc = "Increase window width" })
+set("n", "<M-l>", ":vertical resize -2<CR>", { desc = "Decrease window width" })
+set("n", "<M-k>", ":resize +2<CR>", { desc = "Increase window height" })
+set("n", "<M-j>", ":resize -2<CR>", { desc = "Decrease window height" })
 
 -- Window splits
 set("n", "<leader>wh", "<cmd>split<cr>", { desc = "[W]indow Split [H]orizontal" })
@@ -46,10 +46,10 @@ set("i", "jj", "<Esc>", { desc = "Exit insert mode" })
 -- Main sessionizer fuzzy finder
 set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>", { desc = "Tmux sessionizer" })
 
--- Session commands
-set("n", "<M-h>", "<cmd>silent !tmux neww tmux-sessionizer -s 0<CR>", { desc = "Tmux Htop" })
-set("n", "<M-g>", "<cmd>silent !tmux neww tmux-sessionizer -s 1<CR>", { desc = "Tmux Lazygit" })
-set("n", "<M-o>", "<cmd>silent !tmux neww tmux-sessionizer -s 2<CR>", { desc = "Tmux Opencode" })
+-- Session commands (Alt+1/2/3)
+set("n", "<M-1>", "<cmd>silent !tmux neww tmux-sessionizer -s 0<CR>", { desc = "Tmux Htop" })
+set("n", "<M-2>", "<cmd>silent !tmux neww tmux-sessionizer -s 1<CR>", { desc = "Tmux Lazygit" })
+set("n", "<M-3>", "<cmd>silent !tmux neww tmux-sessionizer -s 2<CR>", { desc = "Tmux Opencode" })
 
 -- Add empty lines without entering insert mode (unimpaired style)
 set("n", "]<Space>", "<cmd>put _<CR>", { desc = "Add empty line below" })
