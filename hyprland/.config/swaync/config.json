@@ -1,0 +1,142 @@
+{
+  "$schema": "/etc/xdg/swaync/configSchema.json",
+  "positionX": "right",
+  "positionY": "top",
+  "layer": "overlay",
+  "control-center-layer": "top",
+  "layer-shell": true,
+  "cssPriority": "application",
+  "control-center-margin-top": 10,
+  "control-center-margin-bottom": 10,
+  "control-center-margin-right": 10,
+  "control-center-margin-left": 0,
+  "notification-2fa-action": true,
+  "notification-inline-replies": true,
+  "notification-icon-size": 64,
+  "notification-body-image-height": 100,
+  "notification-body-image-width": 200,
+  "timeout": 5,
+  "timeout-low": 3,
+  "timeout-critical": 0,
+  "fit-to-screen": true,
+  "control-center-width": 400,
+  "control-center-height": 800,
+  "notification-window-width": 400,
+  "keyboard-shortcuts": true,
+  "image-visibility": "when-available",
+  "transition-time": 200,
+  "hide-on-clear": true,
+  "hide-on-action": true,
+  "script-fail-notify": true,
+  "notification-visibility": {
+    "spotify": {
+      "state": "muted",
+      "urgency": "Low",
+      "app-name": "Spotify"
+    },
+    "discord": {
+      "state": "enabled", 
+      "urgency": "Normal",
+      "app-name": "Discord"
+    },
+    "slack": {
+      "state": "enabled",
+      "urgency": "High", 
+      "app-name": "Slack"
+    },
+    "teams": {
+      "state": "enabled",
+      "urgency": "High",
+      "app-name": "Microsoft Teams"
+    },
+    "aws-notifications": {
+      "state": "enabled",
+      "urgency": "Critical",
+      "category": "aws"
+    },
+    "system-updates": {
+      "state": "enabled", 
+      "urgency": "Normal",
+      "category": "system"
+    },
+    "kubernetes": {
+      "state": "enabled",
+      "urgency": "High",
+      "category": "kubernetes" 
+    }
+  },
+  "widgets": [
+    "title",
+    "dnd", 
+    "backlight",
+    "volume",
+    "mpris",
+    "inhibitors",
+    "buttons-grid",
+    "notifications"
+  ],
+  "widget-config": {
+    "title": {
+      "text": "Notifications",
+      "clear-all-button": true,
+      "button-text": "Clear All"
+    },
+    "dnd": {
+      "text": "Do Not Disturb"
+    },
+    "mpris": {
+      "image-size": 96,
+      "image-radius": 8
+    },
+    "volume": {
+      "label": "󰕾",
+      "show-per-app": false
+    },
+    "backlight": {
+      "label": "󰃠"
+    },
+    "buttons-grid": {
+      "actions": [
+        {
+          "label": "󰍶",
+          "type": "toggle",
+          "active": false,
+          "command": "sh -c '[[ $SWAYNC_TOGGLE_STATE == true ]] && hyprctl keyword decoration:blur:enabled true || hyprctl keyword decoration:blur:enabled false'",
+          "update-command": "sh -c 'hyprctl getoption decoration:blur:enabled | grep -q \"int: 1\" && echo true || echo false'"
+        },
+        {
+          "label": "󰕾",
+          "type": "toggle", 
+          "active": true,
+          "command": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+          "update-command": "sh -c 'pactl get-sink-mute @DEFAULT_SINK@ | grep -q \"yes\" && echo false || echo true'"
+        },
+        {
+          "label": "󰌵",
+          "command": "hyprpicker -a",
+          "tooltip": "Color Picker"
+        },
+        {
+          "label": "󰄄",
+          "command": "~/.config/waybar/scripts/system-update.sh",
+          "tooltip": "System Update"
+        },
+        {
+          "label": "󰨞",
+          "command": "ghostty -e btop",
+          "tooltip": "System Monitor"
+        },
+        {
+          "label": "󰌾",
+          "command": "hyprlock",
+          "tooltip": "Lock Screen"
+        },
+        {
+          "label": "󰐥",
+          "command": "wlogout",
+          "tooltip": "Power Menu"
+        }
+      ]
+    }
+  }
+}

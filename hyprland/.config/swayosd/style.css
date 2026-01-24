@@ -1,0 +1,42 @@
+/* ~/.config/swayosd/style.css */
+/* Rose Pine theme for SwayOSD */
+
+window {
+    padding: 12px 20px;
+    border-radius: 15px;
+    border: 2px solid #c4a7e7;
+    background: alpha(#1f1d2e, 0.9);
+}
+
+#container {
+    margin: 10px;
+}
+
+image, label {
+    color: #e0def4;
+}
+
+levelbar block.filled {
+    background-color: #c4a7e7;
+    border-radius: 5px;
+}
+
+levelbar block.empty {
+    background-color: alpha(#6e6a86, 0.5);
+    border-radius: 5px;
+}
+
+/* Brightness specific */
+levelbar.brightness block.filled {
+    background-color: #f6c177;
+}
+
+/* Volume specific */
+levelbar.volume block.filled {
+    background-color: #ebbcba;
+}
+
+/* Muted state */
+levelbar.muted block.filled {
+    background-color: #6e6a86;
+}

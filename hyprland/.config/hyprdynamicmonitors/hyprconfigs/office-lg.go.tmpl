@@ -1,0 +1,18 @@
+# Office LG profile with lid detection
+# LG IPS FULLHD + LG HDR 4K with dynamic laptop display management
+{{- $laptop := index .MonitorsByTag "laptop" -}}
+{{- $lg_fullhd := index .MonitorsByTag "lg-fullhd" -}}
+{{- $lg_4k := index .MonitorsByTag "lg-4k" -}}
+
+# LG 4K - primary (right)
+monitor={{$lg_4k.Name}},2560x1440@60,0x0,1.333333
+
+# LG FullHD - left of 4K
+monitor={{$lg_fullhd.Name}},1920x1080@60,-1920x0,1
+
+# Laptop display - below both monitors when lid is open (centered)
+{{if isLidClosed}}
+monitor={{$laptop.Name}},disable
+{{else}}
+monitor={{$laptop.Name}},preferred,-960x1080,1
+{{end}}

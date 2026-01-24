@@ -1,0 +1,69 @@
+#!/bin/bash
+# Comprehensive update checker for manual/external software
+# Shows current vs latest versions with update commands
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}"
+echo -e "${BLUE}           Software Update Checker${NC}"
+echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}"
+echo ""
+
+check_update() {
+    local name="$1"
+    local current="$2"
+    local latest="$3"
+    local install_cmd="$4"
+    
+    if [[ -z "$current" || -z "$latest" ]]; then
+        echo -e "${RED}✗${NC} $name: Could not check version"
+    elif [[ "$current" == "$latest" ]]; then
+        echo -e "${GREEN}✓${NC} $name: $current (up to date)"
+    else
+        echo -e "${YELLOW}⬆${NC} $name: $current → ${GREEN}$latest${NC}"
+        echo -e "  ${BLUE}Update:${NC} $install_cmd"
+    fi
+}
+
+# Bitwarden
+echo -e "${BLUE}[Bitwarden]${NC}"
+BW_CURRENT=$(dpkg -l bitwarden 2>/dev/null | grep bitwarden | awk '{print $3}')
+BW_LATEST=$(curl -s --max-time 10 https://api.github.com/repos/bitwarden/clients/releases/latest | grep '"tag_name"' | sed -E 's/.*"desktop-v([^"]+)".*/\1/')
+check_update "Bitwarden" "$BW_CURRENT" "$BW_LATEST" "curl -LO https://github.com/bitwarden/clients/releases/download/desktop-v$BW_LATEST/Bitwarden-$BW_LATEST-amd64.deb && sudo dpkg -i Bitwarden-$BW_LATEST-amd64.deb"
+echo ""
+
+# Ghostty
+echo -e "${BLUE}[Ghostty]${NC}"
+GHOSTTY_CURRENT=$(ghostty --version 2>/dev/null | head -1 | awk '{print $2}' | sed -E 's/([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+GHOSTTY_LATEST=$(curl -s --max-time 10 https://api.github.com/repos/ghostty-org/ghostty/tags | grep '"name"' | head -1 | sed -E 's/.*"v?([^"]+)".*/\1/')
+if [[ -n "$GHOSTTY_CURRENT" && -n "$GHOSTTY_LATEST" ]]; then
+    echo -e "${GREEN}✓${NC} Ghostty: $GHOSTTY_CURRENT (tip build, latest stable: $GHOSTTY_LATEST)"
+    echo -e "  ${BLUE}Rebuild:${NC} cd ~/src/ghostty && git pull && zig build -Doptimize=ReleaseFast"
+else
+    echo -e "${RED}✗${NC} Ghostty: Could not check version"
+fi
+echo ""
+
+# Hyprland
+echo -e "${BLUE}[Hyprland]${NC}"
+HYPR_CURRENT=$(hyprctl version 2>/dev/null | head -1 | awk '{print $2}')
+HYPR_LATEST=$(curl -s --max-time 10 https://api.github.com/repos/hyprwm/Hyprland/releases/latest | grep '"tag_name"' | sed -E 's/.*"v?([^"]+)".*/\1/')
+check_update "Hyprland" "$HYPR_CURRENT" "$HYPR_LATEST" "sudo apt update && sudo apt upgrade hyprland (via PPA)"
+echo ""
+
+# Zen Browser
+echo -e "${BLUE}[Zen Browser]${NC}"
+ZEN_CURRENT=$(flatpak info app.zen_browser.zen 2>/dev/null | grep Version | awk '{print $2}')
+ZEN_LATEST=$(curl -s --max-time 10 https://api.github.com/repos/zen-browser/desktop/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+check_update "Zen Browser" "$ZEN_CURRENT" "$ZEN_LATEST" "flatpak update app.zen_browser.zen"
+echo ""
+
+echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}"
+echo -e "Run ${YELLOW}sudo apt update && sudo apt upgrade${NC} for system packages"
+echo -e "Run ${YELLOW}flatpak update${NC} for flatpak apps"
+echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}"

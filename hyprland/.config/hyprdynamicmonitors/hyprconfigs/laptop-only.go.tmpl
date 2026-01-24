@@ -1,0 +1,12 @@
+# Laptop-only profile (no external monitors)
+# Enable laptop display at native resolution
+{{- $laptop := index .MonitorsByTag "laptop" -}}
+
+# Always enable laptop display when it's the only monitor
+# (lid must be open for this profile to make sense - if closed with no externals, fallback is used)
+{{if isOnAC}}
+monitor={{$laptop.Name}},preferred,0x0,1.0
+{{else}}
+# On battery: potentially use power-saving settings
+monitor={{$laptop.Name}},preferred,0x0,1.0
+{{end}}

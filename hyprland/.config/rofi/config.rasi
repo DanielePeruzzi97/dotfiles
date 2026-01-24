@@ -1,0 +1,244 @@
+/* ~/.config/rofi/config.rasi */
+/* Rose Pine theme for Rofi */
+
+configuration {
+    modi: "drun,run,window,filebrowser,ssh,clipboard:~/.config/rofi/scripts/cliphist.sh";
+    show-icons: true;
+    icon-theme: "Adwaita";
+    display-drun: " Apps";
+    display-run: " Run";
+    display-window: " Windows";
+    display-filebrowser: " Files";
+    display-ssh: "󰣀 SSH";
+    display-clipboard: "󰅇 Clipboard";
+    drun-display-format: "{name}";
+    font: "JetBrainsMono Nerd Font 12";
+    terminal: "ghostty";
+    case-sensitive: false;
+    cycle: true;
+    sidebar-mode: true;
+    hover-select: true;
+    me-select-entry: "";
+    me-accept-entry: "MousePrimary";
+    scroll-method: 0;
+    disable-history: false;
+    sorting-method: "normal";
+    matching: "normal";
+}
+
+/* =========================
+   ROSE PINE COLOR SCHEME
+   ========================= */
+* {
+    /* Base colors */
+    rp-base:      #191724;
+    rp-surface:   #1f1d2e;
+    rp-overlay:   #26233a;
+    rp-muted:     #6e6a86;
+    rp-subtle:    #908caa;
+    rp-text:      #e0def4;
+    
+    /* Accent colors */
+    rp-love:      #eb6f92;
+    rp-gold:      #f6c177;
+    rp-rose:      #ebbcba;
+    rp-pine:      #31748f;
+    rp-foam:      #9ccfd8;
+    rp-iris:      #c4a7e7;
+    
+    /* Applied colors */
+    background:     @rp-base;
+    background-alt: @rp-surface;
+    foreground:     @rp-text;
+    selected:       @rp-overlay;
+    active:         @rp-iris;
+    urgent:         @rp-love;
+    
+    border-colour:               @rp-iris;
+    handle-colour:               @rp-iris;
+    background-colour:           @rp-base;
+    foreground-colour:           @rp-text;
+    alternate-background:        @rp-surface;
+    normal-background:           @rp-base;
+    normal-foreground:           @rp-text;
+    urgent-background:           @rp-love;
+    urgent-foreground:           @rp-base;
+    active-background:           @rp-iris;
+    active-foreground:           @rp-base;
+    selected-normal-background:  @rp-overlay;
+    selected-normal-foreground:  @rp-text;
+    selected-urgent-background:  @rp-love;
+    selected-urgent-foreground:  @rp-base;
+    selected-active-background:  @rp-iris;
+    selected-active-foreground:  @rp-base;
+    alternate-normal-background: @rp-surface;
+    alternate-normal-foreground: @rp-text;
+    alternate-urgent-background: @rp-surface;
+    alternate-urgent-foreground: @rp-love;
+    alternate-active-background: @rp-surface;
+    alternate-active-foreground: @rp-iris;
+}
+
+/* =========================
+   WINDOW
+   ========================= */
+window {
+    transparency:  "real";
+    location:      center;
+    anchor:        center;
+    fullscreen:    false;
+    width:         600px;
+    x-offset:      0px;
+    y-offset:      0px;
+    enabled:       true;
+    margin:        0px;
+    padding:       0px;
+    border:        2px solid;
+    border-radius: 12px;
+    border-color:  @border-colour;
+    background-color: @background-colour;
+}
+
+/* =========================
+   MAIN BOX
+   ========================= */
+mainbox {
+    enabled:       true;
+    spacing:       10px;
+    margin:        0px;
+    padding:       20px;
+    border:        0px solid;
+    border-radius: 0px;
+    border-color:  @border-colour;
+    background-color: transparent;
+    children:      [ "inputbar", "message", "listview" ];
+}
+
+/* =========================
+   INPUT BAR
+   ========================= */
+inputbar {
+    enabled:       true;
+    spacing:       10px;
+    margin:        0px;
+    padding:       10px 15px;
+    border:        0px solid;
+    border-radius: 8px;
+    border-color:  @border-colour;
+    background-color: @rp-surface;
+    text-color:    @foreground-colour;
+    children:      [ "prompt", "entry" ];
+}
+
+prompt {
+    enabled:       true;
+    background-color: transparent;
+    text-color:    @rp-iris;
+}
+
+entry {
+    enabled:       true;
+    background-color: transparent;
+    text-color:    @foreground-colour;
+    cursor:        text;
+    placeholder:   "Search...";
+    placeholder-color: @rp-muted;
+}
+
+/* =========================
+   LIST VIEW
+   ========================= */
+listview {
+    enabled:       true;
+    columns:       1;
+    lines:         8;
+    cycle:         true;
+    dynamic:       true;
+    scrollbar:     false;
+    layout:        vertical;
+    reverse:       false;
+    fixed-height:  true;
+    fixed-columns: true;
+    spacing:       5px;
+    margin:        0px;
+    padding:       0px;
+    border:        0px solid;
+    border-radius: 0px;
+    border-color:  @border-colour;
+    background-color: transparent;
+    text-color:    @foreground-colour;
+}
+
+/* =========================
+   ELEMENTS
+   ========================= */
+element {
+    enabled:       true;
+    spacing:       10px;
+    margin:        0px;
+    padding:       8px 12px;
+    border:        0px solid;
+    border-radius: 8px;
+    border-color:  @border-colour;
+    background-color: transparent;
+    text-color:    @foreground-colour;
+}
+
+element normal.normal {
+    background-color: @normal-background;
+    text-color:    @normal-foreground;
+}
+
+element alternate.normal {
+    background-color: @alternate-normal-background;
+    text-color:    @alternate-normal-foreground;
+}
+
+element selected.normal {
+    background-color: @selected-normal-background;
+    text-color:    @selected-normal-foreground;
+    border:        0px 0px 0px 3px solid;
+    border-color:  @rp-iris;
+}
+
+element-icon {
+    background-color: transparent;
+    text-color:    inherit;
+    size:          24px;
+}
+
+element-text {
+    background-color: transparent;
+    text-color:    inherit;
+    highlight:     inherit;
+    vertical-align: 0.5;
+    horizontal-align: 0.0;
+}
+
+/* =========================
+   MESSAGE
+   ========================= */
+message {
+    enabled:       true;
+    margin:        0px;
+    padding:       0px;
+    border:        0px solid;
+    border-radius: 0px;
+    border-color:  @border-colour;
+    background-color: transparent;
+    text-color:    @foreground-colour;
+}
+
+textbox {
+    padding:       10px;
+    border:        0px solid;
+    border-radius: 8px;
+    border-color:  @border-colour;
+    background-color: @rp-surface;
+    text-color:    @rp-gold;
+    vertical-align: 0.5;
+    horizontal-align: 0.0;
+    highlight:     none;
+    blink:         true;
+    markup:        true;
+}

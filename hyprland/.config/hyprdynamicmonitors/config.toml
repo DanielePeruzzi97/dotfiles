@@ -1,0 +1,100 @@
+[general]
+destination = "$HOME/.config/hypr/monitors.conf"
+post_apply_exec = "hyprctl reload && pkill waybar; waybar &"
+
+[power_events]
+
+[power_events.dbus_query_object]
+path = "/org/freedesktop/UPower/devices/line_power_AC"
+
+[[power_events.dbus_signal_match_rules]]
+object_path = "/org/freedesktop/UPower/devices/line_power_AC"
+
+# Lid events configuration (uses default UPower settings)
+[lid_events]
+
+[lid_events.dbus_query_object]
+destination = "org.freedesktop.UPower"
+path = "/org/freedesktop/UPower"
+method = "org.freedesktop.DBus.Properties.Get"
+expected_lid_closing_value = "true"
+
+[[lid_events.dbus_query_object.args]]
+arg = "org.freedesktop.UPower"
+
+[[lid_events.dbus_query_object.args]]
+arg = "LidIsClosed"
+
+[[lid_events.dbus_signal_match_rules]]
+interface = "org.freedesktop.DBus.Properties"
+object_path = "/org/freedesktop/UPower"
+member = "PropertiesChanged"
+
+[[lid_events.dbus_signal_receive_filters]]
+name = "org.freedesktop.DBus.Properties.PropertiesChanged"
+body = "LidIsClosed"
+
+###################################
+# PROFILE: Laptop Only (undocked) #
+###################################
+# When only the internal display is available (no external monitors)
+[profiles.laptop-only]
+config_file = "/home/daniele.peruzzi@omnys.lan/.config/hyprdynamicmonitors/hyprconfigs/laptop-only.go.tmpl"
+config_file_type = "template"
+
+[profiles.laptop-only.conditions]
+# Removed lid_state - template handles this dynamically with isLidClosed
+
+[[profiles.laptop-only.conditions.required_monitors]]
+description = "BOE 0x0B8E"
+monitor_tag = "laptop"
+
+############################################
+# PROFILE: Home Dock (external monitors)   #
+############################################
+# With external monitors, internal display disabled (lid can be open or closed)
+[profiles.home-dock]
+config_file = "/home/daniele.peruzzi@omnys.lan/.config/hyprdynamicmonitors/hyprconfigs/home-dock.go.tmpl"
+config_file_type = "template"
+
+[profiles.home-dock.conditions]
+
+[[profiles.home-dock.conditions.required_monitors]]
+description = "BOE 0x0B8E"
+monitor_tag = "laptop"
+
+[[profiles.home-dock.conditions.required_monitors]]
+description = "BNQ ZOWIE XL LCD EBT9L00839SL0"
+monitor_tag = "gaming"
+
+[[profiles.home-dock.conditions.required_monitors]]
+description = "Xiaomi Corporation P27FBA-RAGL 5105400053884"
+monitor_tag = "secondary"
+
+############################################
+# PROFILE: Office LG (work setup)          #
+############################################
+[profiles.office-lg]
+config_file = "/home/daniele.peruzzi@omnys.lan/.config/hyprdynamicmonitors/hyprconfigs/office-lg.go.tmpl"
+config_file_type = "template"
+
+[profiles.office-lg.conditions]
+
+[[profiles.office-lg.conditions.required_monitors]]
+description = "BOE 0x0B8E"
+monitor_tag = "laptop"
+
+[[profiles.office-lg.conditions.required_monitors]]
+description = "LG Electronics LG IPS FULLHD 0x01010101"
+monitor_tag = "lg-fullhd"
+
+[[profiles.office-lg.conditions.required_monitors]]
+description = "LG Electronics LG HDR 4K 0x0003E232"
+monitor_tag = "lg-4k"
+
+############################################
+# FALLBACK: Generic for unknown setups     #
+############################################
+[fallback_profile]
+config_file = "/home/daniele.peruzzi@omnys.lan/.config/hyprdynamicmonitors/hyprconfigs/fallback.conf"
+config_file_type = "static"

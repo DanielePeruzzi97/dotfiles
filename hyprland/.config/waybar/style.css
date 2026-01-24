@@ -1,0 +1,190 @@
+* {
+  font-family: JetBrainsMono Nerd Font;
+  font-size: 14px;
+  min-height: 0;
+  padding-right: 2px;
+  padding-left: 2px;
+  padding-bottom: 0px;
+}
+
+/* Rose Pine color palette
+   Base: #191724
+   Surface: #1f1d2e
+   Overlay: #26233a
+   Muted: #6e6a86
+   Subtle: #908caa
+   Text: #e0def4
+   Love: #eb6f92
+   Gold: #f6c177
+   Rose: #ebbcba
+   Pine: #31748f
+   Foam: #9ccfd8
+   Iris: #c4a7e7
+*/
+
+#waybar {
+  background: transparent;
+  color: #e0def4;
+  margin: 2px 2px;
+}
+
+#workspaces {
+  border-radius: 5px;
+  margin: 5px;
+  background: #1f1d2e;
+  margin-left: 1rem;
+}
+
+#workspaces button {
+  color: #908caa;
+  border-radius: 5px;
+  padding: 0.4rem;
+}
+
+#workspaces button.active {
+  color: #ebbcba;
+  border-radius: 5px;
+}
+
+#workspaces button:hover {
+  color: #9ccfd8;
+  border-radius: 5px;
+}
+
+#language {
+  background-color: #1f1d2e;
+  color: #f6c177;
+  padding: 0.5rem 1rem;
+  margin: 5px;
+  border-radius: 5px;
+}
+
+/* System updates module */
+#custom-updates {
+  background-color: #1f1d2e;
+  color: #eb6f92;
+  padding: 0.5rem 1rem;
+  margin: 5px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+#custom-updates.updates-available {
+  color: #eb6f92;
+  background-color: #26233a;
+}
+
+#custom-updates:hover {
+  color: #f6c177;
+  background-color: #26233a;
+}
+
+/* Right modules - grouped pill style */
+#custom-notification,
+#pulseaudio,
+#bluetooth,
+#battery,
+#network,
+#custom-vpn,
+#cpu,
+#memory {
+  background-color: #1f1d2e;
+  padding: 0.5rem 1rem;
+  margin: 5px 0;
+  border-radius: 0;
+}
+
+/* First module in group - left rounded */
+#custom-notification {
+  color: #9ccfd8;
+  border-radius: 5px 0 0 5px;
+  margin-left: 1rem;
+}
+
+#custom-notification.dnd-notification,
+#custom-notification.dnd-none,
+#custom-notification.dnd-inhibited-notification,
+#custom-notification.dnd-inhibited-none {
+  color: #6e6a86;
+}
+
+#pulseaudio {
+  color: #ebbcba;
+}
+
+#pulseaudio.muted {
+  color: #6e6a86;
+}
+
+#bluetooth {
+  color: #31748f;
+}
+
+#bluetooth.connected {
+  color: #9ccfd8;
+}
+
+#battery {
+  color: #9ccfd8;
+}
+
+#battery.charging {
+  color: #f6c177;
+}
+
+#battery.warning:not(.charging) {
+  color: #f6c177;
+}
+
+#battery.critical:not(.charging) {
+  color: #eb6f92;
+}
+
+#network {
+  color: #9ccfd8;
+}
+
+#custom-vpn {
+  color: #6e6a86;
+}
+
+#custom-vpn.connected {
+  color: #31748f;
+}
+
+#cpu {
+  color: #c4a7e7;
+}
+
+/* Last module in group - right rounded */
+#memory {
+  color: #ebbcba;
+  border-radius: 0 5px 5px 0;
+}
+
+#clock {
+  background-color: #1f1d2e;
+  padding: 0.5rem 1rem;
+  margin: 5px 0;
+  color: #c4a7e7;
+  border-radius: 5px;
+}
+
+#tray {
+  background-color: #1f1d2e;
+  padding: 0.5rem 1rem;
+  margin: 5px 0 5px 5px;
+  border-radius: 5px 0 0 5px;
+}
+
+#custom-lock {
+  background-color: #1f1d2e;
+  padding: 0.5rem 1rem;
+  margin: 5px 1rem 5px 0;
+  border-radius: 0 5px 5px 0;
+  color: #908caa;
+}
+
+#custom-lock:hover {
+  color: #eb6f92;
+}

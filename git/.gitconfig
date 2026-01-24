@@ -1,0 +1,32 @@
+[credential]
+	helper = store
+
+[user]
+	email = peruzzi.daniele868@gmail.com
+	name = Daniele Peruzzi 
+	signingkey = 1395B76D386CE4BA
+
+[push]
+	autosetupremote = true
+
+[core]
+	editor = vim
+
+[alias]
+	glog = log --graph --pretty=format:'%cred%h%creset -%c(yellow)%d%creset %s %cgreen(%cr) %c(bold blue)<%an>%creset'
+
+[commit]
+	gpgsign = true
+
+[includeif "gitdir:~/omnys/git/"]
+    path = ~/.gitconfig-work
+
+[merge]
+	tool = "nvim"
+
+[mergetool]
+	keepBackup = false
+	prompt = false
+
+[mergetool "nvim"]
+	cmd = "nvim -d -c \"wincmd l\" -c \"norm ]c\" \"$LOCAL\" \"$MERGED\" \"$REMOTE\""
