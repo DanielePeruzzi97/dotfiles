@@ -45,7 +45,8 @@ restart_waybar() {
     pkill -9 waybar 2>/dev/null
     pkill -f "workspace-button.sh" 2>/dev/null
     sleep 0.3
-    waybar &
+    nohup waybar > /tmp/waybar.log 2>&1 &
+    disown
 }
 
 rescue_windows
