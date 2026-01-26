@@ -38,21 +38,25 @@ case "$ACTION" in
     "switch")
         FOCUSED=$(get_focused)
         
-        # Switch all monitors to their respective workspaces atomically
-        # Using dispatch batch for smoother transition
-        BATCH=""
         i=0
         for mon in $(get_monitors); do
             WS=$(ws_for_monitor $i $DESKTOP_NUM)
-            BATCH="$BATCH dispatch focusmonitor $mon ; dispatch workspace $WS ;"
+            hyprctl dispatch moveworkspacetomonitor "$WS $mon" 2>/dev/null
             ((i++))
         done
         
-        # Execute all switches, then return focus to original monitor
-        hyprctl --batch "$BATCH dispatch focusmonitor $FOCUSED"
+        i=0
+        for mon in $(get_monitors); do
+            WS=$(ws_for_monitor $i $DESKTOP_NUM)
+            hyprctl dispatch focusmonitor "$mon"
+            hyprctl dispatch workspace "$WS"
+            ((i++))
+        done
+        
+        hyprctl dispatch focusmonitor "$FOCUSED"
         
         echo "$DESKTOP_NUM" > "$STATE_FILE"
-        pkill -RTMIN+1 waybar
+        pkill -RTMIN+1 waybar 2>/dev/null
         ;;
         
     "movesilent")
