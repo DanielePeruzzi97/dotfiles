@@ -2,7 +2,11 @@
   "layer": "top",
   "position": "top",
   "modules-left": [
-    "hyprland/workspaces",
+    "custom/ws1",
+    "custom/ws2",
+    "custom/ws3",
+    "custom/ws4",
+    "custom/ws5",
     "hyprland/language",
     "custom/updates"
   ],
@@ -21,31 +25,30 @@
     "tray",
     "custom/notification"
   ],
-  "hyprland/workspaces": {
-    "format": "{icon}",
-    "format-icons": {
-      "1": "1",
-      "2": "2",
-      "3": "3",
-      "4": "4",
-      "5": "5",
-      "6": "1",
-      "7": "2",
-      "8": "3",
-      "9": "4",
-      "10": "5",
-      "11": "1",
-      "12": "2",
-      "13": "3",
-      "14": "4",
-      "15": "5",
-      "default": ""
-    },
-    "on-click": "activate",
-    "all-outputs": false,
-    "persistent-workspaces": {
-      "*": 5
-    }
+  "custom/ws1": {
+    "exec": "~/.config/waybar/scripts/workspace-button.sh 1",
+    "return-type": "json",
+    "on-click": "~/.config/hypr/scripts/virtual-desktop.sh 1 switch"
+  },
+  "custom/ws2": {
+    "exec": "~/.config/waybar/scripts/workspace-button.sh 2",
+    "return-type": "json",
+    "on-click": "~/.config/hypr/scripts/virtual-desktop.sh 2 switch"
+  },
+  "custom/ws3": {
+    "exec": "~/.config/waybar/scripts/workspace-button.sh 3",
+    "return-type": "json",
+    "on-click": "~/.config/hypr/scripts/virtual-desktop.sh 3 switch"
+  },
+  "custom/ws4": {
+    "exec": "~/.config/waybar/scripts/workspace-button.sh 4",
+    "return-type": "json",
+    "on-click": "~/.config/hypr/scripts/virtual-desktop.sh 4 switch"
+  },
+  "custom/ws5": {
+    "exec": "~/.config/waybar/scripts/workspace-button.sh 5",
+    "return-type": "json",
+    "on-click": "~/.config/hypr/scripts/virtual-desktop.sh 5 switch"
   },
   "hyprland/language": {
     "format": "󰌌 {}",
@@ -125,23 +128,12 @@
     "on-click": "~/.config/waybar/scripts/vpn-toggle.sh",
     "on-click-right": "nm-connection-editor"
   },
-  "disk": {
-    "interval": 30,
-    "format": "󰋊 {percentage_used}%",
-    "path": "/",
-    "tooltip-format": "Used: {used} / {total}\nFree: {free} ({percentage_free}%)"
-  },
   "custom/updates": {
     "exec": "~/.config/waybar/scripts/updates-check.sh",
     "return-type": "json",
     "interval": 3600,
     "signal": 8,
     "on-click": "~/.config/waybar/scripts/system-update.sh"
-  },
-  "custom/lock": {
-    "tooltip": false,
-    "on-click": "wlogout",
-    "format": "󰌾"
   },
   "custom/notification": {
     "tooltip": false,
