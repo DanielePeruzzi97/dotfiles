@@ -1,0 +1,79 @@
+# Mise global configuration
+# This file manages all development tools across machines
+# https://mise.jdx.dev/
+
+[tools]
+# ============================================
+# Languages & Runtimes
+# ============================================
+node = "lts"                    # Node.js LTS
+go = "latest"                   # Go
+python = "3.12"                 # Python
+
+# ============================================
+# CLI Tools (replaces manual installs)
+# ============================================
+lazygit = "latest"              # Git TUI
+ripgrep = "latest"              # Fast grep (rg)
+fd = "latest"                   # Fast find
+fzf = "latest"                  # Fuzzy finder
+zoxide = "latest"               # Smart cd
+bat = "latest"                  # Better cat
+delta = "latest"                # Better git diff
+eza = "latest"                  # Better ls
+jq = "latest"                   # JSON processor
+yq = "latest"                   # YAML processor
+
+# ============================================
+# Kubernetes & Cloud Tools
+# ============================================
+kubectl = "latest"              # Kubernetes CLI
+helm = "latest"                 # Kubernetes package manager
+k9s = "latest"                  # Kubernetes TUI
+talosctl = "latest"             # Talos OS management
+kubeseal = "latest"             # Sealed secrets
+sops = "latest"                 # Secrets encryption
+age = "latest"                  # Encryption for SOPS
+awscli = "latest"               # AWS CLI v2
+
+# ============================================
+# Development Tools
+# ============================================
+chezmoi = "latest"              # Dotfiles manager
+topgrade = "latest"             # Universal updater
+gh = "latest"                   # GitHub CLI
+
+# ============================================
+# Optional: Language-specific tools
+# ============================================
+# Uncomment as needed:
+# rust = "stable"
+# java = "21"
+# terraform = "latest"
+# ansible = "latest"
+
+[settings]
+# Enable experimental features
+experimental = true
+
+# Parallel installations
+jobs = 4
+
+# Auto-install missing tools when entering directory
+auto_install = true
+
+# Trust config files in these paths
+trusted_config_paths = [
+    "~/work",
+    "~/projects",
+    "~/personal",
+]
+
+# Read version files from other managers (.nvmrc, .python-version, etc.)
+idiomatic_version_file_enable_tools = ["node", "python", "go"]
+
+# Status messages when entering directories
+[settings.status]
+missing_tools = "if_other_versions_installed"
+show_env = false
+show_tools = false

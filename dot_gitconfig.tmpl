@@ -1,0 +1,62 @@
+[credential]
+	helper = store
+
+[user]
+	email = {{ .email }}
+	name = {{ .name }}
+{{- if .is_work_machine }}
+	signingkey = 1395B76D386CE4BA
+{{- end }}
+
+[push]
+	autosetupremote = true
+
+[core]
+	editor = nvim
+
+[alias]
+	glog = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
+
+{{- if .is_work_machine }}
+[commit]
+	gpgsign = true
+{{- end }}
+
+{{- if .is_work_machine }}
+[includeif "gitdir:~/omnys/git/"]
+	path = ~/.gitconfig-work
+{{- end }}
+
+[merge]
+	tool = "nvim"
+
+[mergetool]
+	keepBackup = false
+	prompt = false
+
+[mergetool "nvim"]
+	cmd = "nvim -d -c \"wincmd l\" -c \"norm ]c\" \"$LOCAL\" \"$MERGED\" \"$REMOTE\""
+
+[init]
+	defaultBranch = main
+
+[pull]
+	rebase = true
+
+[diff]
+	colorMoved = default
+
+[pager]
+	diff = delta
+	log = delta
+	reflog = delta
+	show = delta
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true
+	light = false
+	side-by-side = true
+	line-numbers = true

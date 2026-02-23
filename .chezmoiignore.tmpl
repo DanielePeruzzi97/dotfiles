@@ -1,0 +1,47 @@
+# Chezmoi ignore rules
+# Files in this list are excluded from management
+
+# Repository files (never sync to home)
+README.md
+LICENSE
+Vagrantfile
+setup.sh
+.stow-local-ignore
+
+# Legacy install scripts (kept for reference but not synced)
+install.sh
+install/
+dotfiles.sh
+scripts/check-manual-updates.sh
+
+# Desktop-specific configs (only if desktop not installed)
+{{- if not .install_desktop }}
+.config/hypr/
+.config/waybar/
+.config/rofi/
+.config/swaync/
+.config/swayosd/
+.config/wlogout/
+.config/hyprdynamicmonitors/
+{{- end }}
+
+# Kubernetes configs (only if k8s not installed)
+{{- if not .install_k8s }}
+.config/k9s/
+{{- end }}
+
+# OS-specific ignores
+{{- if eq .chezmoi.os "darwin" }}
+# macOS doesn't need these Linux-specific configs
+.config/hypr/
+.config/waybar/
+.config/rofi/
+.config/swaync/
+.config/swayosd/
+.config/wlogout/
+{{- end }}
+
+# Windows-specific configs on Linux
+{{- if ne .chezmoi.os "windows" }}
+.config/alacritty/alacritty.toml.windows
+{{- end }}

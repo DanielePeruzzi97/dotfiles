@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Install Hyprland plugins
+# Only runs on desktop machines with Hyprland installed
+
+set -euo pipefail
+
+{{- if not .is_desktop }}
+exit 0
+{{- end }}
+
+# Check if hyprpm is available
+if ! command -v hyprpm &>/dev/null; then
+    echo "hyprpm not found, skipping Hyprland plugins"
+    exit 0
+fi
+
+# Check if Hyprland is running (plugins can only be installed when running)
+if [ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+    echo "Hyprland not running, skipping plugin installation"
+    echo "Run this manually after starting Hyprland: hyprpm update && hyprpm add https://github.com/shezdy/hyprsplit && hyprpm enable hyprsplit"
+    exit 0
+fi
+
+echo "Installing Hyprland plugins..."
+
+# Update hyprpm
+hyprpm update
+
+# Install hyprsplit if not already installed
+if ! hyprpm list 2>/dev/null | grep -q "hyprsplit.*enabled: true"; then
+    echo "Installing hyprsplit plugin..."
+    hyprpm add https://github.com/shezdy/hyprsplit || {
+        echo "Warning: Failed to add hyprsplit plugin"
+        exit 0
+    }
+    hyprpm enable hyprsplit
+    echo "hyprsplit plugin installed and enabled"
+else
+    echo "hyprsplit plugin already installed"
+fi
+
+echo "Hyprland plugins setup complete"

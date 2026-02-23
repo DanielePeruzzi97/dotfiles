@@ -1,0 +1,106 @@
+[cursor]
+style = 'Block'
+
+[debug]
+render_timer = false
+
+[general]
+import = ['~/.config/alacritty/rose-pine.toml']
+live_config_reload = true
+
+[[mouse.bindings]] 
+action = "PasteSelection"
+mouse = "Middle"
+
+[bell]
+animation = "EaseOutExpo"
+duration = 0
+
+[colors]
+draw_bold_text_with_bright_colors = true
+
+[env]
+TERM = "xterm-256color"
+
+[font]
+size = 17
+
+[font.bold]
+family = "JetBrainsMonoNL Nerd Font"
+style = "Bold"
+
+[font.glyph_offset]
+x = 0
+y = 0
+
+[font.italic]
+family = "JetBrainsMonoNL Nerd Font"
+
+[font.normal]
+family = "JetBrainsMonoNL Nerd Font"
+style = "Regular"
+
+[font.offset]
+x = 0
+y = 0
+
+[mouse]
+hide_when_typing = true
+
+[selection]
+semantic_escape_chars = ''',│`|:"' ()[]{}<>'''
+
+[terminal.shell]
+program = "/bin/zsh"
+
+[window]
+decorations = "None"
+dynamic_title = true
+option_as_alt = "Both"
+startup_mode = "Maximized"
+# opacity = 0.9
+# Enabled via gnome blur extension
+blur = false
+
+[window.dimensions]
+columns = 160
+lines = 80
+
+[window.padding]
+x = 4
+y = 4
+
+[[keyboard.bindings]]
+action = "Paste"
+key = "V"
+mods = "Alt"
+
+[[keyboard.bindings]]
+action = "Copy"
+key = "C"
+mods = "Alt"
+
+[[keyboard.bindings]]
+action = "Quit"
+key = "Q"
+mods = "Alt"
+
+[[keyboard.bindings]]
+action = "SpawnNewInstance"
+key = "N"
+mods = "Alt"
+
+# [[keyboard.bindings]]
+# action = "CreateNewWindow"
+# key = "W"
+# mods = "Alt"
+
+[[keyboard.bindings]]
+key = "C"
+mods = "Alt"
+chars = "\u001bc"
+
+[[keyboard.bindings]]
+key = "L"
+mods = "Alt"
+chars = "\u001bl"

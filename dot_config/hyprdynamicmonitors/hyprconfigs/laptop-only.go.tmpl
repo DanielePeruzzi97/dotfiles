@@ -1,0 +1,13 @@
+# Laptop-only profile (no external monitors)
+# Enable laptop display at native resolution
+{{- $laptop := index .MonitorsByTag "laptop" -}}
+
+{{if isLidClosed}}
+# Lid closed with no externals - this is an edge case
+# Enable laptop anyway as safety measure (user must open lid to see screen)
+# This prevents the "no active monitors" crash scenario
+monitor={{$laptop.Name}},preferred,0x0,1.0
+{{else}}
+# Lid open - normal laptop-only operation
+monitor={{$laptop.Name}},preferred,0x0,1.0
+{{end}}

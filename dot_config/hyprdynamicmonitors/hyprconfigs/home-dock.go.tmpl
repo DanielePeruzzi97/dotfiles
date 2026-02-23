@@ -1,0 +1,24 @@
+# Home dock profile with lid detection
+# Gaming monitor (144Hz) + Xiaomi (100Hz) with dynamic laptop display
+{{- $laptop := index .MonitorsByTag "laptop" -}}
+{{- $gaming := index .MonitorsByTag "gaming" -}}
+{{- $secondary := index .MonitorsByTag "secondary" -}}
+
+# Layout:
+# Lid closed: Xiaomi (left) | BenQ (right)
+# Lid open:   Xiaomi (left) | BenQ (right)
+#                  Laptop (centered below)
+
+# Secondary Xiaomi monitor (left)
+monitor={{$secondary.Name}},1920x1080@100.00000,0x0,1.0
+
+# Gaming BenQ monitor (right, adjacent to Xiaomi)
+monitor={{$gaming.Name}},1920x1080@144.00101,1920x0,1.0
+
+# Laptop display - dynamic based on lid state
+{{if isLidClosed}}
+monitor={{$laptop.Name}},disable
+{{else}}
+# Lid open: laptop centered below the two monitors
+monitor={{$laptop.Name}},preferred,960x1080,1.0
+{{end}}

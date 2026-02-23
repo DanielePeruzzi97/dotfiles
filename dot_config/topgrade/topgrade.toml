@@ -1,0 +1,66 @@
+# Topgrade Configuration
+# Universal updater for all package managers and tools
+# Docs: https://github.com/topgrade-rs/topgrade
+
+[misc]
+assume_yes = true
+cleanup = true
+no_retry = true
+# Run system commands with sudo, but topgrade itself runs as current user
+sudo_command = "sudo"
+
+# Only run these steps (comment out to run all)
+only = [
+    "system",           # apt/pacman
+    "snap",             # Snap packages
+    "firmware",         # fwupd firmware updates
+    "flatpak",          # Flatpak apps
+    "brew_formula",     # Homebrew formulae
+    "brew_cask",        # Homebrew casks
+    "shell",            # oh-my-zsh
+    "tmux",             # tmux plugins
+    "hyprpm",           # Hyprland plugins
+    "vim",              # Neovim plugins
+    "git_repos",        # Git repositories
+    "custom_commands",  # Our custom commands (omz plugins, waybar refresh)
+]
+
+[linux]
+# Arch-specific settings
+arch_package_manager = "yay"  # or "paru" if you use that
+# Show AUR comments
+show_arch_news = true
+# Refresh mirrors (Arch)
+#refresh_mirrors = true
+
+[git]
+# Update git repos
+max_concurrency = 5
+# Specific repos to always update
+repos = [
+    "~/.oh-my-zsh",
+    "~/.oh-my-zsh/custom/plugins/*",
+    "~/.dotfiles",
+]
+
+[npm]
+# Use npm instead of yarn for global packages
+use_sudo = false
+
+[commands]
+# Custom commands to run during update
+# These run AFTER all built-in steps
+
+# Update tmux plugins via TPM
+"Tmux Plugins" = "~/.tmux/plugins/tpm/bin/update_plugins all 2>/dev/null || true"
+
+# Refresh waybar after updates
+"Waybar Refresh" = "pkill -RTMIN+8 waybar 2>/dev/null || true"
+
+[pre_commands]
+# Commands to run BEFORE updates
+"Sync time" = "timedatectl status >/dev/null 2>&1 || sudo timedatectl set-ntp true"
+
+[post_commands]
+# Commands to run AFTER all updates complete
+"Clear package cache" = "sudo apt clean 2>/dev/null || sudo pacman -Sc --noconfirm 2>/dev/null || true"

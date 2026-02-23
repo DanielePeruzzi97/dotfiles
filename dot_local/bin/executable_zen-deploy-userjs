@@ -1,0 +1,26 @@
+#!/bin/bash
+# Deploy user.js to all Zen Browser profiles
+# Usage: zen-deploy-userjs
+
+USER_JS="$HOME/.dotfiles/zen/user.js"
+ZEN_DIR="$HOME/.zen"
+
+if [[ ! -f "$USER_JS" ]]; then
+    echo "Error: $USER_JS not found"
+    exit 1
+fi
+
+# Find all profile directories (format: xxxxxxxx.ProfileName)
+count=0
+for profile_dir in "$ZEN_DIR"/*.*/; do
+    if [[ -d "$profile_dir" ]]; then
+        cp "$USER_JS" "$profile_dir/user.js"
+        profile_name=$(basename "$profile_dir")
+        echo "✓ $profile_name"
+        ((count++))
+    fi
+done
+
+echo ""
+echo "Deployed user.js to $count profiles"
+echo "Note: Restart Zen Browser for changes to take effect"

@@ -1,0 +1,13 @@
+[Unit]
+Description=HyprDynamicMonitors - Dynamic monitor configuration for Hyprland
+After=graphical-session-pre.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/hyprdynamicmonitors run --enable-lid-events
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=graphical-session.target

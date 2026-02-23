@@ -1,0 +1,62 @@
+{{- /* Chezmoi configuration template */ -}}
+{{- /* This file is processed once during `chezmoi init` */ -}}
+
+{{- $name := "" -}}
+{{- $email := "" -}}
+{{- $isWorkMachine := false -}}
+{{- $installDesktop := true -}}
+{{- $installK8s := true -}}
+{{- $privateRepoUser := "" -}}
+
+{{- /* Detect if running interactively */ -}}
+{{- $interactive := stdinIsATTY -}}
+
+{{- if $interactive -}}
+{{-   $name = promptStringOnce . "name" "Your full name" -}}
+{{-   $email = promptStringOnce . "email" "Your email address" -}}
+{{-   $isWorkMachine = promptBoolOnce . "is_work_machine" "Is this a work machine" -}}
+{{-   $installDesktop = promptBoolOnce . "install_desktop" "Install Hyprland desktop environment" -}}
+{{-   $installK8s = promptBoolOnce . "install_k8s" "Install Kubernetes tools (kubectl, helm, k9s, etc.)" -}}
+{{-   if $isWorkMachine -}}
+{{-     $privateRepoUser = promptStringOnce . "private_repo_user" "GitHub username for private dotfiles repo (leave empty to skip)" -}}
+{{-   end -}}
+{{- else -}}
+{{-   /* Non-interactive defaults */ -}}
+{{-   $name = "User" -}}
+{{-   $email = "user@example.com" -}}
+{{-   $isWorkMachine = false -}}
+{{-   $installDesktop = true -}}
+{{-   $installK8s = false -}}
+{{- end -}}
+
+{{- /* Detect OS and distribution */ -}}
+{{- $osid := .chezmoi.os -}}
+{{- if hasKey .chezmoi.osRelease "id" -}}
+{{-   $osid = .chezmoi.osRelease.id -}}
+{{- end -}}
+
+{{- /* Determine if Arch-based */ -}}
+{{- $isArch := or (eq $osid "arch") (eq $osid "manjaro") (eq $osid "cachyos") (eq $osid "endeavouros") -}}
+
+{{- /* Determine if Debian-based */ -}}
+{{- $isDebian := or (eq $osid "ubuntu") (eq $osid "debian") (eq $osid "pop") -}}
+
+[data]
+    name = {{ $name | quote }}
+    email = {{ $email | quote }}
+    is_work_machine = {{ $isWorkMachine }}
+    install_desktop = {{ $installDesktop }}
+    install_k8s = {{ $installK8s }}
+    private_repo_user = {{ $privateRepoUser | quote }}
+    
+    # OS detection
+    osid = {{ $osid | quote }}
+    is_arch = {{ $isArch }}
+    is_debian = {{ $isDebian }}
+
+[edit]
+    command = "nvim"
+
+[git]
+    autoCommit = false
+    autoPush = false
