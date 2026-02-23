@@ -67,12 +67,10 @@
   },
   "widgets": [
     "title",
-    "dnd", 
+    "dnd",
     "backlight",
     "volume",
     "mpris",
-    "inhibitors",
-    "buttons-grid",
     "notifications"
   ],
   "widget-config": {
@@ -93,50 +91,9 @@
       "show-per-app": false
     },
     "backlight": {
-      "label": "󰃠"
-    },
-    "buttons-grid": {
-      "actions": [
-        {
-          "label": "󰍶",
-          "type": "toggle",
-          "active": false,
-          "command": "sh -c '[[ $SWAYNC_TOGGLE_STATE == true ]] && hyprctl keyword decoration:blur:enabled true || hyprctl keyword decoration:blur:enabled false'",
-          "update-command": "sh -c 'hyprctl getoption decoration:blur:enabled | grep -q \"int: 1\" && echo true || echo false'"
-        },
-        {
-          "label": "󰕾",
-          "type": "toggle", 
-          "active": true,
-          "command": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
-          "update-command": "sh -c 'pactl get-sink-mute @DEFAULT_SINK@ | grep -q \"yes\" && echo false || echo true'"
-        },
-        {
-          "label": "󰌵",
-          "command": "hyprpicker -a",
-          "tooltip": "Color Picker"
-        },
-        {
-          "label": "󰄄",
-          "command": "~/.config/waybar/scripts/system-update.sh",
-          "tooltip": "System Update"
-        },
-        {
-          "label": "󰨞",
-          "command": "ghostty -e btop",
-          "tooltip": "System Monitor"
-        },
-        {
-          "label": "󰌾",
-          "command": "hyprlock",
-          "tooltip": "Lock Screen"
-        },
-        {
-          "label": "󰐥",
-          "command": "wlogout",
-          "tooltip": "Power Menu"
-        }
-      ]
+      "label": "󰃠",
+      "device": "intel_backlight",
+      "subsystem": "backlight"
     }
   }
 }

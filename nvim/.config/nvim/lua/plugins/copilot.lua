@@ -1,22 +1,22 @@
 return {
-  "zbirenbaum/copilot.lua",
-  dependencies = { "copilotlsp-nvim/copilot-lsp" },
-  cmd = "Copilot",
-  build = ":Copilot auth",
-  event = "InsertEnter",
-  opts = {
-    suggestion = {
-      auto_trigger = true,
-      keymap = {
-        accept = "<S-Tab>",
-        accept_word = "<M-f>",
-        next = "<M-]>",
-        prev = "<M-[>",
-        dismiss = "<C-]>",
-      },
-    },
-    nes = {
-      enabled = false,
-    },
-  },
+  -- "zbirenbaum/copilot.lua",
+  -- dependencies = { "copilotlsp-nvim/copilot-lsp" },
+  -- cmd = "Copilot",
+  -- build = ":Copilot auth",
+  -- event = "InsertEnter",
+  -- opts = {
+  --   suggestion = {
+  --     auto_trigger = true,
+  --     keymap = {
+  --       accept = "<S-Tab>",
+  --       accept_word = "<M-f>",
+  --       next = "<M-]>",
+  --       prev = "<M-[>",
+  --       dismiss = "<C-]>",
+  --     },
+  --   },
+  --   nes = {
+  --     enabled = false,
+  --   },
+  -- },
 }

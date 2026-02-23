@@ -119,25 +119,34 @@
 }
 
 /* Right modules - grouped pill style */
-#custom-notification,
 #pulseaudio,
+#pulseaudio.microphone,
 #bluetooth,
 #battery,
 #network,
 #custom-vpn,
 #cpu,
-#memory {
+#memory,
+#tray,
+#custom-notification {
   background-color: #1f1d2e;
   padding: 0.5rem 1rem;
   margin: 5px 0;
   border-radius: 0;
 }
 
-/* First module in group - left rounded */
-#custom-notification {
-  color: #9ccfd8;
+/* First module in right group - left rounded */
+#pulseaudio {
+  color: #ebbcba;
   border-radius: 5px 0 0 5px;
   margin-left: 1rem;
+}
+
+/* Last module in right group - right rounded */
+#custom-notification {
+  color: #9ccfd8;
+  border-radius: 0 5px 5px 0;
+  margin-right: 1rem;
 }
 
 #custom-notification.dnd-notification,
@@ -145,10 +154,6 @@
 #custom-notification.dnd-inhibited-notification,
 #custom-notification.dnd-inhibited-none {
   color: #6e6a86;
-}
-
-#pulseaudio {
-  color: #ebbcba;
 }
 
 #pulseaudio.muted {
@@ -198,7 +203,6 @@
 /* Last module in group - right rounded */
 #memory {
   color: #ebbcba;
-  border-radius: 0 5px 5px 0;
 }
 
 #clock {
@@ -212,8 +216,8 @@
 #tray {
   background-color: #1f1d2e;
   padding: 0.5rem 1rem;
-  margin: 5px 0 5px 5px;
-  border-radius: 5px 0 0 5px;
+  margin: 5px 0;
+  border-radius: 0;
 }
 
 #custom-lock {

@@ -28,26 +28,31 @@
   "custom/ws1": {
     "exec": "~/.config/waybar/scripts/workspace-button.sh 1",
     "return-type": "json",
+    "tooltip": false,
     "on-click": "~/.config/hypr/scripts/virtual-desktop.sh 1 switch"
   },
   "custom/ws2": {
     "exec": "~/.config/waybar/scripts/workspace-button.sh 2",
     "return-type": "json",
+    "tooltip": false,
     "on-click": "~/.config/hypr/scripts/virtual-desktop.sh 2 switch"
   },
   "custom/ws3": {
     "exec": "~/.config/waybar/scripts/workspace-button.sh 3",
     "return-type": "json",
+    "tooltip": false,
     "on-click": "~/.config/hypr/scripts/virtual-desktop.sh 3 switch"
   },
   "custom/ws4": {
     "exec": "~/.config/waybar/scripts/workspace-button.sh 4",
     "return-type": "json",
+    "tooltip": false,
     "on-click": "~/.config/hypr/scripts/virtual-desktop.sh 4 switch"
   },
   "custom/ws5": {
     "exec": "~/.config/waybar/scripts/workspace-button.sh 5",
     "return-type": "json",
+    "tooltip": false,
     "on-click": "~/.config/hypr/scripts/virtual-desktop.sh 5 switch"
   },
   "hyprland/language": {

@@ -13,8 +13,8 @@ tooltip=""
 
 case "$distro" in
     ubuntu|debian|pop)
-        count=$(apt list --upgradable 2>/dev/null | grep -c upgradable || echo 0)
-        count=${count:-0}
+        count=$(apt list --upgradable 2>/dev/null | grep -v "^Listing" | grep -c "upgradable" || true)
+        count=$((count + 0))  # Ensure numeric
         total=$((total + count))
         [ "$count" -gt 0 ] && tooltip+="APT: $count\n"
         ;;
