@@ -17,6 +17,9 @@ return {
       enabled = true,
       timeout = 2000,
     },
+    scroll = {
+      enabled = true,
+    },
     gitbrowse = { enabled = true },
     lazygit = { enabled = false }, -- Using tmux integration instead
     picker = {
