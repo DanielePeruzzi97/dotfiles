@@ -11,8 +11,8 @@ monitor={{$dell_dx.Name}},2560x1440@144,0x0,1.333333
 monitor={{$dell_sx.Name}},2560x1440@72,-1920x0,1.333333
 
 # Laptop display - below both monitors when lid is open (centered)
-{{if isLidClosed}}
+{{ "{{if isLidClosed}}" }}
 monitor={{$laptop.Name}},disable
-{{else}}
+{{ "{{else}}" }}
 monitor={{$laptop.Name}},preferred,-960x1080,1
-{{end}}
+{{ "{{end}}" }}
