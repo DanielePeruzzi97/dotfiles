@@ -48,12 +48,36 @@ fi
 
 echo "Private dotfiles repository synchronized"
 
-# Apply private dotfiles using chezmoi
-# Use a separate chezmoi instance with private repo as source
+# Create a script to apply private dotfiles after chezmoi releases the lock
+# This avoids the "timeout obtaining persistent state lock" error
+APPLY_SCRIPT="$HOME/.local/share/dotfiles/apply-private-dotfiles.sh"
+cat > "$APPLY_SCRIPT" << 'SCRIPT'
+#!/usr/bin/env bash
+# Apply private dotfiles with chezmoi
+# Run this after main chezmoi apply completes
+
+PRIVATE_DIR="$HOME/.dotfiles_private"
+
+if [ ! -d "$PRIVATE_DIR" ]; then
+    echo "Private dotfiles not found at $PRIVATE_DIR"
+    exit 1
+fi
+
 echo "Applying private dotfiles with chezmoi..."
-if chezmoi apply --source="$PRIVATE_DIR" --verbose; then
+if chezmoi apply --source="$PRIVATE_DIR"; then
     echo "Private dotfiles applied successfully"
 else
     echo "Warning: Failed to apply some private dotfiles"
-    echo "You may need to run: chezmoi apply --source=$PRIVATE_DIR"
+    exit 1
 fi
+SCRIPT
+chmod +x "$APPLY_SCRIPT"
+
+echo ""
+echo "==================================================="
+echo "Private dotfiles cloned but NOT applied yet."
+echo "Run this after chezmoi completes:"
+echo "  $APPLY_SCRIPT"
+echo "Or manually:"
+echo "  chezmoi apply --source=$PRIVATE_DIR"
+echo "==================================================="

@@ -6,14 +6,9 @@ set -euo pipefail
 
 TPM_DIR="$HOME/.tmux/plugins/tpm"
 
-# Clone TPM if not present
 if [ ! -d "$TPM_DIR" ]; then
-    echo "Cloning TPM..."
-    git clone https://github.com/tmux-plugins/tpm "$TPM_DIR" || {
-        echo "Warning: Failed to clone TPM"
-        echo "Run: git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm"
-        exit 0
-    }
+    echo "TPM not found, skipping tmux plugin installation"
+    exit 0
 fi
 
 echo "Installing tmux plugins..."
