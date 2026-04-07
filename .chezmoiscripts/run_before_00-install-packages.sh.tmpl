@@ -122,15 +122,28 @@ install_desktop_packages() {
 
 install_hyprland_packages() {
     log_info "Installing Hyprland packages (Debian/Ubuntu)..."
-    sudo apt install -y \
-        waybar sway-notification-center rofi swayosd wlogout cliphist \
-        wl-clipboard brightnessctl playerctl udiskie polkit-kde-agent-1 \
-        network-manager-gnome blueman pavucontrol grim slurp hyprsunset \
+    # Install packages individually so missing ones don't fail the whole setup.
+    local packages=(
+        waybar sway-notification-center rofi swayosd wlogout cliphist
+        wl-clipboard brightnessctl playerctl udiskie polkit-kde-agent-1
+        network-manager-gnome blueman pavucontrol grim slurp hyprsunset
         nautilus qt5ct qt6ct xdg-user-dirs xdg-desktop-portal-gtk gvfs tumbler btop
-    
-    # These may not be available in all Ubuntu versions
-    sudo apt install -y hyprlock hypridle hyprpaper grimblast 2>/dev/null || \
-        log_warning "Some Hyprland packages not found - may need Hyprland PPA"
+        hyprlock hypridle hyprpaper grimblast
+    )
+
+    local missing=()
+    local pkg
+    for pkg in "${packages[@]}"; do
+        if ! sudo apt install -y "$pkg" >/dev/null 2>&1; then
+            missing+=("$pkg")
+            log_warning "Package not available: $pkg"
+        fi
+    done
+
+    if [ ${#missing[@]} -gt 0 ]; then
+        log_warning "Missing Hyprland-related packages: ${missing[*]}"
+        log_warning "Some packages may require extra repos/PPAs"
+    fi
     
     # Setup Flatpak
     flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
