@@ -151,6 +151,32 @@ The private repo is automatically cloned and applied if:
 1. You selected "work machine" during setup
 2. Your YubiKey SSH key is available
 
+### Optional: Encrypted Bootstrap Env (YubiKey Touch)
+
+If you want first-run bootstrap to include secrets (for example `GITHUB_TOKEN` for `mise` GitHub API limits),
+you can commit an encrypted file that only you can decrypt with YubiKey:
+
+1. Create plaintext env file locally (do **not** commit):
+
+```bash
+cat > bootstrap.private.env <<'EOF'
+GITHUB_TOKEN=ghp_xxx
+EOF
+```
+
+2. Encrypt it with your age recipient (YubiKey identity):
+
+```bash
+age -r <your-age-recipient> -o bootstrap.private.env.age bootstrap.private.env
+rm -f bootstrap.private.env
+```
+
+3. Commit only `bootstrap.private.env.age`.
+
+During bootstrap, chezmoi will try to decrypt this file into:
+`~/.local/share/dotfiles/bootstrap.private.env` and load it for tool installation.
+If decryption fails (no key/token/user), setup continues without breaking public installation.
+
 ## Keyboard-Centric Workflow
 
 This dotfile configuration implements a **unified keyboard-centric workflow** across Zsh, Tmux, and Neovim with consistent keybindings for maximum muscle memory retention.

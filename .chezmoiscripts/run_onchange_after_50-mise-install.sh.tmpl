@@ -17,6 +17,15 @@ log_warning() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 # Ensure mise is in PATH
 export PATH="$HOME/.local/bin:$PATH"
 
+# Load optional decrypted bootstrap env (created by run_before_40-bootstrap-private-env)
+BOOTSTRAP_ENV_FILE="$HOME/.local/share/dotfiles/bootstrap.private.env"
+if [ -f "$BOOTSTRAP_ENV_FILE" ]; then
+    # shellcheck disable=SC1090
+    set -a
+    . "$BOOTSTRAP_ENV_FILE"
+    set +a
+fi
+
 # Optional GitHub token to avoid API rate limits when downloading release metadata.
 # User can set it beforehand (recommended in CI/VM bootstrap):
 #   export GITHUB_TOKEN=ghp_xxx
