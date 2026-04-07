@@ -168,25 +168,55 @@ install_ghostty() {
         return 0
     fi
     
-    log_info "Installing Ghostty via mkasberg PPA..."
+    log_info "Installing Ghostty..."
     
     # Add mkasberg/ghostty-ubuntu PPA
-    # https://launchpad.net/~mkasberg/+archive/ubuntu/ghostty-ubuntu
     if ! grep -qR "mkasberg/ghostty" /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null; then
         sudo add-apt-repository -y ppa:mkasberg/ghostty-ubuntu
         sudo apt update
     fi
     
-    sudo apt install -y ghostty || {
-        log_warning "Ghostty installation failed - your Ubuntu version may not be supported yet"
-        log_info "Check https://launchpad.net/~mkasberg/+archive/ubuntu/ghostty-ubuntu for supported versions"
-        return 0
-    }
-    
-    if command_exists ghostty; then
-        sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/ghostty 50 2>/dev/null || true
-        log_success "Ghostty installed"
+    # Try to install from PPA first
+    if sudo apt install -y ghostty 2>/dev/null; then
+        if command_exists ghostty; then
+            sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/ghostty 50 2>/dev/null || true
+            log_success "Ghostty installed via PPA"
+            return 0
+        fi
     fi
+    
+    # Fallback: download .deb directly from GitHub releases
+    # Some Ubuntu versions (like 25.04) may not have PPA builds yet
+    log_info "PPA package not available, trying direct .deb download..."
+    
+    local arch version_id fallback_version
+    arch=$(dpkg --print-architecture)
+    source /etc/os-release
+    
+    # Map unsupported versions to nearest supported version
+    case "$VERSION_ID" in
+        25.04) fallback_version="24.04" ;;  # 25.04 not built, use 24.04
+        *) fallback_version="$VERSION_ID" ;;
+    esac
+    
+    local deb_url="https://github.com/mkasberg/ghostty-ubuntu/releases/latest/download/ghostty_${arch}_${fallback_version}.deb"
+    
+    log_info "Downloading from: $deb_url"
+    if curl -fsSL "$deb_url" -o /tmp/ghostty.deb 2>/dev/null; then
+        if sudo dpkg -i /tmp/ghostty.deb 2>/dev/null || sudo apt-get install -f -y 2>/dev/null; then
+            rm -f /tmp/ghostty.deb
+            if command_exists ghostty; then
+                sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/ghostty 50 2>/dev/null || true
+                log_success "Ghostty installed via direct .deb download"
+                return 0
+            fi
+        fi
+        rm -f /tmp/ghostty.deb
+    fi
+    
+    log_warning "Ghostty installation failed"
+    log_info "Check https://github.com/mkasberg/ghostty-ubuntu/releases for supported versions"
+    return 0
 }
 
 install_awscli() {
