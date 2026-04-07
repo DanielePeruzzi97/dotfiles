@@ -301,7 +301,7 @@ install_hyprland_packages() {
         xdg-user-dirs xdg-desktop-portal-gtk gvfs tumbler btop
     )
 
-    local aur_packages=(swaync swayosd-git grimblast-git hyprshot rofi-calc)
+    local aur_packages=(swaync grimblast-git hyprshot rofi-calc)
     local missing=()
     local pkg
 
@@ -317,6 +317,12 @@ install_hyprland_packages() {
     fi
     
     install_aur "${aur_packages[@]}" || true
+
+    # swayosd-git is heavy to build (Rust/GTK stack). Keep bootstrap fast and reliable,
+    # install it manually if desired.
+    if ! command_exists swayosd; then
+        log_warning "swayosd not installed (optional). Install manually with: paru -S swayosd-git"
+    fi
     
     # Setup Flatpak
     sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
