@@ -53,6 +53,8 @@
     is_arch = {{ $isArch }}
     is_debian = {{ $isDebian }}
 
+sourceDir = {{ printf "%s/.dotfiles" .chezmoi.homeDir | quote }}
+
 [edit]
     command = "nvim"
 
