@@ -14,17 +14,108 @@ log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[OK]${NC} $1"; }
 log_warning() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 
+detect_distro() {
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        echo "$ID"
+    elif [ -f /etc/arch-release ]; then
+        echo "arch"
+    else
+        echo "unknown"
+    fi
+}
+
+ensure_age_prereqs() {
+    local distro
+    distro=$(detect_distro)
+
+    if ! command -v age >/dev/null 2>&1; then
+        case "$distro" in
+            ubuntu|debian|pop)
+                sudo apt install -y age >/dev/null 2>&1 || return 1
+                ;;
+            arch|manjaro|cachyos|endeavouros)
+                sudo pacman -S --noconfirm --needed age >/dev/null 2>&1 || return 1
+                ;;
+            *)
+                return 1
+                ;;
+        esac
+    fi
+
+    if ! command -v age-plugin-yubikey >/dev/null 2>&1; then
+        case "$distro" in
+            ubuntu|debian|pop)
+                sudo apt install -y --no-install-recommends cargo pkg-config libpcsclite-dev pcscd scdaemon >/dev/null 2>&1 || return 1
+                ;;
+            arch|manjaro|cachyos|endeavouros)
+                sudo pacman -S --noconfirm --needed rust pkgconf pcsclite yubikey-manager >/dev/null 2>&1 || return 1
+                ;;
+            *)
+                return 1
+                ;;
+        esac
+
+        command -v cargo >/dev/null 2>&1 || return 1
+        cargo install age-plugin-yubikey --locked >/dev/null 2>&1 || return 1
+        export PATH="$HOME/.cargo/bin:$PATH"
+    fi
+
+    return 0
+}
+
+load_bootstrap_env() {
+    local env_file="$HOME/.local/share/dotfiles/bootstrap.private.env"
+    local encrypted_env="$HOME/.dotfiles/bootstrap.private.env.age"
+    local identity_file="$HOME/.config/age/yubikey-identities.txt"
+
+    if [ -f "$env_file" ]; then
+        # shellcheck disable=SC1090
+        set -a
+        . "$env_file"
+        set +a
+    fi
+
+    if [ -n "${GITHUB_TOKEN:-}" ]; then
+        return 0
+    fi
+
+    if [ ! -f "$encrypted_env" ]; then
+        return 0
+    fi
+
+    if [ ! -s "$identity_file" ]; then
+        log_warning "YubiKey identity file missing at ~/.config/age/yubikey-identities.txt"
+        return 0
+    fi
+
+    if ! ensure_age_prereqs; then
+        log_warning "Could not install age/age-plugin-yubikey prerequisites"
+        return 0
+    fi
+
+    mkdir -p "$HOME/.local/share/dotfiles"
+    log_info "Decrypting bootstrap.private.env.age for GITHUB_TOKEN (YubiKey touch required)..."
+    if age -d -i "$identity_file" -o "$env_file" "$encrypted_env" 2>/dev/null; then
+        chmod 600 "$env_file"
+        # shellcheck disable=SC1090
+        set -a
+        . "$env_file"
+        set +a
+        if [ -n "${GITHUB_TOKEN:-}" ]; then
+            log_success "Loaded GITHUB_TOKEN from decrypted bootstrap env"
+        fi
+    else
+        log_warning "Could not decrypt bootstrap.private.env.age, continuing without GITHUB_TOKEN"
+    fi
+}
+
 # Ensure mise is in PATH
 export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
 
-# Load optional decrypted bootstrap env (created by run_before_40-bootstrap-private-env)
-BOOTSTRAP_ENV_FILE="$HOME/.local/share/dotfiles/bootstrap.private.env"
-if [ -f "$BOOTSTRAP_ENV_FILE" ]; then
-    # shellcheck disable=SC1090
-    set -a
-    . "$BOOTSTRAP_ENV_FILE"
-    set +a
-fi
+# Load optional bootstrap env; if needed, decrypt it now via YubiKey.
+load_bootstrap_env
 
 # Optional GitHub token to avoid API rate limits when downloading release metadata.
 # User can set it beforehand (recommended in CI/VM bootstrap):
