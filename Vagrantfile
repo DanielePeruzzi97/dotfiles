@@ -10,6 +10,9 @@ Vagrant.configure("2") do |config|
       vb.memory = "4096"
       vb.cpus = 2
       vb.name = "dotfiles-ubuntu"
+      vb.gui = true
+      vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
+      vb.customize ["modifyvm", :id, "--vram", "128"]
     end
 
     ubuntu.vm.provision "shell", inline: <<-SHELL
