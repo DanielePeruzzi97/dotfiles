@@ -84,6 +84,10 @@ ensure_mise_activation() {
         echo 'eval "$(~/.local/bin/mise activate bash)"' >> "$HOME/.profile"
     fi
 
+    if [ -f "$HOME/.zshrc" ] && ! grep -q "mise activate zsh" "$HOME/.zshrc"; then
+        echo 'eval "$(~/.local/bin/mise activate zsh)"' >> "$HOME/.zshrc"
+    fi
+
     export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH"
 }
 
