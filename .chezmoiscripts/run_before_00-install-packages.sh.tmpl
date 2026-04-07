@@ -295,7 +295,7 @@ install_desktop_packages() {
 install_hyprland_packages() {
     log_info "Installing Hyprland packages (Arch)..."
     local repo_packages=(
-        waybar rofi-wayland wlogout cliphist wl-clipboard brightnessctl
+        waybar rofi-wayland wlogout swayosd cliphist wl-clipboard brightnessctl
         playerctl udiskie polkit-kde-agent network-manager-applet blueman pavucontrol
         grim slurp hyprlock hypridle hyprpaper hyprsunset nautilus qt5ct qt6ct
         xdg-user-dirs xdg-desktop-portal-gtk gvfs tumbler btop
@@ -318,10 +318,9 @@ install_hyprland_packages() {
     
     install_aur "${aur_packages[@]}" || true
 
-    # swayosd-git is heavy to build (Rust/GTK stack). Keep bootstrap fast and reliable,
-    # install it manually if desired.
+    # swayosd is expected from Arch extra. If still missing, leave it optional.
     if ! command_exists swayosd; then
-        log_warning "swayosd not installed (optional). Install manually with: paru -S swayosd-git"
+        log_warning "swayosd not installed (optional). Install manually with: sudo pacman -S swayosd"
     fi
     
     # Setup Flatpak
