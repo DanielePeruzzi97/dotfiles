@@ -265,11 +265,25 @@ install_awscli() {
 {{- if .install_desktop }}
 install_desktop_packages() {
     log_info "Installing desktop packages (Arch)..."
-    sudo pacman -S --noconfirm --needed \
-        loupe gnome-text-editor file-roller \
-        seahorse mpv flatpak aws-cli \
-        curl jq tree btop iotop nethogs sshfs \
+    local repo_packages=(
+        loupe gnome-text-editor file-roller
+        seahorse mpv flatpak aws-cli
+        curl jq tree btop iotop nethogs sshfs
         reflector pkgfile pacman-contrib
+    )
+    local pkg
+    local missing=()
+
+    for pkg in "${repo_packages[@]}"; do
+        if ! sudo pacman -S --noconfirm --needed "$pkg" >/dev/null 2>&1; then
+            missing+=("$pkg")
+            log_warning "Package not available: $pkg"
+        fi
+    done
+
+    if [ ${#missing[@]} -gt 0 ]; then
+        log_warning "Missing Arch desktop packages: ${missing[*]}"
+    fi
     
     install_aur gnome-firmware session-manager-plugin rate-mirrors paru || true
     sudo pkgfile --update 2>/dev/null || true
@@ -279,13 +293,29 @@ install_desktop_packages() {
 
 install_hyprland_packages() {
     log_info "Installing Hyprland packages (Arch)..."
-    sudo pacman -S --noconfirm --needed \
-        waybar rofi-wayland wlogout cliphist wl-clipboard brightnessctl \
-        playerctl udiskie polkit-kde-agent network-manager-applet blueman pavucontrol \
-        grim slurp hyprlock hypridle hyprpaper hyprsunset nautilus qt5ct qt6ct \
+    local repo_packages=(
+        waybar rofi-wayland wlogout cliphist wl-clipboard brightnessctl
+        playerctl udiskie polkit-kde-agent network-manager-applet blueman pavucontrol
+        grim slurp hyprlock hypridle hyprpaper hyprsunset nautilus qt5ct qt6ct
         xdg-user-dirs xdg-desktop-portal-gtk gvfs tumbler btop
+    )
+
+    local aur_packages=(swaync swayosd-git grimblast-git hyprshot rofi-calc)
+    local missing=()
+    local pkg
+
+    for pkg in "${repo_packages[@]}"; do
+        if ! sudo pacman -S --noconfirm --needed "$pkg" >/dev/null 2>&1; then
+            missing+=("$pkg")
+            log_warning "Package not available: $pkg"
+        fi
+    done
+
+    if [ ${#missing[@]} -gt 0 ]; then
+        log_warning "Missing Arch repo packages: ${missing[*]}"
+    fi
     
-    install_aur swaync swayosd-git grimblast-git hyprshot rofi-calc || true
+    install_aur "${aur_packages[@]}" || true
     
     # Setup Flatpak
     sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
