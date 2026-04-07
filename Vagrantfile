@@ -12,6 +12,7 @@ Vagrant.configure("2") do |config|
       vb.gui = true
       vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
       vb.customize ["modifyvm", :id, "--vram", "128"]
+      vb.customize ["modifyvm", :id, "--accelerate3d", "on"]
       vb.customize ["modifyvm", :id, "--usb", "on"]
       vb.customize ["modifyvm", :id, "--usbxhci", "on"]
       vb.customize ["usbfilter", "add", "0", "--target", :id, "--name", "YubiKey", "--vendorid", "0x1050"]
@@ -33,6 +34,10 @@ Vagrant.configure("2") do |config|
     arch.vm.provider "virtualbox" do |vb|
       vb.memory = "4096"
       vb.cpus = 2
+      vb.gui = true
+      vb.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
+      vb.customize ["modifyvm", :id, "--vram", "128"]
+      vb.customize ["modifyvm", :id, "--accelerate3d", "on"]
     end
 
     arch.vm.provision "shell", inline: <<-SHELL

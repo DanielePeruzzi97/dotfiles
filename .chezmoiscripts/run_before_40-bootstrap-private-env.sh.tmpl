@@ -45,6 +45,15 @@ if ! command -v age >/dev/null 2>&1; then
 fi
 
 YUBIKEY_IDENTITY_FILE="$HOME/.config/age/yubikey-identities.txt"
+YUBIKEY_IDENTITY_SOURCE="$SOURCE_DIR/dot_config/age/yubikey-identities.txt"
+
+# If identity file doesn't exist in target but exists in source, copy it early
+if [ ! -s "$YUBIKEY_IDENTITY_FILE" ] && [ -s "$YUBIKEY_IDENTITY_SOURCE" ]; then
+    log_info "Copying YubiKey identity file from source..."
+    mkdir -p "$(dirname "$YUBIKEY_IDENTITY_FILE")"
+    cp "$YUBIKEY_IDENTITY_SOURCE" "$YUBIKEY_IDENTITY_FILE"
+    chmod 600 "$YUBIKEY_IDENTITY_FILE"
+fi
 
 if ! command -v age-plugin-yubikey >/dev/null 2>&1; then
 {{- if .is_debian }}
@@ -74,8 +83,8 @@ if ! command -v age-plugin-yubikey >/dev/null 2>&1; then
 fi
 
 if [ ! -s "$YUBIKEY_IDENTITY_FILE" ]; then
-    log_warning "YubiKey identity file missing/empty at ~/.config/age/yubikey-identities.txt"
-    log_warning "It should be managed by dotfiles (dot_config/age/yubikey-identities.txt)"
+    log_warning "YubiKey identity file not found at ~/.config/age/yubikey-identities.txt"
+    log_warning "Create it with: age-plugin-yubikey --generate > ~/.config/age/yubikey-identities.txt"
     exit 0
 fi
 
