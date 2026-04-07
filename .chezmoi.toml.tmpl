@@ -40,6 +40,8 @@
 {{- /* Determine if Debian-based */ -}}
 {{- $isDebian := or (eq $osid "ubuntu") (eq $osid "debian") (eq $osid "pop") -}}
 
+sourceDir = {{ .chezmoi.sourceDir | quote }}
+
 [data]
     name = {{ $name | quote }}
     email = {{ $email | quote }}
@@ -52,8 +54,6 @@
     osid = {{ $osid | quote }}
     is_arch = {{ $isArch }}
     is_debian = {{ $isDebian }}
-
-sourceDir = {{ printf "%s/.dotfiles" .chezmoi.homeDir | quote }}
 
 [edit]
     command = "nvim"
