@@ -44,20 +44,25 @@ if ! command -v age >/dev/null 2>&1; then
 {{- end }}
 fi
 
-IDENTITY_FILE=""
-for candidate in \
-    "$HOME/.config/age/keys.txt" \
-    "$HOME/.config/sops/age/keys.txt" \
-    "$HOME/.config/age/yubikey-identities.txt"; do
+YUBIKEY_IDENTITY_FILE="$HOME/.config/age/yubikey-identities.txt"
+SOFTWARE_IDENTITY_FILE=""
+for candidate in "$HOME/.config/age/keys.txt" "$HOME/.config/sops/age/keys.txt"; do
     if [ -f "$candidate" ]; then
-        IDENTITY_FILE="$candidate"
+        SOFTWARE_IDENTITY_FILE="$candidate"
         break
     fi
 done
 
-if [ -z "$IDENTITY_FILE" ]; then
-    log_warning "No age identity file found, skipping bootstrap private env"
-    log_warning "Expected one of: ~/.config/age/keys.txt or ~/.config/sops/age/keys.txt"
+IDENTITY_FILE=""
+if [ -f "$YUBIKEY_IDENTITY_FILE" ]; then
+    IDENTITY_FILE="$YUBIKEY_IDENTITY_FILE"
+elif [ -n "$SOFTWARE_IDENTITY_FILE" ] && [ "${ALLOW_SOFTWARE_AGE_KEYS:-0}" = "1" ]; then
+    IDENTITY_FILE="$SOFTWARE_IDENTITY_FILE"
+    log_warning "Using software age key fallback (ALLOW_SOFTWARE_AGE_KEYS=1)"
+else
+    log_warning "No YubiKey age identity found, skipping bootstrap private env"
+    log_warning "Expected: ~/.config/age/yubikey-identities.txt"
+    log_warning "(Set ALLOW_SOFTWARE_AGE_KEYS=1 to permit software key fallback)"
     exit 0
 fi
 

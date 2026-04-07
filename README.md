@@ -154,7 +154,7 @@ The private repo is automatically cloned and applied if:
 ### Optional: Encrypted Bootstrap Env (YubiKey Touch)
 
 If you want first-run bootstrap to include secrets (for example `GITHUB_TOKEN` for `mise` GitHub API limits),
-you can commit an encrypted file that only you can decrypt with YubiKey:
+you can commit an encrypted file that only you can decrypt with YubiKey (via `age-plugin-yubikey`):
 
 1. Create plaintext env file locally (do **not** commit):
 
@@ -164,10 +164,10 @@ GITHUB_TOKEN=ghp_xxx
 EOF
 ```
 
-2. Encrypt it with your age recipient (YubiKey identity):
+2. Encrypt it with your YubiKey age recipient (`age1yubikey...`):
 
 ```bash
-age -r <your-age-recipient> -o bootstrap.private.env.age bootstrap.private.env
+age -r <your-age1yubikey-recipient> -o bootstrap.private.env.age bootstrap.private.env
 rm -f bootstrap.private.env
 ```
 
@@ -176,6 +176,15 @@ rm -f bootstrap.private.env
 During bootstrap, chezmoi will try to decrypt this file into:
 `~/.local/share/dotfiles/bootstrap.private.env` and load it for tool installation.
 If decryption fails (no key/token/user), setup continues without breaking public installation.
+
+By default bootstrap expects YubiKey identities at:
+- `~/.config/age/yubikey-identities.txt`
+
+Software age key fallback is disabled by default. You can explicitly enable it with:
+
+```bash
+export ALLOW_SOFTWARE_AGE_KEYS=1
+```
 
 ## Keyboard-Centric Workflow
 
