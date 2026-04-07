@@ -209,9 +209,9 @@ ensure_aur_helper() {
 
 install_aur() {
     if command_exists paru; then
-        paru -S --noconfirm --needed "$@"
+        paru -S --noconfirm --needed --skipreview --removemake "$@"
     elif command_exists yay; then
-        yay -S --noconfirm --needed "$@"
+        yay -S --noconfirm --needed --answerclean None --answerdiff None --removemake "$@"
     else
         log_error "No AUR helper found"
         return 1
@@ -270,6 +270,7 @@ install_desktop_packages() {
         seahorse mpv flatpak aws-cli
         curl jq tree btop iotop nethogs sshfs
         reflector pkgfile pacman-contrib
+        gnome-keyring pipewire-jack
     )
     local pkg
     local missing=()
