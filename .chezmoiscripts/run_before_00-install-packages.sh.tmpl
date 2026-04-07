@@ -151,47 +151,6 @@ install_hyprland_packages() {
         fi
     done
 
-    install_swayosd() {
-        if command_exists swayosd; then
-            return 0
-        fi
-
-        log_info "Installing swayosd from source..."
-        sudo apt install -y --no-install-recommends \
-            meson ninja-build cmake pkg-config scdoc gettext sassc \
-            libgtk-4-dev libevdev-dev libpulse-dev libwayland-dev \
-            wayland-protocols libdbus-1-dev libudev-dev libinput-dev valac >/dev/null 2>&1
-
-        # SwayOSD requires gtk4-layer-shell-0.pc (not available in Ubuntu 24.04 repos).
-        if ! pkg-config --exists gtk4-layer-shell-0; then
-            log_info "Installing gtk4-layer-shell from source..."
-            rm -rf /tmp/gtk4-layer-shell
-            git clone --depth=1 https://github.com/wmww/gtk4-layer-shell.git /tmp/gtk4-layer-shell >/dev/null 2>&1
-            (cd /tmp/gtk4-layer-shell && meson setup build --buildtype release -Dvapi=false >/dev/null && ninja -C build >/dev/null && sudo ninja -C build install >/dev/null)
-            sudo ldconfig
-            rm -rf /tmp/gtk4-layer-shell
-        fi
-
-        # Use modern Rust toolchain for edition2024 support.
-        if ! command -v rustup >/dev/null 2>&1; then
-            curl https://sh.rustup.rs -sSf | sh -s -- -y >/dev/null 2>&1
-        fi
-        # shellcheck disable=SC1091
-        source "$HOME/.cargo/env"
-        rustup toolchain install stable >/dev/null 2>&1 || true
-        rustup default stable >/dev/null 2>&1 || true
-
-        export PATH="$HOME/.cargo/bin:$PATH"
-        export PKG_CONFIG_PATH="/usr/local/lib/x86_64-linux-gnu/pkgconfig:${PKG_CONFIG_PATH:-}"
-
-        rm -rf /tmp/SwayOSD
-        git clone --depth=1 https://github.com/ErikReider/SwayOSD.git /tmp/SwayOSD >/dev/null 2>&1
-        (cd /tmp/SwayOSD && meson setup build --buildtype release >/dev/null && ninja -C build >/dev/null && sudo ninja -C build install >/dev/null)
-        rm -rf /tmp/SwayOSD
-
-        command_exists swayosd
-    }
-
     install_grimblast() {
         if command_exists grimblast; then
             return 0
@@ -208,11 +167,6 @@ install_hyprland_packages() {
         rm -f /tmp/grimblast
         return 1
     }
-
-    if ! install_swayosd; then
-        log_error "Failed to install swayosd"
-        return 1
-    fi
 
     if ! install_grimblast; then
         log_error "Failed to install grimblast"
@@ -337,7 +291,7 @@ install_desktop_packages() {
 install_hyprland_packages() {
     log_info "Installing Hyprland packages (Arch)..."
     local repo_packages=(
-        waybar rofi-wayland wlogout swayosd cliphist wl-clipboard brightnessctl
+        waybar rofi-wayland wlogout cliphist wl-clipboard brightnessctl
         playerctl udiskie polkit-kde-agent network-manager-applet blueman pavucontrol
         grim slurp hyprlock hypridle hyprpaper hyprsunset nautilus qt5ct qt6ct
         xdg-user-dirs xdg-desktop-portal-gtk gvfs tumbler btop
@@ -359,11 +313,6 @@ install_hyprland_packages() {
     fi
     
     install_aur "${aur_packages[@]}" || true
-
-    # swayosd is expected from Arch extra. If still missing, leave it optional.
-    if ! command_exists swayosd; then
-        log_warning "swayosd not installed (optional). Install manually with: sudo pacman -S swayosd"
-    fi
 
     # wlogout may be missing from some mirrors/repos.
     if ! command_exists wlogout; then
