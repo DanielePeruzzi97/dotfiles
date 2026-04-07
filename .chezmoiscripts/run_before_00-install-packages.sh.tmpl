@@ -156,13 +156,6 @@ install_hyprland_packages() {
             return 0
         fi
 
-        # Try apt first only if package is available in current repos.
-        if apt-cache show swayosd >/dev/null 2>&1; then
-            if sudo apt install -y swayosd >/dev/null 2>&1; then
-                command_exists swayosd && return 0
-            fi
-        fi
-
         log_info "Installing swayosd from source..."
         sudo apt install -y --no-install-recommends \
             meson ninja-build cmake pkg-config scdoc gettext rustc cargo \
@@ -180,13 +173,6 @@ install_hyprland_packages() {
     install_grimblast() {
         if command_exists grimblast; then
             return 0
-        fi
-
-        # Try apt package first only if available.
-        if apt-cache show grimblast >/dev/null 2>&1; then
-            if sudo apt install -y grimblast >/dev/null 2>&1; then
-                command_exists grimblast && return 0
-            fi
         fi
 
         log_info "Installing grimblast script from hyprwm/contrib..."
