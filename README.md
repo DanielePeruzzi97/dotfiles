@@ -180,11 +180,7 @@ If decryption fails (no key/token/user), setup continues without breaking public
 By default bootstrap expects YubiKey identities at:
 - `~/.config/age/yubikey-identities.txt`
 
-Software age key fallback is disabled by default. You can explicitly enable it with:
-
-```bash
-export ALLOW_SOFTWARE_AGE_KEYS=1
-```
+Software age key fallback is not supported: bootstrap decryption is YubiKey-only.
 
 ## Keyboard-Centric Workflow
 

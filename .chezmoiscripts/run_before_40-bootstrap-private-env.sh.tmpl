@@ -45,29 +45,53 @@ if ! command -v age >/dev/null 2>&1; then
 fi
 
 YUBIKEY_IDENTITY_FILE="$HOME/.config/age/yubikey-identities.txt"
-SOFTWARE_IDENTITY_FILE=""
-for candidate in "$HOME/.config/age/keys.txt" "$HOME/.config/sops/age/keys.txt"; do
-    if [ -f "$candidate" ]; then
-        SOFTWARE_IDENTITY_FILE="$candidate"
-        break
-    fi
-done
 
-IDENTITY_FILE=""
-if [ -f "$YUBIKEY_IDENTITY_FILE" ]; then
-    IDENTITY_FILE="$YUBIKEY_IDENTITY_FILE"
-elif [ -n "$SOFTWARE_IDENTITY_FILE" ] && [ "${ALLOW_SOFTWARE_AGE_KEYS:-0}" = "1" ]; then
-    IDENTITY_FILE="$SOFTWARE_IDENTITY_FILE"
-    log_warning "Using software age key fallback (ALLOW_SOFTWARE_AGE_KEYS=1)"
-else
-    log_warning "No YubiKey age identity found, skipping bootstrap private env"
-    log_warning "Expected: ~/.config/age/yubikey-identities.txt"
-    log_warning "(Set ALLOW_SOFTWARE_AGE_KEYS=1 to permit software key fallback)"
+if ! command -v age-plugin-yubikey >/dev/null 2>&1; then
+{{- if .is_debian }}
+    log_info "Installing dependencies for age-plugin-yubikey..."
+    sudo apt install -y --no-install-recommends \
+        cargo pkg-config libpcsclite-dev pcscd scdaemon >/dev/null 2>&1 || {
+        log_warning "Could not install age-plugin-yubikey dependencies, skipping bootstrap private env"
+        exit 0
+    }
+{{- else if .is_arch }}
+    log_info "Installing dependencies for age-plugin-yubikey..."
+    sudo pacman -S --noconfirm --needed \
+        rust pkgconf pcsclite yubikey-manager >/dev/null 2>&1 || {
+        log_warning "Could not install age-plugin-yubikey dependencies, skipping bootstrap private env"
+        exit 0
+    }
+{{- end }}
+
+    if command -v cargo >/dev/null 2>&1; then
+        log_info "Installing age-plugin-yubikey..."
+        cargo install age-plugin-yubikey --locked >/dev/null 2>&1 || {
+            log_warning "Could not install age-plugin-yubikey, skipping bootstrap private env"
+            exit 0
+        }
+        export PATH="$HOME/.cargo/bin:$PATH"
+    fi
+fi
+
+if [ ! -f "$YUBIKEY_IDENTITY_FILE" ]; then
+    mkdir -p "$HOME/.config/age"
+    log_info "Generating YubiKey identity file..."
+    if age-plugin-yubikey --identity > "$YUBIKEY_IDENTITY_FILE" 2>/dev/null; then
+        chmod 600 "$YUBIKEY_IDENTITY_FILE"
+    else
+        rm -f "$YUBIKEY_IDENTITY_FILE"
+        log_warning "Could not read YubiKey identity, skipping bootstrap private env"
+        exit 0
+    fi
+fi
+
+if [ ! -s "$YUBIKEY_IDENTITY_FILE" ]; then
+    log_warning "YubiKey identity file is empty, skipping bootstrap private env"
     exit 0
 fi
 
 log_info "Decrypting bootstrap.private.env.age (may require YubiKey touch)..."
-if age -d -i "$IDENTITY_FILE" -o "$DECRYPTED_ENV" "$ENCRYPTED_ENV" 2>/dev/null; then
+if age -d -i "$YUBIKEY_IDENTITY_FILE" -o "$DECRYPTED_ENV" "$ENCRYPTED_ENV" 2>/dev/null; then
     chmod 600 "$DECRYPTED_ENV"
     log_success "Bootstrap private env decrypted"
 else
