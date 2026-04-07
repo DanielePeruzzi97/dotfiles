@@ -22,14 +22,12 @@ packages:
     common:
       - zsh
       - git
-      - stow
       - tmux
       - curl
       - wget
       - xclip
       - fzf
       - ripgrep
-      - lazygit
       - zoxide
       - unzip
       - fontconfig

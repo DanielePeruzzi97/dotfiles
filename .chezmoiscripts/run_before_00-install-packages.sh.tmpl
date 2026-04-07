@@ -169,15 +169,39 @@ install_ghostty() {
     fi
     
     log_info "Installing Ghostty..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)" || {
-        log_warning "Ghostty installation failed - may need manual install"
-        return 0
-    }
     
-    if command_exists ghostty; then
-        sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/ghostty 50 2>/dev/null || true
-        log_success "Ghostty installed"
+    # Try the mkasberg installer first
+    if /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)" 2>/dev/null; then
+        if command_exists ghostty; then
+            sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/ghostty 50 2>/dev/null || true
+            log_success "Ghostty installed via mkasberg installer"
+            return 0
+        fi
     fi
+    
+    # Fallback: try to download directly for unsupported versions (e.g., 25.04)
+    # Use 24.04 package as fallback for newer Ubuntu versions
+    log_info "Trying fallback installation for unsupported Ubuntu version..."
+    local arch
+    arch=$(dpkg --print-architecture)
+    local fallback_url="https://github.com/mkasberg/ghostty-ubuntu/releases/latest/download/ghostty_${arch}_24.04.deb"
+    
+    if curl -fsSL "$fallback_url" -o /tmp/ghostty.deb 2>/dev/null; then
+        if sudo dpkg -i /tmp/ghostty.deb 2>/dev/null; then
+            rm -f /tmp/ghostty.deb
+            sudo apt-get install -f -y 2>/dev/null || true  # Fix any dependency issues
+            if command_exists ghostty; then
+                sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/ghostty 50 2>/dev/null || true
+                log_success "Ghostty installed via fallback (24.04 package)"
+                return 0
+            fi
+        fi
+        rm -f /tmp/ghostty.deb
+    fi
+    
+    log_warning "Ghostty installation failed - may need manual install"
+    log_info "Try: sudo add-apt-repository ppa:mkasberg/ghostty && sudo apt install ghostty"
+    return 0
 }
 
 install_awscli() {
