@@ -28,6 +28,13 @@ unzip -o "$TEMP_ZIP" -d "$FONT_DIR" "*.ttf"
 rm -f "$TEMP_ZIP"
 
 # Refresh font cache
-fc-cache -fv
+if command -v fc-cache >/dev/null 2>&1; then
+    # Limit cache refresh to user font dir to avoid system-level permission issues
+    if ! fc-cache -f "$FONT_DIR" >/dev/null 2>&1; then
+        echo "Warning: fc-cache refresh failed, continuing"
+    fi
+else
+    echo "Warning: fc-cache not found, font cache not refreshed"
+fi
 
 echo "JetBrainsMono Nerd Font installed successfully"
