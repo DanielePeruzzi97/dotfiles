@@ -2,7 +2,7 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
   config.vm.define "ubuntu" do |ubuntu|
-    ubuntu.vm.box = "ubuntu/noble64"
+    ubuntu.vm.box = "bento/ubuntu-24.04"
     ubuntu.vm.hostname = "dotfiles-ubuntu"
     ubuntu.vm.network "private_network", type: "dhcp"
     
@@ -18,7 +18,7 @@ Vagrant.configure("2") do |config|
     ubuntu.vm.provision "shell", inline: <<-SHELL
       export DEBIAN_FRONTEND=noninteractive
       apt-get update
-      apt-get install -y git curl ubuntu-desktop-minimal
+      apt-get install -y git curl ubuntu-desktop
       systemctl set-default graphical.target
     SHELL
   end
