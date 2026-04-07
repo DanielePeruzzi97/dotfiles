@@ -16,8 +16,12 @@ echo "Installing tmux plugins..."
 # Install plugins non-interactively
 # TPM provides a script for this
 if [ -x "$TPM_DIR/bin/install_plugins" ]; then
-    "$TPM_DIR/bin/install_plugins"
-    echo "Tmux plugins installed"
+    if "$TPM_DIR/bin/install_plugins"; then
+        echo "Tmux plugins installed"
+    else
+        echo "Warning: one or more tmux plugins failed to install"
+        echo "Run prefix + I inside tmux to retry manually"
+    fi
 else
     echo "TPM install script not found"
     echo "Run prefix + I inside tmux to install plugins manually"
