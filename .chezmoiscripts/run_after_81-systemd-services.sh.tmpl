@@ -37,7 +37,7 @@ for service in "${CHEZMOI_SERVICES[@]}"; do
 done
 
 for service in "${PACKAGE_SERVICES[@]}"; do
-    if systemctl --user list-unit-files "$service" &>/dev/null; then
+    if systemctl --user list-unit-files --type=service --all | grep -q "^$service"; then
         if ! systemctl --user is-enabled "$service" &>/dev/null; then
             systemctl --user enable "$service"
             echo "Enabled $service"

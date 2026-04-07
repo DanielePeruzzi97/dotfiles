@@ -17,6 +17,13 @@ DOTFILES_BRANCH=feat/chezmoi-migration \
 curl -fsSL "https://raw.githubusercontent.com/DanielePeruzzi97/dotfiles/feat%2Fchezmoi-migration/install.sh" | bash
 ```
 
+To force work-machine behavior in non-interactive bootstrap (for private repo test):
+
+```bash
+DOTFILES_WORK_MACHINE=1 DOTFILES_BRANCH=feat/chezmoi-migration \
+curl -fsSL "https://raw.githubusercontent.com/DanielePeruzzi97/dotfiles/feat%2Fchezmoi-migration/install.sh" | bash
+```
+
 This single command will:
 1. Install chezmoi (dotfiles manager)
 2. Clone this repository

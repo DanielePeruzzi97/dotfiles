@@ -6,6 +6,7 @@
 # Optional env vars:
 #   DOTFILES_REPO="owner/repo"        (default: DanielePeruzzi97/dotfiles)
 #   DOTFILES_BRANCH="branch-name"     (default: feat/chezmoi-migration)
+#   DOTFILES_WORK_MACHINE=1            (forces work-machine mode in non-interactive bootstrap)
 
 set -euo pipefail
 

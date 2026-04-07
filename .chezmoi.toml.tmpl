@@ -7,6 +7,8 @@
 {{- $installDesktop := true -}}
 {{- $installK8s := true -}}
 {{- $privateRepoUser := "" -}}
+{{- $workEnv := env "DOTFILES_WORK_MACHINE" | lower -}}
+{{- $isWorkFromEnv := or (eq $workEnv "1") (eq $workEnv "true") (eq $workEnv "yes") -}}
 
 {{- /* Detect if running interactively */ -}}
 {{- $interactive := stdinIsATTY -}}
@@ -23,7 +25,7 @@
 {{- else -}}
 {{-   $name = "User" -}}
 {{-   $email = "user@example.com" -}}
-{{-   $isWorkMachine = false -}}
+{{-   $isWorkMachine = $isWorkFromEnv -}}
 {{-   $installDesktop = true -}}
 {{-   $installK8s = false -}}
 {{- end -}}
