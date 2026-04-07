@@ -1,4 +1,6 @@
 Vagrant.configure("2") do |config|
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
   config.vm.define "ubuntu" do |ubuntu|
     ubuntu.vm.box = "bento/ubuntu-24.04"
     ubuntu.vm.hostname = "dotfiles-ubuntu"
@@ -10,8 +12,6 @@ Vagrant.configure("2") do |config|
       vb.name = "dotfiles-ubuntu"
     end
 
-    ubuntu.vm.synced_folder ".", "/home/vagrant/.dotfiles"
-    
     ubuntu.vm.provision "shell", inline: <<-SHELL
       apt-get update
       apt-get install -y git curl
@@ -29,8 +29,6 @@ Vagrant.configure("2") do |config|
       vb.name = "dotfiles-arch"
     end
 
-    arch.vm.synced_folder ".", "/home/vagrant/.dotfiles"
-    
     arch.vm.provision "shell", inline: <<-SHELL
       pacman-key --init
       pacman-key --populate archlinux
