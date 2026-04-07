@@ -1,0 +1,178 @@
+# Declarative package management for dotfiles
+# This file defines all packages to install across distributions
+#
+# Structure:
+#   system.*   - Installed via apt (debian) or pacman (arch)
+#   mise.*     - Installed via mise (version-controlled, cross-distro consistent)
+#   desktop.*  - Only installed if install_desktop=true
+#   flatpak.*  - Installed via flatpak (cross-distro)
+#
+# Workflow to add a new package:
+#   1. Edit this file, add package to appropriate section
+#   2. Commit: git add -A && git commit -m "Add package-name"
+#   3. Push: git push
+#   4. On each machine: chezmoi update (pulls and re-applies)
+
+packages:
+  # ============================================
+  # System packages (via apt/pacman)
+  # These are core tools that need OS integration
+  # ============================================
+  system:
+    common:
+      - zsh
+      - git
+      - stow
+      - tmux
+      - curl
+      - wget
+      - xclip
+      - fzf
+      - ripgrep
+      - lazygit
+      - zoxide
+      - unzip
+      - fontconfig
+      - python3-pip
+
+    debian:
+      - build-essential
+      - fd-find           # Note: symlinked to 'fd' in install script
+      - software-properties-common
+
+    arch:
+      - base-devel
+      - fd
+      - python-pip        # Different package name on Arch
+
+  # ============================================
+  # mise-managed tools
+  # Version-controlled, identical across distros
+  # ============================================
+  mise:
+    # CLI tools not in all distro repos or where version matters
+    tools:
+      - bat               # Better cat with syntax highlighting
+      - delta             # Better git diff
+      - eza               # Better ls (replacement for exa)
+      - jq                # JSON processor
+      - yq                # YAML processor
+
+    # Programming languages - mise ensures same version everywhere
+    languages:
+      node: "lts"
+      go: "latest"
+      python: "3.12"
+
+    # Kubernetes & Cloud tools
+    k8s:
+      - kubectl
+      - helm
+      - k9s
+      - talosctl
+      - kubeseal
+      - sops
+      - age
+      - awscli
+
+    # Development tools
+    dev:
+      - chezmoi
+      - topgrade
+      - gh                # GitHub CLI
+
+  # ============================================
+  # Desktop packages (only if install_desktop=true)
+  # ============================================
+  desktop:
+    common:
+      - loupe
+      - gnome-text-editor
+      - file-roller
+      - seahorse
+      - mpv
+      - flatpak
+      - curl
+      - jq
+      - tree
+      - btop
+      - iotop
+      - nethogs
+      - sshfs
+
+    debian:
+      - gnome-firmware
+
+    arch:
+      - gnome-firmware
+      - reflector
+      - pkgfile
+      - pacman-contrib
+      - gnome-keyring
+      - jack2
+      - session-manager-plugin
+      - rate-mirrors
+      - paru              # AUR helper
+
+  # ============================================
+  # Hyprland/Wayland packages (only if install_desktop=true)
+  # ============================================
+  hyprland:
+    common:
+      - waybar
+      - cliphist
+      - wl-clipboard
+      - brightnessctl
+      - playerctl
+      - udiskie
+      - blueman
+      - pavucontrol
+      - grim
+      - slurp
+      - hyprlock
+      - hypridle
+      - hyprpaper
+      - hyprsunset
+      - nautilus
+      - qt5ct
+      - qt6ct
+      - xdg-user-dirs
+      - xdg-desktop-portal-gtk
+      - gvfs
+      - tumbler
+
+    debian:
+      - hyprland
+      - xdg-desktop-portal-hyprland
+      - hyprpolkitagent          # Hyprland-native polkit agent (from cppiber PPA)
+      - sway-notification-center
+      - rofi
+      - wlogout
+      - network-manager-gnome
+
+    arch:
+      - hyprland
+      - xdg-desktop-portal-hyprland
+      - rofi-wayland
+      - wlogout
+      - network-manager-applet
+
+    # AUR packages (Arch only)
+    aur:
+      - hyprpolkitagent-git      # Hyprland-native polkit agent
+      - swaync
+      - grimblast-git
+      - hyprshot
+      - rofi-calc
+
+  # ============================================
+  # Flatpak applications (cross-distro)
+  # ============================================
+  flatpak:
+    - com.spotify.Client
+    - com.discordapp.Discord
+    - md.obsidian.Obsidian
+    - com.bitwarden.desktop
+    - io.dbeaver.DBeaverCommunity
+    - org.gimp.GIMP
+    - com.jgraph.drawio.desktop

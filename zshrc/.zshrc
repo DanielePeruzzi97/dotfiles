@@ -152,5 +152,17 @@ export PATH=$PATH:$HOME/go/bin
 
 # Generated for envman. Do not edit.
 [ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
-eval "$(uv generate-shell-completion zsh)"
-eval "$(uvx --generate-shell-completion zsh)"
+
+# uv completions (if installed)
+if command -v uv &> /dev/null; then
+  eval "$(uv generate-shell-completion zsh)"
+  eval "$(uvx --generate-shell-completion zsh)"
+fi
+
+# mise activation (if installed) - manages tools like node, python, go, etc.
+# This replaces/supplements nvm, pyenv, etc. with a single unified tool manager
+if [ -x "$HOME/.local/bin/mise" ]; then
+  eval "$("$HOME/.local/bin/mise" activate zsh)"
+elif command -v mise &> /dev/null; then
+  eval "$(mise activate zsh)"
+fi

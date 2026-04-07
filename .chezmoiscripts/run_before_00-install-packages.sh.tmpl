@@ -1,4 +1,5 @@
 {{- /* Install system packages based on distro and user preferences */ -}}
+{{- /* packages.yaml hash: {{ include ".chezmoidata/packages.yaml" | sha256sum }} */ -}}
 #!/bin/bash
 set -e
 
@@ -14,25 +15,133 @@ log_success() { echo -e "${GREEN}[OK]${NC} $1"; }
 log_warning() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-# Check if command exists
 command_exists() {
     command -v "$1" &> /dev/null
 }
 
+# ============================================
+# Package Lists from .chezmoidata/packages.yaml
+# ============================================
+
+# System packages - common across distros
+SYSTEM_COMMON=(
+{{- range .packages.system.common }}
+    "{{ . }}"
+{{- end }}
+)
+
 {{- if .is_debian }}
+# Debian/Ubuntu specific packages
+SYSTEM_DISTRO=(
+{{- range .packages.system.debian }}
+    "{{ . }}"
+{{- end }}
+)
+{{- else if .is_arch }}
+# Arch specific packages
+SYSTEM_DISTRO=(
+{{- range .packages.system.arch }}
+    "{{ . }}"
+{{- end }}
+)
+{{- else }}
+SYSTEM_DISTRO=()
+{{- end }}
+
+{{- if .install_desktop }}
+# Desktop packages - common
+DESKTOP_COMMON=(
+{{- range .packages.desktop.common }}
+    "{{ . }}"
+{{- end }}
+)
+
+{{- if .is_debian }}
+DESKTOP_DISTRO=(
+{{- range .packages.desktop.debian }}
+    "{{ . }}"
+{{- end }}
+)
+{{- else if .is_arch }}
+DESKTOP_DISTRO=(
+{{- range .packages.desktop.arch }}
+    "{{ . }}"
+{{- end }}
+)
+{{- else }}
+DESKTOP_DISTRO=()
+{{- end }}
+
+# Hyprland packages - common
+HYPRLAND_COMMON=(
+{{- range .packages.hyprland.common }}
+    "{{ . }}"
+{{- end }}
+)
+
+{{- if .is_debian }}
+HYPRLAND_DISTRO=(
+{{- range .packages.hyprland.debian }}
+    "{{ . }}"
+{{- end }}
+)
+{{- else if .is_arch }}
+HYPRLAND_DISTRO=(
+{{- range .packages.hyprland.arch }}
+    "{{ . }}"
+{{- end }}
+)
+HYPRLAND_AUR=(
+{{- range .packages.hyprland.aur }}
+    "{{ . }}"
+{{- end }}
+)
+{{- else }}
+HYPRLAND_DISTRO=()
+HYPRLAND_AUR=()
+{{- end }}
+
+# Flatpak applications
+FLATPAK_APPS=(
+{{- range .packages.flatpak }}
+    "{{ . }}"
+{{- end }}
+)
+{{- end }}
+
 # ============================================
-# Debian/Ubuntu Package Installation
+# Installation Functions
 # ============================================
+
+{{- if .is_debian }}
+install_packages_apt() {
+    local packages=("$@")
+    local to_install=()
+    local pkg
+
+    for pkg in "${packages[@]}"; do
+        if ! dpkg -l "$pkg" &>/dev/null; then
+            to_install+=("$pkg")
+        fi
+    done
+
+    if [ ${#to_install[@]} -gt 0 ]; then
+        log_info "Installing: ${to_install[*]}"
+        sudo apt install -y "${to_install[@]}" || {
+            # Try installing one by one if batch fails
+            for pkg in "${to_install[@]}"; do
+                sudo apt install -y "$pkg" 2>/dev/null || log_warning "Failed to install: $pkg"
+            done
+        }
+    fi
+}
 
 install_base_packages() {
     log_info "Installing base packages (Debian/Ubuntu)..."
     sudo apt update
-    sudo apt install -y \
-        zsh git stow tmux curl wget xclip \
-        fzf fd-find ripgrep zoxide \
-        build-essential python3-pip unzip fontconfig
+    install_packages_apt "${SYSTEM_COMMON[@]}" "${SYSTEM_DISTRO[@]}"
     
-    # fd-find symlink
+    # fd-find symlink (Ubuntu names it differently)
     if command_exists fdfind && ! command_exists fd; then
         sudo ln -sf "$(which fdfind)" /usr/local/bin/fd
     fi
@@ -78,22 +187,13 @@ install_awscli() {
     fi
 
     log_info "Installing AWS CLI v2 (official installer)..."
-
-    local arch
-    local aws_zip
+    local arch aws_zip
     arch="$(uname -m)"
 
     case "$arch" in
-        x86_64)
-            aws_zip="awscli-exe-linux-x86_64.zip"
-            ;;
-        aarch64|arm64)
-            aws_zip="awscli-exe-linux-aarch64.zip"
-            ;;
-        *)
-            log_warning "Unsupported architecture for AWS CLI installer: $arch"
-            return 0
-            ;;
+        x86_64)  aws_zip="awscli-exe-linux-x86_64.zip" ;;
+        aarch64|arm64) aws_zip="awscli-exe-linux-aarch64.zip" ;;
+        *) log_warning "Unsupported architecture: $arch"; return 0 ;;
     esac
 
     cd /tmp
@@ -102,132 +202,62 @@ install_awscli() {
     sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
     rm -rf /tmp/aws /tmp/awscliv2.zip
 
-    if command_exists aws; then
-        log_success "AWS CLI installed: $(aws --version 2>&1 | head -n1)"
-    else
-        log_warning "AWS CLI installation finished but command not found"
-    fi
-}
-
-install_uv() {
-    if command_exists uv && command_exists uvx; then
-        log_warning "uv already installed: $(uv --version 2>/dev/null || true)"
-        return 0
-    fi
-
-    log_info "Installing uv..."
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-
-    if command_exists uv || [ -x "$HOME/.local/bin/uv" ]; then
-        log_success "uv installed"
-    else
-        log_warning "uv installation failed or not in PATH yet"
-    fi
-}
-
-install_linuxbrew() {
-    if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ] || command_exists brew; then
-        log_warning "Homebrew already installed"
-        return 0
-    fi
-
-    log_info "Installing Homebrew (Linux)..."
-    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || {
-        log_warning "Homebrew installation failed"
-        return 0
-    }
-
-    if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
-        log_success "Homebrew installed"
-    else
-        log_warning "Homebrew install completed but brew binary not found"
-    fi
+    command_exists aws && log_success "AWS CLI installed: $(aws --version 2>&1 | head -n1)"
 }
 
 {{- if .install_desktop }}
 install_desktop_packages() {
     log_info "Installing desktop packages (Debian/Ubuntu)..."
-    sudo apt install -y \
-        loupe gnome-text-editor file-roller \
-        seahorse mpv gnome-firmware flatpak \
-        curl jq tree btop iotop nethogs sshfs
-    
+    install_packages_apt "${DESKTOP_COMMON[@]}" "${DESKTOP_DISTRO[@]}"
     log_success "Desktop packages installed"
 }
 
 install_hyprland_packages() {
     log_info "Installing Hyprland packages (Debian/Ubuntu)..."
 
-    # Match host setup: Hyprland ecosystem packages from cppiber PPA.
-    if command_exists add-apt-repository; then
-        if ! grep -R "cppiber/hyprland" /etc/apt/sources.list /etc/apt/sources.list.d >/dev/null 2>&1; then
-            log_info "Adding Hyprland PPA (cppiber/hyprland)..."
-            sudo add-apt-repository -y ppa:cppiber/hyprland
-        fi
+    # Add Hyprland PPA if not present
+    if ! grep -qR "cppiber/hyprland" /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null; then
+        log_info "Adding Hyprland PPA..."
+        sudo add-apt-repository -y ppa:cppiber/hyprland
         sudo apt update
     fi
 
-    # Install packages individually so missing ones don't fail the whole setup.
-    local packages=(
-        hyprland xdg-desktop-portal-hyprland
-        waybar sway-notification-center rofi wlogout cliphist
-        wl-clipboard brightnessctl playerctl udiskie polkit-kde-agent-1
-        network-manager-gnome blueman pavucontrol grim slurp hyprsunset
-        nautilus qt5ct qt6ct xdg-user-dirs xdg-desktop-portal-gtk gvfs tumbler btop
-        hyprlock hypridle hyprpaper
-    )
+    install_packages_apt "${HYPRLAND_COMMON[@]}" "${HYPRLAND_DISTRO[@]}"
 
-    local missing=()
-    local pkg
-    for pkg in "${packages[@]}"; do
-        if ! sudo apt install -y "$pkg" >/dev/null 2>&1; then
-            missing+=("$pkg")
-            log_warning "Package not available: $pkg"
-        fi
-    done
-
-    install_grimblast() {
-        if command_exists grimblast; then
-            return 0
-        fi
-
-        log_info "Installing grimblast script from hyprwm/contrib..."
+    # Install grimblast manually (not in Ubuntu repos)
+    if ! command_exists grimblast; then
+        log_info "Installing grimblast..."
         if curl -fsSL https://raw.githubusercontent.com/hyprwm/contrib/main/grimblast/grimblast -o /tmp/grimblast; then
             sudo install -Dm755 /tmp/grimblast /usr/local/bin/grimblast
             rm -f /tmp/grimblast
-            command_exists grimblast
-            return $?
         fi
-
-        rm -f /tmp/grimblast
-        return 1
-    }
-
-    if ! install_grimblast; then
-        log_error "Failed to install grimblast"
-        return 1
     fi
 
-    if [ ${#missing[@]} -gt 0 ]; then
-        log_warning "Missing Hyprland-related packages: ${missing[*]}"
-        log_warning "Some packages may require extra repos/PPAs"
-    fi
-    
     # Setup Flatpak
     sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
     
     log_success "Hyprland packages installed"
 }
+
+install_flatpak_apps() {
+    if ! command_exists flatpak; then
+        log_warning "Flatpak not installed, skipping apps"
+        return 0
+    fi
+
+    log_info "Installing Flatpak applications..."
+    for app in "${FLATPAK_APPS[@]}"; do
+        flatpak install -y flathub "$app" 2>/dev/null || log_warning "Failed to install: $app"
+    done
+    log_success "Flatpak applications installed"
+}
 {{- end }}
 
 {{- else if .is_arch }}
-# ============================================
-# Arch Linux Package Installation
-# ============================================
+# Arch Linux functions
 
-# Ensure AUR helper is available
 ensure_aur_helper() {
-    if command_exists yay || command_exists paru; then
+    if command_exists paru || command_exists yay; then
         return 0
     fi
     
@@ -249,13 +279,31 @@ install_aur() {
     fi
 }
 
+install_packages_pacman() {
+    local packages=("$@")
+    local to_install=()
+    local pkg
+
+    for pkg in "${packages[@]}"; do
+        if ! pacman -Qi "$pkg" &>/dev/null; then
+            to_install+=("$pkg")
+        fi
+    done
+
+    if [ ${#to_install[@]} -gt 0 ]; then
+        log_info "Installing: ${to_install[*]}"
+        sudo pacman -S --noconfirm --needed "${to_install[@]}" || {
+            for pkg in "${to_install[@]}"; do
+                sudo pacman -S --noconfirm --needed "$pkg" 2>/dev/null || log_warning "Failed to install: $pkg"
+            done
+        }
+    fi
+}
+
 install_base_packages() {
     log_info "Installing base packages (Arch)..."
-    sudo pacman -Sy --noconfirm --needed \
-        zsh git stow tmux curl wget xclip \
-        fzf fd ripgrep lazygit zoxide \
-        base-devel python-pip unzip fontconfig
-    
+    sudo pacman -Sy
+    install_packages_pacman "${SYSTEM_COMMON[@]}" "${SYSTEM_DISTRO[@]}"
     ensure_aur_helper
     log_success "Base packages installed"
 }
@@ -284,40 +332,22 @@ install_ghostty() {
 
 install_awscli() {
     if command_exists aws; then
-        log_warning "AWS CLI already installed: $(aws --version 2>&1 | head -n1)"
+        log_warning "AWS CLI already installed"
         return 0
     fi
 
-    log_info "Installing AWS CLI (Arch package)..."
+    log_info "Installing AWS CLI..."
     sudo pacman -S --noconfirm --needed aws-cli
-    log_success "AWS CLI installed: $(aws --version 2>&1 | head -n1)"
+    log_success "AWS CLI installed"
 }
 
 {{- if .install_desktop }}
 install_desktop_packages() {
     log_info "Installing desktop packages (Arch)..."
-    local repo_packages=(
-        loupe gnome-text-editor file-roller
-        seahorse mpv flatpak aws-cli
-        curl jq tree btop iotop nethogs sshfs
-        reflector pkgfile pacman-contrib
-        gnome-keyring jack2
-    )
-    local pkg
-    local missing=()
-
-    for pkg in "${repo_packages[@]}"; do
-        if ! sudo pacman -S --noconfirm --needed "$pkg" >/dev/null 2>&1; then
-            missing+=("$pkg")
-            log_warning "Package not available: $pkg"
-        fi
-    done
-
-    if [ ${#missing[@]} -gt 0 ]; then
-        log_warning "Missing Arch desktop packages: ${missing[*]}"
-    fi
+    install_packages_pacman "${DESKTOP_COMMON[@]}" "${DESKTOP_DISTRO[@]}"
     
-    install_aur gnome-firmware session-manager-plugin rate-mirrors paru || true
+    # Install AUR packages for desktop
+    install_aur gnome-firmware session-manager-plugin rate-mirrors paru 2>/dev/null || true
     sudo pkgfile --update 2>/dev/null || true
     
     log_success "Desktop packages installed"
@@ -325,33 +355,12 @@ install_desktop_packages() {
 
 install_hyprland_packages() {
     log_info "Installing Hyprland packages (Arch)..."
-    local repo_packages=(
-        waybar rofi-wayland wlogout cliphist wl-clipboard brightnessctl
-        playerctl udiskie polkit-kde-agent network-manager-applet blueman pavucontrol
-        grim slurp hyprlock hypridle hyprpaper hyprsunset nautilus qt5ct qt6ct
-        xdg-user-dirs xdg-desktop-portal-gtk gvfs tumbler btop
-    )
-
-    local aur_packages=(swaync grimblast-git hyprshot rofi-calc)
-    local missing=()
-    local pkg
-
-    for pkg in "${repo_packages[@]}"; do
-        if ! sudo pacman -S --noconfirm --needed "$pkg" >/dev/null 2>&1; then
-            missing+=("$pkg")
-            log_warning "Package not available: $pkg"
-        fi
-    done
-
-    if [ ${#missing[@]} -gt 0 ]; then
-        log_warning "Missing Arch repo packages: ${missing[*]}"
-    fi
+    install_packages_pacman "${HYPRLAND_COMMON[@]}" "${HYPRLAND_DISTRO[@]}"
     
-    install_aur "${aur_packages[@]}" || true
-
-    # wlogout may be missing from some mirrors/repos.
-    if ! command_exists wlogout; then
-        log_warning "wlogout not installed (optional). Install manually with: paru -S wlogout"
+    # Install AUR packages
+    if [ ${#HYPRLAND_AUR[@]} -gt 0 ]; then
+        log_info "Installing Hyprland AUR packages..."
+        install_aur "${HYPRLAND_AUR[@]}" || true
     fi
     
     # Setup Flatpak
@@ -359,12 +368,23 @@ install_hyprland_packages() {
     
     log_success "Hyprland packages installed"
 }
+
+install_flatpak_apps() {
+    if ! command_exists flatpak; then
+        log_warning "Flatpak not installed, skipping apps"
+        return 0
+    fi
+
+    log_info "Installing Flatpak applications..."
+    for app in "${FLATPAK_APPS[@]}"; do
+        flatpak install -y flathub "$app" 2>/dev/null || log_warning "Failed to install: $app"
+    done
+    log_success "Flatpak applications installed"
+}
 {{- end }}
 
 {{- else }}
-# ============================================
-# Unsupported Distribution
-# ============================================
+# Unsupported distribution
 
 install_base_packages() {
     log_error "Unsupported distribution: {{ .osid }}"
@@ -372,29 +392,51 @@ install_base_packages() {
     return 1
 }
 
-install_neovim() {
-    log_warning "Neovim installation not configured for {{ .osid }}"
-}
-
-install_ghostty() {
-    log_warning "Ghostty installation not configured for {{ .osid }}"
-}
-
-install_awscli() {
-    log_warning "AWS CLI installation not configured for {{ .osid }}"
-}
-
+install_neovim() { log_warning "Neovim: manual install required for {{ .osid }}"; }
+install_ghostty() { log_warning "Ghostty: manual install required for {{ .osid }}"; }
+install_awscli() { log_warning "AWS CLI: manual install required for {{ .osid }}"; }
 {{- if .install_desktop }}
-install_desktop_packages() {
-    log_warning "Desktop packages not configured for {{ .osid }}"
-}
-
-install_hyprland_packages() {
-    log_warning "Hyprland packages not configured for {{ .osid }}"
-}
+install_desktop_packages() { log_warning "Desktop packages: manual install required"; }
+install_hyprland_packages() { log_warning "Hyprland packages: manual install required"; }
+install_flatpak_apps() { log_warning "Flatpak apps: manual install required"; }
 {{- end }}
 
 {{- end }}
+
+# ============================================
+# Common Functions (all distros)
+# ============================================
+
+install_uv() {
+    if command_exists uv && command_exists uvx; then
+        log_warning "uv already installed: $(uv --version 2>/dev/null || true)"
+        return 0
+    fi
+
+    log_info "Installing uv..."
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+
+    if command_exists uv || [ -x "$HOME/.local/bin/uv" ]; then
+        log_success "uv installed"
+    else
+        log_warning "uv installation may need shell restart"
+    fi
+}
+
+install_linuxbrew() {
+    if [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ] || command_exists brew; then
+        log_warning "Homebrew already installed"
+        return 0
+    fi
+
+    log_info "Installing Homebrew (Linux)..."
+    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || {
+        log_warning "Homebrew installation failed"
+        return 0
+    }
+
+    [ -x "/home/linuxbrew/.linuxbrew/bin/brew" ] && log_success "Homebrew installed"
+}
 
 # ============================================
 # Main Installation
@@ -416,9 +458,11 @@ main() {
 {{- if .install_desktop }}
     install_desktop_packages
     install_hyprland_packages
+    install_flatpak_apps
 {{- end }}
     
     log_success "System package installation complete"
+    log_info "Note: mise-managed tools (bat, delta, eza, k8s tools) will be installed by mise"
 }
 
 main "$@"

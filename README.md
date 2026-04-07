@@ -47,25 +47,31 @@ chezmoi init --apply DanielePeruzzi97/dotfiles
 
 ## What Gets Installed
 
+### System Packages (via apt/pacman)
+
+Core tools installed via native package manager for deep OS integration:
+- **Shell:** zsh, git, stow, tmux, curl, wget
+- **CLI:** fzf, ripgrep, lazygit, zoxide, xclip
+- **Build:** build-essential (debian) / base-devel (arch)
+
 ### Development Tools (via mise)
 
-All development tools are managed by [mise](https://mise.jdx.dev/) - a single tool that replaces nvm, pyenv, goenv, etc.
+All development tools are managed by [mise](https://mise.jdx.dev/) - ensuring **identical versions** across Ubuntu and Arch:
 
-Tools installed:
-- **Languages:** Go, Node.js
-- **Cloud:** AWS CLI, kubectl, k9s, Terraform, Pulumi
-- **Utilities:** lazygit, lazydocker, yazi, zoxide, fzf, ripgrep, fd, eza, bat, delta
-- **Optional (per config):** talosctl, cilium, hubble, argocd, helm, helmfile
+- **Languages:** Node.js (lts), Python (3.12), Go (latest)
+- **CLI Tools:** bat, delta, eza, jq, yq
+- **K8s/Cloud:** kubectl, helm, k9s, talosctl, kubeseal, sops, age, awscli
+- **Dev:** chezmoi, topgrade, gh (GitHub CLI)
 
 Configuration: `~/.config/mise/config.toml`
 
-### System Packages
+### Desktop Packages (optional)
 
-Automatically installed based on your distro:
-- **Ubuntu/Debian:** via apt
-- **Arch/Manjaro/CachyOS:** via pacman + yay (AUR)
+Only install if you select "desktop" during setup:
+- **Hyprland:** waybar, rofi, hyprlock, hypridle, wlogout, etc.
+- **Flatpak apps:** Spotify, Discord, Obsidian, Bitwarden, etc.
 
-Desktop packages (Hyprland, Waybar, Rofi, etc.) only install if you select "desktop" during setup.
+Package lists: `.chezmoidata/packages.yaml`
 
 ## Configuration Structure
 
@@ -76,6 +82,8 @@ Desktop packages (Hyprland, Waybar, Rofi, etc.) only install if you select "desk
 ├── .chezmoi.toml.tmpl          # User preferences template
 ├── .chezmoiexternal.toml       # External dependencies (oh-my-zsh, TPM)
 ├── .chezmoiignore.tmpl         # Conditional file inclusion
+├── .chezmoidata/               # Declarative data files
+│   └── packages.yaml           # Package lists for all distros
 ├── .chezmoiscripts/            # Automation scripts
 │   ├── run_before_00-install-packages.sh.tmpl
 │   ├── run_before_10-ensure-mise.sh
@@ -115,11 +123,53 @@ chezmoi git pull
 chezmoi apply
 ```
 
-## Adding New Tools
+## Adding New Packages
 
-### Add a mise tool
+All packages are managed declaratively in `.chezmoidata/packages.yaml`.
 
-Edit `~/.dotfiles/dot_config/mise/config.toml`:
+### Package Management Philosophy (Hybrid Approach)
+
+| Type | Managed By | Examples |
+|------|------------|----------|
+| **Core system tools** | apt/pacman | zsh, git, tmux, neovim, fzf, ripgrep |
+| **Dev tools (version matters)** | mise | bat, delta, eza, jq, yq |
+| **Languages** | mise | node, python, go |
+| **K8s/Cloud tools** | mise | kubectl, helm, k9s, awscli |
+| **Desktop apps** | flatpak | Spotify, Discord, Obsidian |
+
+### Workflow: Add a New Package
+
+1. **Edit the package list:**
+   ```bash
+   vim ~/.dotfiles/.chezmoidata/packages.yaml
+   ```
+
+2. **Add to the appropriate section:**
+   ```yaml
+   packages:
+     system:
+       common:
+         - new-cli-tool    # For system packages
+     mise:
+       tools:
+         - new-dev-tool    # For mise-managed tools
+   ```
+
+3. **Commit and push:**
+   ```bash
+   cd ~/.dotfiles
+   git add -A && git commit -m "Add new-tool"
+   git push
+   ```
+
+4. **Apply on all machines:**
+   ```bash
+   chezmoi update   # Pulls changes and re-applies
+   ```
+
+### Add a mise tool (alternative)
+
+You can also edit `~/.dotfiles/dot_config/mise/config.toml` directly:
 
 ```toml
 [tools]
@@ -127,10 +177,6 @@ newtool = "latest"
 ```
 
 Then: `chezmoi apply` (triggers mise install automatically)
-
-### Add a system package
-
-Edit `.chezmoiscripts/run_before_00-install-packages.sh.tmpl`
 
 ## Platform Notes
 

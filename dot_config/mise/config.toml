@@ -1,31 +1,36 @@
 # Mise global configuration
-# This file manages all development tools across machines
+# This file manages development tools that benefit from version control across machines
 # https://mise.jdx.dev/
+#
+# Philosophy (Hybrid Approach):
+#   - System packages (apt/pacman): zsh, git, tmux, fzf, ripgrep, lazygit, zoxide
+#     (tools that are well-maintained in distro repos)
+#   - mise: Languages, cloud tools, and CLI tools not in all repos or where
+#     version consistency matters across Ubuntu/Arch
+#
+# See also: .chezmoidata/packages.yaml for the full package list
 
 [tools]
 # ============================================
 # Languages & Runtimes
+# mise ensures same version on Ubuntu and Arch
 # ============================================
 node = "lts"                    # Node.js LTS
 go = "latest"                   # Go
 python = "3.12"                 # Python
 
 # ============================================
-# CLI Tools (replaces manual installs)
+# CLI Tools (not in all distro repos or version-sensitive)
 # ============================================
-lazygit = "latest"              # Git TUI
-ripgrep = "latest"              # Fast grep (rg)
-fd = "latest"                   # Fast find
-fzf = "latest"                  # Fuzzy finder
-zoxide = "latest"               # Smart cd
-bat = "latest"                  # Better cat
+bat = "latest"                  # Better cat with syntax highlighting
 delta = "latest"                # Better git diff
-eza = "latest"                  # Better ls
+eza = "latest"                  # Better ls (exa replacement)
 jq = "latest"                   # JSON processor
 yq = "latest"                   # YAML processor
 
 # ============================================
 # Kubernetes & Cloud Tools
+# Version consistency is critical for k8s tooling
 # ============================================
 kubectl = "latest"              # Kubernetes CLI
 helm = "latest"                 # Kubernetes package manager
@@ -44,9 +49,8 @@ topgrade = "latest"             # Universal updater
 gh = "latest"                   # GitHub CLI
 
 # ============================================
-# Optional: Language-specific tools
+# Optional: Uncomment as needed
 # ============================================
-# Uncomment as needed:
 # rust = "stable"
 # java = "21"
 # terraform = "latest"
@@ -67,6 +71,7 @@ trusted_config_paths = [
     "~/work",
     "~/projects",
     "~/personal",
+    "~/omnys",
 ]
 
 # Read version files from other managers (.nvmrc, .python-version, etc.)
