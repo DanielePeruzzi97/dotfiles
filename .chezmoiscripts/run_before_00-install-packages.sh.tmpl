@@ -183,7 +183,7 @@ install_hyprland_packages() {
     fi
     
     # Setup Flatpak
-    flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
+    sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
     
     log_success "Hyprland packages installed"
 }
@@ -288,7 +288,7 @@ install_hyprland_packages() {
     install_aur swaync swayosd-git grimblast-git hyprshot rofi-calc || true
     
     # Setup Flatpak
-    flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
+    sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
     
     log_success "Hyprland packages installed"
 }
