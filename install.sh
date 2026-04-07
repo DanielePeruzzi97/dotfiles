@@ -119,7 +119,7 @@ main() {
     repo=$(resolve_repo)
     log_info "Applying dotfiles from: $repo"
 
-    "$HOME/.local/bin/mise" exec chezmoi@latest -- chezmoi init --apply "$repo"
+    "$HOME/.local/bin/mise" exec chezmoi@latest -- chezmoi init --apply --source="$HOME/.dotfiles" "$repo"
 
     log_success "Bootstrap complete"
     print_yubikey_hint

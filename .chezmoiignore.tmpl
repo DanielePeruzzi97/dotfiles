@@ -14,6 +14,22 @@ install/
 dotfiles.sh
 scripts/check-manual-updates.sh
 
+# Legacy stow layout kept temporarily for migration safety.
+# Must never be applied by chezmoi.
+alacritty/
+bin/
+ghostty/
+git/
+hyprland/
+k9s/
+nvim/
+opencode/
+scripts/
+tmux/
+topgrade/
+zen/
+zshrc/
+
 # Desktop-specific configs (only if desktop not installed)
 {{- if not .install_desktop }}
 .config/hypr/
