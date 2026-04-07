@@ -168,18 +168,13 @@ install_ghostty() {
         return 0
     fi
     
-    log_info "Installing Ghostty via cppiber PPA..."
+    log_info "Installing Ghostty via mkasberg installer..."
     
-    # Ghostty is available in the cppiber/hyprland PPA (same as Hyprland)
-    # The PPA should already be added by install_hyprland_packages, but ensure it's there
-    if ! grep -qR "cppiber/hyprland" /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null; then
-        log_info "Adding cppiber/hyprland PPA..."
-        sudo add-apt-repository -y ppa:cppiber/hyprland
-        sudo apt update
-    fi
-    
-    sudo apt install -y ghostty || {
-        log_warning "Ghostty installation failed - may not be available for this Ubuntu version"
+    # mkasberg/ghostty-ubuntu downloads and installs .deb from GitHub releases
+    # https://github.com/mkasberg/ghostty-ubuntu
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)" || {
+        log_warning "Ghostty installation failed - your Ubuntu version may not be supported yet"
+        log_info "Check https://github.com/mkasberg/ghostty-ubuntu for supported versions"
         return 0
     }
     
