@@ -71,6 +71,44 @@ install_ghostty() {
     fi
 }
 
+install_awscli() {
+    if command_exists aws; then
+        log_warning "AWS CLI already installed: $(aws --version 2>&1 | head -n1)"
+        return 0
+    fi
+
+    log_info "Installing AWS CLI v2 (official installer)..."
+
+    local arch
+    local aws_zip
+    arch="$(uname -m)"
+
+    case "$arch" in
+        x86_64)
+            aws_zip="awscli-exe-linux-x86_64.zip"
+            ;;
+        aarch64|arm64)
+            aws_zip="awscli-exe-linux-aarch64.zip"
+            ;;
+        *)
+            log_warning "Unsupported architecture for AWS CLI installer: $arch"
+            return 0
+            ;;
+    esac
+
+    cd /tmp
+    curl -fsSL "https://awscli.amazonaws.com/${aws_zip}" -o awscliv2.zip
+    unzip -q -o awscliv2.zip
+    sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
+    rm -rf /tmp/aws /tmp/awscliv2.zip
+
+    if command_exists aws; then
+        log_success "AWS CLI installed: $(aws --version 2>&1 | head -n1)"
+    else
+        log_warning "AWS CLI installation finished but command not found"
+    fi
+}
+
 {{- if .install_desktop }}
 install_desktop_packages() {
     log_info "Installing desktop packages (Debian/Ubuntu)..."
@@ -163,6 +201,17 @@ install_ghostty() {
     log_success "Ghostty installed"
 }
 
+install_awscli() {
+    if command_exists aws; then
+        log_warning "AWS CLI already installed: $(aws --version 2>&1 | head -n1)"
+        return 0
+    fi
+
+    log_info "Installing AWS CLI (Arch package)..."
+    sudo pacman -S --noconfirm --needed aws-cli
+    log_success "AWS CLI installed: $(aws --version 2>&1 | head -n1)"
+}
+
 {{- if .install_desktop }}
 install_desktop_packages() {
     log_info "Installing desktop packages (Arch)..."
@@ -214,6 +263,10 @@ install_ghostty() {
     log_warning "Ghostty installation not configured for {{ .osid }}"
 }
 
+install_awscli() {
+    log_warning "AWS CLI installation not configured for {{ .osid }}"
+}
+
 {{- if .install_desktop }}
 install_desktop_packages() {
     log_warning "Desktop packages not configured for {{ .osid }}"
@@ -239,6 +292,7 @@ main() {
     install_base_packages
     install_neovim
     install_ghostty
+    install_awscli
     
 {{- if .install_desktop }}
     install_desktop_packages
