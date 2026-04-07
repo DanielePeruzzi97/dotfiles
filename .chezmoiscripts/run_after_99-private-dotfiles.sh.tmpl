@@ -47,4 +47,13 @@ else
 fi
 
 echo "Private dotfiles repository synchronized"
-echo "Deferred apply to installer step to avoid chezmoi state lock"
+
+# Apply private dotfiles using chezmoi
+# Use a separate chezmoi instance with private repo as source
+echo "Applying private dotfiles with chezmoi..."
+if chezmoi apply --source="$PRIVATE_DIR" --verbose; then
+    echo "Private dotfiles applied successfully"
+else
+    echo "Warning: Failed to apply some private dotfiles"
+    echo "You may need to run: chezmoi apply --source=$PRIVATE_DIR"
+fi
