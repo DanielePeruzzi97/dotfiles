@@ -270,7 +270,7 @@ install_desktop_packages() {
         seahorse mpv flatpak aws-cli
         curl jq tree btop iotop nethogs sshfs
         reflector pkgfile pacman-contrib
-        gnome-keyring pipewire-jack
+        gnome-keyring jack2
     )
     local pkg
     local missing=()
@@ -321,6 +321,11 @@ install_hyprland_packages() {
     # swayosd is expected from Arch extra. If still missing, leave it optional.
     if ! command_exists swayosd; then
         log_warning "swayosd not installed (optional). Install manually with: sudo pacman -S swayosd"
+    fi
+
+    # wlogout may be missing from some mirrors/repos.
+    if ! command_exists wlogout; then
+        log_warning "wlogout not installed (optional). Install manually with: paru -S wlogout"
     fi
     
     # Setup Flatpak
