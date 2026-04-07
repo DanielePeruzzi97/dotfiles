@@ -75,6 +75,31 @@ install_mise() {
     log_success "mise installed: $(mise --version)"
 }
 
+ensure_mise_activation() {
+    if [ -f "$HOME/.bashrc" ] && ! grep -q "mise activate bash" "$HOME/.bashrc"; then
+        echo 'eval "$(~/.local/bin/mise activate bash)"' >> "$HOME/.bashrc"
+    fi
+
+    if [ -f "$HOME/.profile" ] && ! grep -q "mise activate bash" "$HOME/.profile"; then
+        echo 'eval "$(~/.local/bin/mise activate bash)"' >> "$HOME/.profile"
+    fi
+
+    export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH"
+}
+
+ensure_chezmoi_command() {
+    if command -v chezmoi >/dev/null 2>&1; then
+        return 0
+    fi
+
+    local chezmoi_bin
+    chezmoi_bin=$("$HOME/.local/bin/mise" which chezmoi 2>/dev/null || true)
+    if [ -n "$chezmoi_bin" ] && [ -x "$chezmoi_bin" ]; then
+        ln -sf "$chezmoi_bin" "$HOME/.local/bin/chezmoi"
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
+}
+
 resolve_repo() {
     if [ -n "${DOTFILES_REPO:-}" ]; then
         echo "$DOTFILES_REPO"
@@ -155,6 +180,7 @@ main() {
     fi
 
     install_mise
+    ensure_mise_activation
 
     local repo
     local branch
@@ -166,6 +192,7 @@ main() {
 
     "$HOME/.local/bin/mise" exec chezmoi@latest -- chezmoi init --source="$HOME/.dotfiles"
     "$HOME/.local/bin/mise" exec chezmoi@latest -- chezmoi apply
+    ensure_chezmoi_command
 
     log_success "Bootstrap complete"
     print_yubikey_hint
