@@ -9,10 +9,23 @@ PRIVATE_REPO="git@github.com:DanielePeruzzi97/dotfiles_private.git"
 PRIVATE_DIR="$HOME/.dotfiles_private"
 PRIVATE_KEY="$HOME/.ssh/id_ed25519_sk"
 SSH_CMD="ssh -i $PRIVATE_KEY -o IdentitiesOnly=yes -o PreferredAuthentications=publickey"
+BOOTSTRAP_ENV_FILE="$HOME/.local/share/dotfiles/bootstrap.private.env"
+HTTPS_REPO=""
+
+if [ -f "$BOOTSTRAP_ENV_FILE" ]; then
+    # shellcheck disable=SC1090
+    set -a
+    . "$BOOTSTRAP_ENV_FILE"
+    set +a
+fi
+
+if [ -n "${GITHUB_TOKEN:-}" ]; then
+    HTTPS_REPO="https://x-access-token:${GITHUB_TOKEN}@github.com/DanielePeruzzi97/dotfiles_private.git"
+fi
 
 echo "Setting up private dotfiles..."
 
-if [ ! -f "$PRIVATE_KEY" ]; then
+if [ -z "$HTTPS_REPO" ] && [ ! -f "$PRIVATE_KEY" ]; then
     echo "YubiKey SSH key not found locally, attempting resident key import..."
     mkdir -p "$HOME/.ssh"
 
@@ -47,17 +60,43 @@ if [ ! -f "$PRIVATE_KEY" ]; then
     fi
 fi
 
-chmod 600 "$PRIVATE_KEY" 2>/dev/null || true
+if [ -z "$HTTPS_REPO" ]; then
+    chmod 600 "$PRIVATE_KEY" 2>/dev/null || true
+fi
 
-# Test private repo access with YubiKey key only
-echo "Testing private repo SSH access with YubiKey key..."
-if ! GIT_SSH_COMMAND="$SSH_CMD" git ls-remote "$PRIVATE_REPO" HEAD >/dev/null 2>&1; then
-    echo "Warning: Cannot authenticate to private repo with YubiKey key"
+# Test private repo access
+if [ -n "$HTTPS_REPO" ]; then
+    echo "Testing private repo access with decrypted bootstrap token..."
+    if ! git ls-remote "$HTTPS_REPO" HEAD >/dev/null 2>&1; then
+        echo "Warning: Cannot authenticate to private repo with bootstrap token"
+        echo "Skipping private dotfiles setup"
+        exit 0
+    fi
+else
+    echo "Testing private repo SSH access with YubiKey key..."
+    if ! GIT_SSH_COMMAND="$SSH_CMD" git ls-remote "$PRIVATE_REPO" HEAD >/dev/null 2>&1; then
+        echo "Warning: Cannot authenticate to private repo with YubiKey key"
+        echo "Skipping private dotfiles setup"
+        echo ""
+        echo "To set up later:"
+        echo "  1. Ensure ~/.ssh/id_ed25519_sk exists and GitHub has the matching public key"
+        echo "  2. Run: chezmoi apply"
+        exit 0
+    fi
+fi
+
+REPO_TO_USE="$PRIVATE_REPO"
+if [ -n "$HTTPS_REPO" ]; then
+    REPO_TO_USE="$HTTPS_REPO"
+fi
+
+if [ -n "$HTTPS_REPO" ]; then
+    echo "Using HTTPS token authentication for private dotfiles"
+fi
+
+if [ -z "$HTTPS_REPO" ] && ! command -v ssh-keygen >/dev/null 2>&1; then
+    echo "Warning: ssh-keygen not available, cannot import resident keys"
     echo "Skipping private dotfiles setup"
-    echo ""
-    echo "To set up later:"
-    echo "  1. Ensure ~/.ssh/id_ed25519_sk exists and GitHub has the matching public key"
-    echo "  2. Run: chezmoi apply"
     exit 0
 fi
 
@@ -65,13 +104,26 @@ fi
 if [ -d "$PRIVATE_DIR/.git" ]; then
     echo "Private dotfiles repo exists, pulling latest..."
     cd "$PRIVATE_DIR"
-    GIT_SSH_COMMAND="$SSH_CMD" git fetch origin
+    if [ -n "$HTTPS_REPO" ]; then
+        git fetch "$REPO_TO_USE"
+    else
+        GIT_SSH_COMMAND="$SSH_CMD" git fetch origin
+    fi
     git checkout feat/chezmoi-migration 2>/dev/null || git checkout main
-    GIT_SSH_COMMAND="$SSH_CMD" git pull
+    if [ -n "$HTTPS_REPO" ]; then
+        git pull "$REPO_TO_USE"
+    else
+        GIT_SSH_COMMAND="$SSH_CMD" git pull
+    fi
 else
     echo "Cloning private dotfiles..."
-    GIT_SSH_COMMAND="$SSH_CMD" git clone --branch feat/chezmoi-migration "$PRIVATE_REPO" "$PRIVATE_DIR" 2>/dev/null || \
-    GIT_SSH_COMMAND="$SSH_CMD" git clone "$PRIVATE_REPO" "$PRIVATE_DIR"
+    if [ -n "$HTTPS_REPO" ]; then
+        git clone --branch feat/chezmoi-migration "$REPO_TO_USE" "$PRIVATE_DIR" 2>/dev/null || \
+        git clone "$REPO_TO_USE" "$PRIVATE_DIR"
+    else
+        GIT_SSH_COMMAND="$SSH_CMD" git clone --branch feat/chezmoi-migration "$PRIVATE_REPO" "$PRIVATE_DIR" 2>/dev/null || \
+        GIT_SSH_COMMAND="$SSH_CMD" git clone "$PRIVATE_REPO" "$PRIVATE_DIR"
+    fi
 fi
 
 # Apply private dotfiles using chezmoi

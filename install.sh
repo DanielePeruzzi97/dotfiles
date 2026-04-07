@@ -155,8 +155,8 @@ print_yubikey_hint() {
     echo ""
     log_info "YubiKey bootstrap (optional, recommended for private repo access):"
     echo "  1) Insert your YubiKey"
-    echo "  2) Private bootstrap will import resident key automatically (ssh-keygen -K)"
-    echo "  3) Ensure YubiKey public key is already added to GitHub"
+    echo "  2) Private bootstrap uses decrypted token first, then falls back to resident SSH key import (ssh-keygen -K)"
+    echo "  3) Ensure YubiKey public key is added to GitHub if using SSH fallback"
     echo "  4) If private repo was skipped, re-run: chezmoi apply"
     echo ""
 }
