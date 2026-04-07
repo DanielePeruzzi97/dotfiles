@@ -160,7 +160,7 @@ install_hyprland_packages() {
         sudo apt install -y --no-install-recommends \
             meson ninja-build cmake pkg-config scdoc gettext sassc \
             libgtk-4-dev libevdev-dev libpulse-dev libwayland-dev \
-            wayland-protocols libdbus-1-dev libudev-dev valac >/dev/null 2>&1
+            wayland-protocols libdbus-1-dev libudev-dev libinput-dev valac >/dev/null 2>&1
 
         # SwayOSD requires gtk4-layer-shell-0.pc (not available in Ubuntu 24.04 repos).
         if ! pkg-config --exists gtk4-layer-shell-0; then
