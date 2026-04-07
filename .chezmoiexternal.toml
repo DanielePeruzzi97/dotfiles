@@ -35,12 +35,4 @@
     stripComponents = 1
     refreshPeriod = "168h"
 
-# ============================================
-# Tmux Plugin Manager (TPM)
-# ============================================
-[".tmux/plugins/tpm"]
-    type = "archive"
-    url = "https://github.com/tmux-plugins/tpm/archive/master.tar.gz"
-    exact = true
-    stripComponents = 1
-    refreshPeriod = "168h"
+# TPM is managed by tmux itself (prefix + I to install plugins)
