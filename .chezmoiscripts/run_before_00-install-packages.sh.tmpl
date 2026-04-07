@@ -139,7 +139,7 @@ install_hyprland_packages() {
         wl-clipboard brightnessctl playerctl udiskie polkit-kde-agent-1
         network-manager-gnome blueman pavucontrol grim slurp hyprsunset
         nautilus qt5ct qt6ct xdg-user-dirs xdg-desktop-portal-gtk gvfs tumbler btop
-        hyprlock hypridle hyprpaper grimblast
+        hyprlock hypridle hyprpaper
     )
 
     local missing=()
@@ -151,31 +151,63 @@ install_hyprland_packages() {
         fi
     done
 
-    # swayosd is not available in Ubuntu noble repos/ppa in many cases.
-    # Build from source when missing.
-    if ! command_exists swayosd; then
-        log_warning "swayosd package not available, installing from source..."
-        sudo apt install -y --no-install-recommends meson ninja-build cmake pkg-config \
-            libgtk-3-dev libpulse-dev libdbusmenu-gtk3-dev libevdev-dev \
-            libwayland-dev wayland-protocols scdoc gettext >/dev/null 2>&1 || true
+    install_swayosd() {
+        if command_exists swayosd; then
+            return 0
+        fi
+
+        # Try apt first (available in newer Ubuntu/Debian)
+        if sudo apt install -y swayosd >/dev/null 2>&1; then
+            command_exists swayosd && return 0
+        fi
+
+        log_info "Installing swayosd from source..."
+        sudo apt install -y --no-install-recommends \
+            meson ninja-build cmake pkg-config scdoc gettext rustc cargo \
+            libgtk-4-dev libgtk-layer-shell-dev libevdev-dev libpulse-dev \
+            libwayland-dev wayland-protocols libdbus-1-dev libudev-dev >/dev/null 2>&1
 
         rm -rf /tmp/SwayOSD
-        git clone https://github.com/ErikReider/SwayOSD.git /tmp/SwayOSD >/dev/null 2>&1 || true
-        if [ -d /tmp/SwayOSD ]; then
-            if [ -f /tmp/SwayOSD/install.sh ]; then
-                (cd /tmp/SwayOSD && ./install.sh >/dev/null 2>&1) || true
-            else
-                (cd /tmp/SwayOSD && meson setup build >/dev/null 2>&1 && \
-                    ninja -C build >/dev/null 2>&1 && sudo ninja -C build install >/dev/null 2>&1) || true
-            fi
-            rm -rf /tmp/SwayOSD
+        git clone --depth=1 https://github.com/ErikReider/SwayOSD.git /tmp/SwayOSD >/dev/null 2>&1
+        (cd /tmp/SwayOSD && meson setup build --buildtype release >/dev/null && ninja -C build >/dev/null && sudo ninja -C build install >/dev/null)
+        rm -rf /tmp/SwayOSD
+
+        command_exists swayosd
+    }
+
+    install_grimblast() {
+        if command_exists grimblast; then
+            return 0
         fi
 
-        if command_exists swayosd; then
-            log_success "swayosd installed from source"
-        else
-            log_warning "Could not install swayosd automatically"
+        # Try apt package first (if available)
+        if sudo apt install -y grimblast >/dev/null 2>&1; then
+            command_exists grimblast && return 0
         fi
+
+        log_info "Installing grimblast script from hyprwm contrib..."
+        rm -rf /tmp/hyprwm-contrib
+        git clone --depth=1 https://github.com/hyprwm/contrib.git /tmp/hyprwm-contrib >/dev/null 2>&1
+
+        if [ -f /tmp/hyprwm-contrib/grimblast/grimblast ]; then
+            sudo install -Dm755 /tmp/hyprwm-contrib/grimblast/grimblast /usr/local/bin/grimblast
+            rm -rf /tmp/hyprwm-contrib
+            command_exists grimblast
+            return $?
+        fi
+
+        rm -rf /tmp/hyprwm-contrib
+        return 1
+    }
+
+    if ! install_swayosd; then
+        log_error "Failed to install swayosd"
+        return 1
+    fi
+
+    if ! install_grimblast; then
+        log_error "Failed to install grimblast"
+        return 1
     fi
 
     if [ ${#missing[@]} -gt 0 ]; then

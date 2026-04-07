@@ -17,6 +17,13 @@ log_warning() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 # Ensure mise is in PATH
 export PATH="$HOME/.local/bin:$PATH"
 
+# Optional GitHub token to avoid API rate limits when downloading release metadata.
+# User can set it beforehand (recommended in CI/VM bootstrap):
+#   export GITHUB_TOKEN=ghp_xxx
+if [ -n "${GITHUB_TOKEN:-}" ]; then
+    export GITHUB_TOKEN
+fi
+
 if ! command -v mise &> /dev/null; then
     log_warning "mise not found, skipping tool installation"
     exit 0
@@ -25,8 +32,20 @@ fi
 log_info "Installing development tools via mise..."
 log_info "This may take a few minutes on first run..."
 
+if [ -z "${GITHUB_TOKEN:-}" ]; then
+    log_warning "GITHUB_TOKEN is not set; GitHub API rate limits may break some installs"
+fi
+
 # Install all tools defined in config
-mise install --yes
+if ! mise install --yes; then
+    if [ -z "${GITHUB_TOKEN:-}" ]; then
+        log_warning "mise install failed and GITHUB_TOKEN is unset"
+        log_warning "Set token and retry: export GITHUB_TOKEN=<token>; chezmoi apply"
+        exit 1
+    fi
+    log_warning "mise install failed with token set, retrying once..."
+    mise install --yes
+fi
 
 log_success "Development tools installed"
 

@@ -161,6 +161,18 @@ print_yubikey_hint() {
     echo ""
 }
 
+print_github_token_hint() {
+    if [ -n "${GITHUB_TOKEN:-}" ]; then
+        return
+    fi
+    echo ""
+    log_warning "GITHUB_TOKEN is not set"
+    echo "  mise downloads many tools from GitHub and may hit API rate limits in fresh VMs."
+    echo "  Recommended before install:"
+    echo "    export GITHUB_TOKEN=<github_pat_no_scopes_needed>"
+    echo ""
+}
+
 main() {
     echo ""
     echo "╔══════════════════════════════════════════════════════════════╗"
@@ -181,6 +193,7 @@ main() {
 
     install_mise
     ensure_mise_activation
+    print_github_token_hint
 
     local repo
     local branch
