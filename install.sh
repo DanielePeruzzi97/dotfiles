@@ -161,10 +161,24 @@ print_yubikey_hint() {
     echo ""
 }
 
-print_github_token_hint() {
+setup_github_token_for_bootstrap() {
     if [ -n "${GITHUB_TOKEN:-}" ]; then
         return
     fi
+
+    local env_file="$HOME/.local/share/dotfiles/bootstrap.private.env"
+    if [ -f "$env_file" ]; then
+        # shellcheck disable=SC1090
+        set -a
+        . "$env_file"
+        set +a
+    fi
+
+    if [ -n "${GITHUB_TOKEN:-}" ]; then
+        log_success "Loaded GITHUB_TOKEN from decrypted bootstrap env"
+        return
+    fi
+
     echo ""
     log_warning "GITHUB_TOKEN is not set"
     echo "  mise downloads many tools from GitHub and may hit API rate limits in fresh VMs."
@@ -193,7 +207,7 @@ main() {
 
     install_mise
     ensure_mise_activation
-    print_github_token_hint
+    setup_github_token_for_bootstrap
 
     local repo
     local branch
