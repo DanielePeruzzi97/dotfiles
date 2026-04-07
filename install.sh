@@ -2,6 +2,10 @@
 # Bootstrap installer (curl-friendly)
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/DanielePeruzzi97/dotfiles/main/install.sh | bash
+#
+# Optional env vars:
+#   DOTFILES_REPO="owner/repo"        (default: DanielePeruzzi97/dotfiles)
+#   DOTFILES_BRANCH="branch-name"     (default: feat/chezmoi-migration)
 
 set -euo pipefail
 
@@ -85,6 +89,43 @@ resolve_repo() {
     echo "DanielePeruzzi97/dotfiles"
 }
 
+resolve_branch() {
+    if [ -n "${DOTFILES_BRANCH:-}" ]; then
+        echo "$DOTFILES_BRANCH"
+        return
+    fi
+
+    # While migration is on a feature branch, default to it.
+    # After merge, this should be switched back to main.
+    echo "feat/chezmoi-migration"
+}
+
+repo_to_url() {
+    local repo="$1"
+    if [[ "$repo" == http://* || "$repo" == https://* || "$repo" == git@* ]]; then
+        echo "$repo"
+    else
+        echo "https://github.com/${repo}.git"
+    fi
+}
+
+clone_or_update_dotfiles_repo() {
+    local repo="$1"
+    local branch="$2"
+    local url
+    url=$(repo_to_url "$repo")
+
+    if [ -d "$HOME/.dotfiles/.git" ]; then
+        log_info "Updating existing ~/.dotfiles repository..."
+        git -C "$HOME/.dotfiles" fetch origin "$branch"
+        git -C "$HOME/.dotfiles" checkout "$branch"
+        git -C "$HOME/.dotfiles" reset --hard "origin/$branch"
+    else
+        log_info "Cloning dotfiles into ~/.dotfiles (branch: $branch)..."
+        git clone --branch "$branch" "$url" "$HOME/.dotfiles"
+    fi
+}
+
 print_yubikey_hint() {
     echo ""
     log_info "YubiKey bootstrap (optional, recommended for private repo access):"
@@ -116,10 +157,15 @@ main() {
     install_mise
 
     local repo
+    local branch
     repo=$(resolve_repo)
-    log_info "Applying dotfiles from: $repo"
+    branch=$(resolve_branch)
+    log_info "Applying dotfiles from: $repo (branch: $branch)"
 
-    "$HOME/.local/bin/mise" exec chezmoi@latest -- chezmoi init --apply --source="$HOME/.dotfiles" "$repo"
+    clone_or_update_dotfiles_repo "$repo" "$branch"
+
+    "$HOME/.local/bin/mise" exec chezmoi@latest -- chezmoi init --source="$HOME/.dotfiles"
+    "$HOME/.local/bin/mise" exec chezmoi@latest -- chezmoi apply
 
     log_success "Bootstrap complete"
     print_yubikey_hint

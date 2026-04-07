@@ -10,6 +10,13 @@ Modern development environment configuration for Linux systems with Neovim, Tmux
 curl -fsSL https://raw.githubusercontent.com/DanielePeruzzi97/dotfiles/main/install.sh | bash
 ```
 
+During migration branch testing:
+
+```bash
+DOTFILES_BRANCH=feat/chezmoi-migration \
+curl -fsSL "https://raw.githubusercontent.com/DanielePeruzzi97/dotfiles/feat%2Fchezmoi-migration/install.sh" | bash
+```
+
 This single command will:
 1. Install chezmoi (dotfiles manager)
 2. Clone this repository
