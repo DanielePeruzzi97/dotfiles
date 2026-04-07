@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-{{- if not .is_work }}
+{{- if not .is_work_machine }}
 # Skip private dotfiles for non-work machines
 echo "Skipping private dotfiles (not a work machine)"
 exit 0
@@ -69,7 +69,10 @@ fi
 echo "Applying private dotfiles..."
 
 # Use chezmoi with the private source directory
-# We use --source to point to the private repo
-chezmoi apply --source="$PRIVATE_DIR" --destination="$HOME"
+if command -v mise &>/dev/null; then
+    mise exec chezmoi@latest -- chezmoi apply --source="$PRIVATE_DIR" --destination="$HOME"
+else
+    chezmoi apply --source="$PRIVATE_DIR" --destination="$HOME"
+fi
 
 echo "Private dotfiles applied successfully"
