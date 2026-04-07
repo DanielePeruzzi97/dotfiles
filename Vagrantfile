@@ -2,7 +2,7 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
   config.vm.define "ubuntu" do |ubuntu|
-    ubuntu.vm.box = "bento/ubuntu-24.04"
+    ubuntu.vm.box = "bento/ubuntu-25.04"
     ubuntu.vm.hostname = "dotfiles-ubuntu"
     ubuntu.vm.network "private_network", type: "dhcp"
     
