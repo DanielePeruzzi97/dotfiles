@@ -191,7 +191,7 @@ main() {
     clone_or_update_dotfiles_repo "$repo" "$branch"
 
     "$HOME/.local/bin/mise" exec chezmoi@latest -- chezmoi init --source="$HOME/.dotfiles"
-    "$HOME/.local/bin/mise" exec chezmoi@latest -- chezmoi apply
+    "$HOME/.local/bin/mise" exec chezmoi@latest -- chezmoi apply --source="$HOME/.dotfiles"
     ensure_chezmoi_command
 
     log_success "Bootstrap complete"
