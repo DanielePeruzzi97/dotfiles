@@ -5,12 +5,6 @@
 
 set -euo pipefail
 
-{{- if not .is_work_machine }}
-# Skip private dotfiles for non-work machines
-echo "Skipping private dotfiles (not a work machine)"
-exit 0
-{{- end }}
-
 PRIVATE_REPO="git@github.com:DanielePeruzzi97/dotfiles_private.git"
 PRIVATE_DIR="$HOME/.dotfiles_private"
 PRIVATE_KEY="$HOME/.ssh/id_ed25519_sk"

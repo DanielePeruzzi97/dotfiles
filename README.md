@@ -17,13 +17,6 @@ DOTFILES_BRANCH=feat/chezmoi-migration \
 curl -fsSL "https://raw.githubusercontent.com/DanielePeruzzi97/dotfiles/feat%2Fchezmoi-migration/install.sh" | bash
 ```
 
-To force work-machine behavior in non-interactive bootstrap (for private repo test):
-
-```bash
-DOTFILES_WORK_MACHINE=1 DOTFILES_BRANCH=feat/chezmoi-migration \
-curl -fsSL "https://raw.githubusercontent.com/DanielePeruzzi97/dotfiles/feat%2Fchezmoi-migration/install.sh" | bash
-```
-
 This single command will:
 1. Install chezmoi (dotfiles manager)
 2. Clone this repository
@@ -147,16 +140,14 @@ Clean slate - install scripts add Hyprland and all tools on top of base system.
 ### Ubuntu Desktop
 These dotfiles are **additive** - they install Hyprland alongside your existing desktop environment. At login (GDM), you can choose between GNOME and Hyprland sessions.
 
-## Private Dotfiles (Work)
+## Private Dotfiles
 
-For work machines, the setup includes integration with a private dotfiles repository containing:
+The setup includes integration with a private dotfiles repository containing:
 - SSH keys and config
 - AWS credentials and profiles
 - Work git configuration
 
-The private repo is automatically cloned and applied if:
-1. You selected "work machine" during setup
-2. Your YubiKey SSH key is available
+The private repo is automatically cloned and applied when your YubiKey SSH key is available.
 
 ### Optional: Encrypted Bootstrap Env (YubiKey Touch)
 

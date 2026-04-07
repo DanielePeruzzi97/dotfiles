@@ -6,7 +6,6 @@
 # Optional env vars:
 #   DOTFILES_REPO="owner/repo"        (default: DanielePeruzzi97/dotfiles)
 #   DOTFILES_BRANCH="branch-name"     (default: feat/chezmoi-migration)
-#   DOTFILES_WORK_MACHINE=1            (forces work-machine mode in non-interactive bootstrap)
 
 set -euo pipefail
 
@@ -226,7 +225,7 @@ main() {
     print_yubikey_hint
 
     echo "Next steps:"
-    echo "  - Work machine/private repo: insert YubiKey and run chezmoi apply (imports resident key)"
+    echo "  - Private repo: insert YubiKey and run chezmoi apply (imports resident key)"
     echo "  - Log out and back in to apply shell changes"
 }
 
