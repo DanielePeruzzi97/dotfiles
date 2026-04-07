@@ -73,20 +73,9 @@ if ! command -v age-plugin-yubikey >/dev/null 2>&1; then
     fi
 fi
 
-if [ ! -f "$YUBIKEY_IDENTITY_FILE" ]; then
-    mkdir -p "$HOME/.config/age"
-    log_info "Generating YubiKey identity file..."
-    if age-plugin-yubikey --identity > "$YUBIKEY_IDENTITY_FILE" 2>/dev/null; then
-        chmod 600 "$YUBIKEY_IDENTITY_FILE"
-    else
-        rm -f "$YUBIKEY_IDENTITY_FILE"
-        log_warning "Could not read YubiKey identity, skipping bootstrap private env"
-        exit 0
-    fi
-fi
-
 if [ ! -s "$YUBIKEY_IDENTITY_FILE" ]; then
-    log_warning "YubiKey identity file is empty, skipping bootstrap private env"
+    log_warning "YubiKey identity file missing/empty at ~/.config/age/yubikey-identities.txt"
+    log_warning "It should be managed by dotfiles (dot_config/age/yubikey-identities.txt)"
     exit 0
 fi
 

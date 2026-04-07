@@ -180,6 +180,9 @@ If decryption fails (no key/token/user), setup continues without breaking public
 By default bootstrap expects YubiKey identities at:
 - `~/.config/age/yubikey-identities.txt`
 
+This file is managed by these dotfiles at:
+- `dot_config/age/yubikey-identities.txt`
+
 Software age key fallback is not supported: bootstrap decryption is YubiKey-only.
 
 ## Keyboard-Centric Workflow
