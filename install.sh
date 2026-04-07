@@ -100,6 +100,18 @@ ensure_chezmoi_command() {
     fi
 }
 
+apply_private_dotfiles_if_present() {
+    local private_dir="$HOME/.dotfiles_private"
+
+    if [ ! -d "$private_dir/.git" ]; then
+        return 0
+    fi
+
+    log_info "Applying private dotfiles from ~/.dotfiles_private..."
+    "$HOME/.local/bin/mise" exec chezmoi@latest -- chezmoi apply --source="$private_dir" --destination="$HOME"
+    log_success "Private dotfiles applied"
+}
+
 resolve_repo() {
     if [ -n "${DOTFILES_REPO:-}" ]; then
         echo "$DOTFILES_REPO"
@@ -219,6 +231,7 @@ main() {
 
     "$HOME/.local/bin/mise" exec chezmoi@latest -- chezmoi init --source="$HOME/.dotfiles"
     "$HOME/.local/bin/mise" exec chezmoi@latest -- chezmoi apply --source="$HOME/.dotfiles"
+    apply_private_dotfiles_if_present
     ensure_chezmoi_command
 
     log_success "Bootstrap complete"
