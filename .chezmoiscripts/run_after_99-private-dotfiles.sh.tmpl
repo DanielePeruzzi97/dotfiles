@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Clone and apply private dotfiles (if available)
 # This runs after the main dotfiles are applied
-# Requires a pre-generated YubiKey SSH key at ~/.ssh/id_ed25519_sk
+# Uses a resident YubiKey SSH key for private repo authentication
 
 set -euo pipefail
 
@@ -19,9 +19,38 @@ SSH_CMD="ssh -i $PRIVATE_KEY -o IdentitiesOnly=yes -o PreferredAuthentications=p
 echo "Setting up private dotfiles..."
 
 if [ ! -f "$PRIVATE_KEY" ]; then
-    echo "Warning: YubiKey SSH key not found at $PRIVATE_KEY"
-    echo "Generate/import it first, then re-run: chezmoi apply"
-    exit 0
+    echo "YubiKey SSH key not found locally, attempting resident key import..."
+    mkdir -p "$HOME/.ssh"
+
+    # Import resident keys from YubiKey (no new key generation)
+    # This may prompt for PIN and touch.
+    if (cd "$HOME/.ssh" && ssh-keygen -K); then
+        :
+    else
+        echo "Warning: Could not import resident key from YubiKey"
+        echo "Insert YubiKey, then run: ssh-keygen -K"
+        echo "Then re-run: chezmoi apply"
+        exit 0
+    fi
+
+    # Normalize expected key name if a resident key was imported with another name
+    if [ ! -f "$PRIVATE_KEY" ]; then
+        CANDIDATE_KEY="$(find "$HOME/.ssh" -maxdepth 1 -type f -name '*_sk' | head -n 1 || true)"
+        if [ -n "$CANDIDATE_KEY" ]; then
+            cp "$CANDIDATE_KEY" "$PRIVATE_KEY"
+            chmod 600 "$PRIVATE_KEY"
+            if [ -f "${CANDIDATE_KEY}.pub" ]; then
+                cp "${CANDIDATE_KEY}.pub" "${PRIVATE_KEY}.pub"
+                chmod 644 "${PRIVATE_KEY}.pub" || true
+            fi
+        fi
+    fi
+
+    if [ ! -f "$PRIVATE_KEY" ]; then
+        echo "Warning: No *_sk key imported from YubiKey"
+        echo "Run: ssh-keygen -K and verify ~/.ssh/id_ed25519_sk exists"
+        exit 0
+    fi
 fi
 
 chmod 600 "$PRIVATE_KEY" 2>/dev/null || true

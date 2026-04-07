@@ -155,9 +155,9 @@ print_yubikey_hint() {
     echo ""
     log_info "YubiKey bootstrap (optional, recommended for private repo access):"
     echo "  1) Insert your YubiKey"
-    echo "  2) Ensure pre-generated key exists: ~/.ssh/id_ed25519_sk"
-    echo "  3) Ensure matching public key is added to GitHub"
-    echo "  4) Re-run: chezmoi apply"
+    echo "  2) Private bootstrap will import resident key automatically (ssh-keygen -K)"
+    echo "  3) Ensure YubiKey public key is already added to GitHub"
+    echo "  4) If private repo was skipped, re-run: chezmoi apply"
     echo ""
 }
 
@@ -198,7 +198,7 @@ main() {
     print_yubikey_hint
 
     echo "Next steps:"
-    echo "  - Work machine/private repo: ensure ~/.ssh/id_ed25519_sk is present, then run chezmoi apply"
+    echo "  - Work machine/private repo: insert YubiKey and run chezmoi apply (imports resident key)"
     echo "  - Log out and back in to apply shell changes"
 }
 
