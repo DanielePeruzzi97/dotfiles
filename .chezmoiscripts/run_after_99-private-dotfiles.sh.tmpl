@@ -40,6 +40,13 @@ if ! ssh-add -l &>/dev/null; then
     fi
 fi
 
+# Prefer YubiKey SSH key when available
+if [ -f "$HOME/.ssh/id_ed25519_sk" ]; then
+    if ! ssh-add -l 2>/dev/null | grep -q "ED25519-SK"; then
+        ssh-add "$HOME/.ssh/id_ed25519_sk" 2>/dev/null || true
+    fi
+fi
+
 # Test GitHub SSH access
 echo "Testing GitHub SSH access..."
 if ! ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
