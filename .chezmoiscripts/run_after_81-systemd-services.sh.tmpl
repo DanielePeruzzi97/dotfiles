@@ -10,28 +10,41 @@ exit 0
 
 echo "Setting up systemd user services..."
 
-# Ensure user systemd directory exists
-mkdir -p "$HOME/.config/systemd/user"
+# Pick up chezmoi-managed user units from ~/.config/systemd/user
+systemctl --user daemon-reload
 
-# HyprDynamicMonitors service
-HDM_SERVICE_SRC="$HOME/.config/hyprdynamicmonitors/hyprdynamicmonitors.service"
-HDM_SERVICE_DST="$HOME/.config/systemd/user/hyprdynamicmonitors.service"
+CHEZMOI_SERVICES=(
+    "hyprdynamicmonitors-prepare.service"
+    "hyprdynamicmonitors.service"
+)
 
-if [ -f "$HDM_SERVICE_SRC" ]; then
-    # Check if service file has changed
-    if [ ! -f "$HDM_SERVICE_DST" ] || ! cmp -s "$HDM_SERVICE_SRC" "$HDM_SERVICE_DST"; then
-        cp "$HDM_SERVICE_SRC" "$HDM_SERVICE_DST"
-        systemctl --user daemon-reload
-        echo "HyprDynamicMonitors service updated"
+PACKAGE_SERVICES=(
+    "hypridle.service"
+    "hyprpaper.service"
+    "hyprpolkitagent.service"
+    "hyprsunset.service"
+)
+
+for service in "${CHEZMOI_SERVICES[@]}"; do
+    if systemctl --user list-unit-files "$service" &>/dev/null; then
+        if ! systemctl --user is-enabled "$service" &>/dev/null; then
+            systemctl --user enable "$service"
+            echo "Enabled $service"
+        fi
+    else
+        echo "Service $service not found, skipping"
     fi
-    
-    # Enable the service
-    if ! systemctl --user is-enabled hyprdynamicmonitors.service &>/dev/null; then
-        systemctl --user enable hyprdynamicmonitors.service
-        echo "HyprDynamicMonitors service enabled"
+done
+
+for service in "${PACKAGE_SERVICES[@]}"; do
+    if systemctl --user list-unit-files "$service" &>/dev/null; then
+        if ! systemctl --user is-enabled "$service" &>/dev/null; then
+            systemctl --user enable "$service"
+            echo "Enabled $service"
+        fi
+    else
+        echo "Service $service not found, skipping"
     fi
-else
-    echo "HyprDynamicMonitors service file not found, skipping"
-fi
+done
 
 echo "Systemd user services setup complete"

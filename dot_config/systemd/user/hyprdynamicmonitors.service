@@ -1,13 +1,17 @@
 [Unit]
 Description=HyprDynamicMonitors - Dynamic monitor configuration for Hyprland
-After=graphical-session-pre.target
+Documentation=https://fiffeek.github.io/hyprdynamicmonitors/
 PartOf=graphical-session.target
+Requires=graphical-session.target
+After=graphical-session.target
+After=hyprdynamicmonitors-prepare.service
+ConditionEnvironment=WAYLAND_DISPLAY
 
 [Service]
 Type=simple
 ExecStart=/usr/local/bin/hyprdynamicmonitors run --enable-lid-events
 Restart=on-failure
-RestartSec=3
+RestartSec=5
 
 [Install]
 WantedBy=graphical-session.target

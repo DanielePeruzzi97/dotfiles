@@ -7,7 +7,7 @@ Modern development environment configuration for Linux systems with Neovim, Tmux
 ### One-Liner Bootstrap (Fresh Machine)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/DanielePeruzzi97/dotfiles/main/setup.sh | bash
+curl -fsSL https://raw.githubusercontent.com/DanielePeruzzi97/dotfiles/main/install.sh | bash
 ```
 
 This single command will:
@@ -64,7 +64,8 @@ Desktop packages (Hyprland, Waybar, Rofi, etc.) only install if you select "desk
 
 ```
 ~/.dotfiles/
-├── setup.sh                    # Bootstrap script (curl-able)
+├── install.sh                  # Bootstrap script (curl-able)
+├── setup.sh                    # Legacy bootstrap entrypoint
 ├── .chezmoi.toml.tmpl          # User preferences template
 ├── .chezmoiexternal.toml       # External dependencies (oh-my-zsh, TPM)
 ├── .chezmoiignore.tmpl         # Conditional file inclusion

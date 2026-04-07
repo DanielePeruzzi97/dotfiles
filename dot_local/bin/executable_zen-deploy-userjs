@@ -2,12 +2,17 @@
 # Deploy user.js to all Zen Browser profiles
 # Usage: zen-deploy-userjs
 
-USER_JS="$HOME/.dotfiles/zen/user.js"
+USER_JS="$HOME/.config/zen/user.js"
 ZEN_DIR="$HOME/.zen"
 
 if [[ ! -f "$USER_JS" ]]; then
-    echo "Error: $USER_JS not found"
-    exit 1
+    LEGACY_USER_JS="$HOME/.dotfiles/zen/user.js"
+    if [[ -f "$LEGACY_USER_JS" ]]; then
+        USER_JS="$LEGACY_USER_JS"
+    else
+        echo "Error: user.js not found in ~/.config/zen or ~/.dotfiles/zen"
+        exit 1
+    fi
 fi
 
 # Find all profile directories (format: xxxxxxxx.ProfileName)

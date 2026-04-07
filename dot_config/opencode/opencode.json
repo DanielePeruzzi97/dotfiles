@@ -9,6 +9,11 @@
       },
       "enabled": true
     },
+    "drawio": {
+      "type": "local",
+      "command": ["npx", "-y", "drawio-mcp-server", "--editor"],
+      "enabled": true
+    },
     "aws-documentation": {
       "type": "local",
       "command": [
@@ -41,10 +46,7 @@
       "enabled": true
     }
   },
-  "plugin": [
-    "@franlol/opencode-md-table-formatter@0.0.3",
-    "opencode-supermemory@latest"
-  ],
+  "plugin": ["@franlol/opencode-md-table-formatter@0.0.3"],
   "model": "github-copilot/claude-opus-4.5",
   "keybinds": {
     "leader": "alt+a",
