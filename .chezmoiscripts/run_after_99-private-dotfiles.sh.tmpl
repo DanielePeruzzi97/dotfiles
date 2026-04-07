@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Clone and apply private dotfiles (if available)
 # This runs after the main dotfiles are applied
-# Requires YubiKey resident SSH key for authentication
+# Requires a pre-generated YubiKey SSH key at ~/.ssh/id_ed25519_sk
 
 set -euo pipefail
 
@@ -13,48 +13,27 @@ exit 0
 
 PRIVATE_REPO="git@github.com:DanielePeruzzi97/dotfiles_private.git"
 PRIVATE_DIR="$HOME/.dotfiles_private"
+PRIVATE_KEY="$HOME/.ssh/id_ed25519_sk"
+SSH_CMD="ssh -i $PRIVATE_KEY -o IdentitiesOnly=yes -o PreferredAuthentications=publickey"
 
 echo "Setting up private dotfiles..."
 
-# Check if ssh-agent has any keys loaded
-if ! ssh-add -l &>/dev/null; then
-    echo "No SSH keys loaded. Attempting to load YubiKey resident key..."
-    
-    # Try to load resident key from YubiKey
-    if command -v ssh-keygen &>/dev/null; then
-        echo "Insert your YubiKey and touch it when prompted..."
-        ssh-keygen -K 2>/dev/null || {
-            echo "Warning: Could not load YubiKey resident key"
-            echo "You can manually run: ssh-keygen -K"
-            echo "Then re-run: chezmoi apply"
-            exit 0
-        }
-        
-        # Add the downloaded key to agent
-        if [ -f "$HOME/id_ed25519_sk" ]; then
-            mv "$HOME/id_ed25519_sk" "$HOME/.ssh/id_ed25519_sk"
-            mv "$HOME/id_ed25519_sk.pub" "$HOME/.ssh/id_ed25519_sk.pub" 2>/dev/null || true
-            chmod 600 "$HOME/.ssh/id_ed25519_sk"
-            ssh-add "$HOME/.ssh/id_ed25519_sk"
-        fi
-    fi
+if [ ! -f "$PRIVATE_KEY" ]; then
+    echo "Warning: YubiKey SSH key not found at $PRIVATE_KEY"
+    echo "Generate/import it first, then re-run: chezmoi apply"
+    exit 0
 fi
 
-# Prefer YubiKey SSH key when available
-if [ -f "$HOME/.ssh/id_ed25519_sk" ]; then
-    if ! ssh-add -l 2>/dev/null | grep -q "ED25519-SK"; then
-        ssh-add "$HOME/.ssh/id_ed25519_sk" 2>/dev/null || true
-    fi
-fi
+chmod 600 "$PRIVATE_KEY" 2>/dev/null || true
 
-# Test GitHub SSH access
-echo "Testing GitHub SSH access..."
-if ! ssh -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
-    echo "Warning: Cannot authenticate to GitHub via SSH"
+# Test private repo access with YubiKey key only
+echo "Testing private repo SSH access with YubiKey key..."
+if ! GIT_SSH_COMMAND="$SSH_CMD" git ls-remote "$PRIVATE_REPO" HEAD >/dev/null 2>&1; then
+    echo "Warning: Cannot authenticate to private repo with YubiKey key"
     echo "Skipping private dotfiles setup"
     echo ""
     echo "To set up later:"
-    echo "  1. Load your SSH key (e.g., ssh-add or insert YubiKey)"
+    echo "  1. Ensure ~/.ssh/id_ed25519_sk exists and GitHub has the matching public key"
     echo "  2. Run: chezmoi apply"
     exit 0
 fi
@@ -63,13 +42,13 @@ fi
 if [ -d "$PRIVATE_DIR/.git" ]; then
     echo "Private dotfiles repo exists, pulling latest..."
     cd "$PRIVATE_DIR"
-    git fetch origin
+    GIT_SSH_COMMAND="$SSH_CMD" git fetch origin
     git checkout feat/chezmoi-migration 2>/dev/null || git checkout main
-    git pull
+    GIT_SSH_COMMAND="$SSH_CMD" git pull
 else
     echo "Cloning private dotfiles..."
-    git clone --branch feat/chezmoi-migration "$PRIVATE_REPO" "$PRIVATE_DIR" 2>/dev/null || \
-    git clone "$PRIVATE_REPO" "$PRIVATE_DIR"
+    GIT_SSH_COMMAND="$SSH_CMD" git clone --branch feat/chezmoi-migration "$PRIVATE_REPO" "$PRIVATE_DIR" 2>/dev/null || \
+    GIT_SSH_COMMAND="$SSH_CMD" git clone "$PRIVATE_REPO" "$PRIVATE_DIR"
 fi
 
 # Apply private dotfiles using chezmoi

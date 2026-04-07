@@ -155,9 +155,8 @@ print_yubikey_hint() {
     echo ""
     log_info "YubiKey bootstrap (optional, recommended for private repo access):"
     echo "  1) Insert your YubiKey"
-    echo "  2) Prefer generating SSH key: ssh-keygen -t ed25519-sk -O resident -O verify-required -f ~/.ssh/id_ed25519_sk"
-    echo "     (or load existing resident key: ssh-keygen -K)"
-    echo "  3) Move keys into ~/.ssh if needed and set permissions"
+    echo "  2) Ensure pre-generated key exists: ~/.ssh/id_ed25519_sk"
+    echo "  3) Ensure matching public key is added to GitHub"
     echo "  4) Re-run: chezmoi apply"
     echo ""
 }
@@ -199,7 +198,7 @@ main() {
     print_yubikey_hint
 
     echo "Next steps:"
-    echo "  - Work machine/private repo: run ssh-keygen -K, then chezmoi apply"
+    echo "  - Work machine/private repo: ensure ~/.ssh/id_ed25519_sk is present, then run chezmoi apply"
     echo "  - Log out and back in to apply shell changes"
 }
 
