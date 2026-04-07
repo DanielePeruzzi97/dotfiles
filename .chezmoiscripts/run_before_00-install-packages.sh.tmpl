@@ -185,18 +185,15 @@ install_hyprland_packages() {
             command_exists grimblast && return 0
         fi
 
-        log_info "Installing grimblast script from hyprwm contrib..."
-        rm -rf /tmp/hyprwm-contrib
-        git clone --depth=1 https://github.com/hyprwm/contrib.git /tmp/hyprwm-contrib >/dev/null 2>&1
-
-        if [ -f /tmp/hyprwm-contrib/grimblast/grimblast ]; then
-            sudo install -Dm755 /tmp/hyprwm-contrib/grimblast/grimblast /usr/local/bin/grimblast
-            rm -rf /tmp/hyprwm-contrib
+        log_info "Installing grimblast script from hyprwm/contrib..."
+        if curl -fsSL https://raw.githubusercontent.com/hyprwm/contrib/main/grimblast/grimblast -o /tmp/grimblast; then
+            sudo install -Dm755 /tmp/grimblast /usr/local/bin/grimblast
+            rm -f /tmp/grimblast
             command_exists grimblast
             return $?
         fi
 
-        rm -rf /tmp/hyprwm-contrib
+        rm -f /tmp/grimblast
         return 1
     }
 
