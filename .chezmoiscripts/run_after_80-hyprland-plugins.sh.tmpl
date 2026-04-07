@@ -16,8 +16,7 @@ fi
 
 # Check if Hyprland is running (plugins can only be installed when running)
 if [ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
-    echo "Hyprland not running, skipping plugin installation"
-    echo "Run this manually after starting Hyprland: hyprpm update && hyprpm add https://github.com/shezdy/hyprsplit && hyprpm enable hyprsplit"
+    echo "Hyprland not running, plugins will be installed on first Hyprland start"
     exit 0
 fi
 
