@@ -343,6 +343,19 @@ install_niri_packages() {
         curl -fsSL https://pkg.noctalia.dev/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/noctalia.gpg
         local codename
         codename=$(. /etc/os-release && echo "${UBUNTU_CODENAME:-${VERSION_CODENAME}}")
+        # Fallback to questing if codename not yet supported by noctalia repo
+        local supported_codenames=("trixie" "sid" "plucky" "questing")
+        local codename_supported=false
+        for c in "${supported_codenames[@]}"; do
+            if [ "${codename}" = "${c}" ]; then
+                codename_supported=true
+                break
+            fi
+        done
+        if [ "${codename_supported}" = false ]; then
+            log_info "Noctalia repo: codename '${codename}' not supported, falling back to 'questing'"
+            codename="questing"
+        fi
         echo "deb [signed-by=/etc/apt/keyrings/noctalia.gpg] https://pkg.noctalia.dev/apt ${codename} main" \
             | sudo tee /etc/apt/sources.list.d/noctalia.list
         sudo apt update
