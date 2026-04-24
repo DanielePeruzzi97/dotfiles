@@ -5,6 +5,7 @@
 {{- $email := "" -}}
 {{- $isWorkMachine := false -}}
 {{- $installDesktop := true -}}
+{{- $installNiri := false -}}
 {{- $installK8s := true -}}
 
 {{- /* Detect if running interactively */ -}}
@@ -14,7 +15,8 @@
 {{-   $name = promptStringOnce . "name" "Your full name" -}}
 {{-   $email = promptStringOnce . "email" "Your email address" -}}
 {{-   $isWorkMachine = promptBoolOnce . "is_work_machine" "Is this a work machine" -}}
-{{-   $installDesktop = promptBoolOnce . "install_desktop" "Install Hyprland desktop environment" -}}
+{{-   $installDesktop = promptBoolOnce . "install_desktop" "Install desktop environment (Hyprland)" -}}
+{{-   $installNiri = promptBoolOnce . "install_niri" "Install Niri + Noctalia shell" -}}
 {{-   $installK8s = promptBoolOnce . "install_k8s" "Install Kubernetes tools (kubectl, helm, k9s, etc.)" -}}
 {{- else -}}
 {{-   $name = "User" -}}
@@ -43,6 +45,7 @@ sourceDir = {{ .chezmoi.sourceDir | quote }}
     email = {{ $email | quote }}
     is_work_machine = {{ $isWorkMachine }}
     install_desktop = {{ $installDesktop }}
+    install_niri = {{ $installNiri }}
     install_k8s = {{ $installK8s }}
     
     # OS detection

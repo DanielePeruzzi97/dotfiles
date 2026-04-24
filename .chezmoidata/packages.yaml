@@ -164,6 +164,27 @@ packages:
       - rofi-calc
 
   # ============================================
+  # Niri/Noctalia packages (only if install_niri=true)
+  # Ubuntu 25.10+ and Arch only
+  # ============================================
+  niri:
+    common:
+      - xwayland-satellite
+      - kanshi
+
+    ubuntu:
+      - niri
+      - noctalia-shell   # via pkg.noctalia.dev/apt (niri via ppa:avengemedia/danklinux)
+
+    arch:
+      - niri
+
+    # AUR packages (Arch only)
+    aur:
+      - noctalia-qs
+      - noctalia-shell
+
+  # ============================================
   # Flatpak applications (cross-distro)
   # ============================================
   flatpak:

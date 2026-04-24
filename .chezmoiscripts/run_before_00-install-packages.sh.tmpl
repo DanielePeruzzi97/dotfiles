@@ -109,6 +109,37 @@ FLATPAK_APPS=(
 )
 {{- end }}
 
+{{- if .install_niri }}
+# Niri/Noctalia packages
+NIRI_COMMON=(
+{{- range .packages.niri.common }}
+    "{{ . }}"
+{{- end }}
+)
+
+{{- if eq .osid "ubuntu" }}
+NIRI_DISTRO=(
+{{- range .packages.niri.ubuntu }}
+    "{{ . }}"
+{{- end }}
+)
+{{- else if .is_arch }}
+NIRI_DISTRO=(
+{{- range .packages.niri.arch }}
+    "{{ . }}"
+{{- end }}
+)
+NIRI_AUR=(
+{{- range .packages.niri.aur }}
+    "{{ . }}"
+{{- end }}
+)
+{{- else }}
+NIRI_DISTRO=()
+NIRI_AUR=()
+{{- end }}
+{{- end }}
+
 # ============================================
 # Installation Functions
 # ============================================
@@ -295,6 +326,33 @@ install_flatpak_apps() {
 }
 {{- end }}
 
+{{- if .install_niri }}
+install_niri_packages() {
+    log_info "Installing Niri + Noctalia packages (Ubuntu)..."
+
+    # Add niri PPA if not present
+    if ! grep -qR "avengemedia/danklinux" /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null; then
+        log_info "Adding niri PPA..."
+        sudo add-apt-repository -y ppa:avengemedia/danklinux
+        sudo apt update
+    fi
+
+    # Add noctalia APT repo if not present
+    if [ ! -f /etc/apt/keyrings/noctalia.gpg ]; then
+        log_info "Adding Noctalia APT repository..."
+        curl -fsSL https://pkg.noctalia.dev/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/noctalia.gpg
+        local codename
+        codename=$(. /etc/os-release && echo "${UBUNTU_CODENAME:-${VERSION_CODENAME}}")
+        echo "deb [signed-by=/etc/apt/keyrings/noctalia.gpg] https://pkg.noctalia.dev/apt ${codename} main" \
+            | sudo tee /etc/apt/sources.list.d/noctalia.list
+        sudo apt update
+    fi
+
+    install_packages_apt "${NIRI_COMMON[@]}" "${NIRI_DISTRO[@]}"
+    log_success "Niri + Noctalia packages installed"
+}
+{{- end }}
+
 {{- else if .is_arch }}
 # Arch Linux functions
 
@@ -425,6 +483,20 @@ install_flatpak_apps() {
 }
 {{- end }}
 
+{{- if .install_niri }}
+install_niri_packages() {
+    log_info "Installing Niri + Noctalia packages (Arch)..."
+    install_packages_pacman "${NIRI_COMMON[@]}" "${NIRI_DISTRO[@]}"
+
+    if [ ${#NIRI_AUR[@]} -gt 0 ]; then
+        log_info "Installing Noctalia AUR packages..."
+        install_aur "${NIRI_AUR[@]}" || true
+    fi
+
+    log_success "Niri + Noctalia packages installed"
+}
+{{- end }}
+
 {{- else }}
 # Unsupported distribution
 
@@ -488,6 +560,7 @@ main() {
     log_info "Starting system package installation..."
     log_info "Distribution: {{ .osid }}"
     log_info "Install desktop: {{ .install_desktop }}"
+    log_info "Install Niri: {{ .install_niri }}"
     log_info "Install K8s tools: {{ .install_k8s }}"
     
     install_base_packages
@@ -501,6 +574,10 @@ main() {
     install_desktop_packages
     install_hyprland_packages
     install_flatpak_apps
+{{- end }}
+
+{{- if .install_niri }}
+    install_niri_packages
 {{- end }}
     
     log_success "System package installation complete"
