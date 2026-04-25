@@ -327,6 +327,62 @@ install_flatpak_apps() {
 {{- end }}
 
 {{- if .install_niri }}
+build_noctalia_qs() {
+    # Build noctalia-qs (quickshell fork) from source.
+    # Used on distros where the noctalia APT repo is not yet available.
+    # https://github.com/noctalia-dev/noctalia-qs/blob/master/BUILD.md
+    if command_exists qs; then
+        log_info "noctalia-qs (qs) already installed, skipping build"
+        return 0
+    fi
+
+    log_info "Building noctalia-qs from source (this may take a while)..."
+
+    # Build dependencies (Ubuntu package names)
+    local build_deps=(
+        cmake ninja-build pkg-config git clang
+        qt6-base-dev qt6-base-private-dev
+        qt6-declarative-dev qt6-declarative-private-dev
+        qt6-wayland-dev qt6-wayland-dev-tools qt6-wayland-private-dev
+        qt6-shader-tools libqt6shadertools6-dev libqt6svg6-dev
+        libdrm-dev libgbm-dev libvulkan-dev
+        libwayland-dev wayland-protocols
+        libxcb-dev
+        libpipewire-0.3-dev
+        libpam0g-dev
+        libpolkit-agent-1-dev libglib2.0-dev
+        libjemalloc-dev libunwind-dev
+        libcli11-dev spirv-tools
+    )
+    install_packages_apt "${build_deps[@]}"
+
+    local build_dir
+    build_dir=$(mktemp -d)
+    trap "rm -rf ${build_dir}" RETURN
+
+    log_info "Cloning noctalia-qs..."
+    git clone --depth=1 https://github.com/noctalia-dev/noctalia-qs.git "${build_dir}/noctalia-qs"
+
+    log_info "Configuring build..."
+    cmake -GNinja \
+        -B "${build_dir}/build" \
+        -S "${build_dir}/noctalia-qs" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr/local \
+        -DCMAKE_C_COMPILER=clang \
+        -DCMAKE_CXX_COMPILER=clang++ \
+        -DDISTRIBUTOR="dotfiles-build" \
+        -DVENDOR_CPPTRACE=ON
+
+    log_info "Building noctalia-qs..."
+    cmake --build "${build_dir}/build"
+
+    log_info "Installing noctalia-qs..."
+    sudo cmake --install "${build_dir}/build"
+
+    log_success "noctalia-qs built and installed to /usr/local/bin/qs"
+}
+
 install_niri_packages() {
     log_info "Installing Niri + Noctalia packages (Ubuntu)..."
 
@@ -351,44 +407,36 @@ install_niri_packages() {
         fi
     done
 
-    # Add noctalia APT repo (always needed for noctalia-qs runtime)
-    if [ ! -f /etc/apt/keyrings/noctalia.gpg ]; then
-        log_info "Adding Noctalia APT repository..."
-        sudo mkdir -p /etc/apt/keyrings
-        curl -fsSL https://pkg.noctalia.dev/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/noctalia.gpg
-        # Use supported codename; if unsupported (e.g. Ubuntu 26.04) pin to questing for noctalia-qs
-        local repo_codename="${codename}"
-        if [ "${noctalia_apt_supported}" = false ]; then
-            repo_codename="questing"
-            log_info "Noctalia repo: '${codename}' not supported yet, using 'questing' for noctalia-qs"
-        fi
-        echo "deb [signed-by=/etc/apt/keyrings/noctalia.gpg] https://pkg.noctalia.dev/apt ${repo_codename} main" \
-            | sudo tee /etc/apt/sources.list.d/noctalia.list
-        sudo apt update
-    fi
-
     if [ "${noctalia_apt_supported}" = true ]; then
-        # Supported distro: install noctalia-shell via apt (pulls noctalia-qs as dependency)
+        # Supported distro: add noctalia APT repo and install noctalia-shell via apt
+        if [ ! -f /etc/apt/keyrings/noctalia.gpg ]; then
+            log_info "Adding Noctalia APT repository..."
+            sudo mkdir -p /etc/apt/keyrings
+            curl -fsSL https://pkg.noctalia.dev/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/noctalia.gpg
+            echo "deb [signed-by=/etc/apt/keyrings/noctalia.gpg] https://pkg.noctalia.dev/apt ${codename} main" \
+                | sudo tee /etc/apt/sources.list.d/noctalia.list
+            sudo apt update
+        fi
         install_packages_apt "${NIRI_COMMON[@]}" "${NIRI_DISTRO[@]}"
     else
-        # Unsupported distro (e.g. Ubuntu 26.04): install niri + noctalia-qs + deps via apt,
-        # then install noctalia shell config manually (https://docs.noctalia.dev/getting-started/installation/#manual-install)
-        log_info "Installing noctalia-shell manually (distro not yet supported by noctalia APT repo)..."
+        # Unsupported distro (e.g. Ubuntu 26.04 resolute): install niri + deps from distro repos,
+        # build noctalia-qs from source, download noctalia shell config manually.
+        # https://docs.noctalia.dev/getting-started/installation/#manual-install
+        log_info "Noctalia APT repo does not support '${codename}' yet — using manual install path..."
 
-        # niri from PPA + common packages
-        install_packages_apt "${NIRI_COMMON[@]}" niri noctalia-qs
-
-        # noctalia manual deps — skip packages already present on a typical Ubuntu install
-        # (git, python3, xdg-desktop-portal are standard; install only what may be missing)
-        local noctalia_deps=(
-            brightnessctl   # laptop/internal monitor brightness
-            imagemagick     # wallpaper resizing + template processing
-            ddcutil         # desktop/external monitor brightness
-            cliphist        # clipboard history
-            wlsunset        # night light
+        # niri from PPA + common packages + noctalia runtime deps from distro repos
+        local noctalia_runtime_deps=(
+            brightnessctl        # laptop/internal monitor brightness
+            imagemagick          # wallpaper resizing + template processing
+            ddcutil              # desktop/external monitor brightness
+            cliphist             # clipboard history
+            wlsunset             # night light
             evolution-data-server  # calendar widget
         )
-        install_packages_apt "${noctalia_deps[@]}"
+        install_packages_apt "${NIRI_COMMON[@]}" niri "${noctalia_runtime_deps[@]}"
+
+        # Build noctalia-qs from source (Qt runtime / quickshell fork)
+        build_noctalia_qs
 
         # Download noctalia shell config to ~/.config/quickshell/noctalia-shell
         local noctalia_config_dir="${HOME}/.config/quickshell/noctalia-shell"
