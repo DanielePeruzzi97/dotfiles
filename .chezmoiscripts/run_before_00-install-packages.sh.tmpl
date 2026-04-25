@@ -340,7 +340,7 @@ build_noctalia_qs() {
 
     # Build dependencies (Ubuntu package names)
     local build_deps=(
-        cmake ninja-build pkg-config git clang
+        cmake ninja-build pkg-config git build-essential
         qt6-base-dev qt6-base-private-dev
         qt6-declarative-dev qt6-declarative-private-dev
         qt6-wayland-dev qt6-wayland-private-dev
@@ -369,8 +369,6 @@ build_noctalia_qs() {
         -S "${build_dir}/noctalia-qs" \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=/usr/local \
-        -DCMAKE_C_COMPILER=clang \
-        -DCMAKE_CXX_COMPILER=clang++ \
         -DDISTRIBUTOR="dotfiles-build" \
         -DVENDOR_CPPTRACE=ON
 
