@@ -337,31 +337,72 @@ install_niri_packages() {
         sudo apt update
     fi
 
-    # Add noctalia APT repo if not present
+    # Detect Ubuntu codename
+    local codename
+    codename=$(. /etc/os-release && echo "${UBUNTU_CODENAME:-${VERSION_CODENAME}}")
+
+    # Check if codename is supported by noctalia APT repo
+    local supported_codenames=("trixie" "sid" "plucky" "questing")
+    local noctalia_apt_supported=false
+    for c in "${supported_codenames[@]}"; do
+        if [ "${codename}" = "${c}" ]; then
+            noctalia_apt_supported=true
+            break
+        fi
+    done
+
+    # Add noctalia APT repo (always needed for noctalia-qs runtime)
     if [ ! -f /etc/apt/keyrings/noctalia.gpg ]; then
         log_info "Adding Noctalia APT repository..."
+        sudo mkdir -p /etc/apt/keyrings
         curl -fsSL https://pkg.noctalia.dev/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/noctalia.gpg
-        local codename
-        codename=$(. /etc/os-release && echo "${UBUNTU_CODENAME:-${VERSION_CODENAME}}")
-        # Fallback to questing if codename not yet supported by noctalia repo
-        local supported_codenames=("trixie" "sid" "plucky" "questing")
-        local codename_supported=false
-        for c in "${supported_codenames[@]}"; do
-            if [ "${codename}" = "${c}" ]; then
-                codename_supported=true
-                break
-            fi
-        done
-        if [ "${codename_supported}" = false ]; then
-            log_info "Noctalia repo: codename '${codename}' not supported, falling back to 'questing'"
-            codename="questing"
+        # Use supported codename; if unsupported (e.g. Ubuntu 26.04) pin to questing for noctalia-qs
+        local repo_codename="${codename}"
+        if [ "${noctalia_apt_supported}" = false ]; then
+            repo_codename="questing"
+            log_info "Noctalia repo: '${codename}' not supported yet, using 'questing' for noctalia-qs"
         fi
-        echo "deb [signed-by=/etc/apt/keyrings/noctalia.gpg] https://pkg.noctalia.dev/apt ${codename} main" \
+        echo "deb [signed-by=/etc/apt/keyrings/noctalia.gpg] https://pkg.noctalia.dev/apt ${repo_codename} main" \
             | sudo tee /etc/apt/sources.list.d/noctalia.list
         sudo apt update
     fi
 
-    install_packages_apt "${NIRI_COMMON[@]}" "${NIRI_DISTRO[@]}"
+    if [ "${noctalia_apt_supported}" = true ]; then
+        # Supported distro: install noctalia-shell via apt (pulls noctalia-qs as dependency)
+        install_packages_apt "${NIRI_COMMON[@]}" "${NIRI_DISTRO[@]}"
+    else
+        # Unsupported distro (e.g. Ubuntu 26.04): install niri + noctalia-qs + deps via apt,
+        # then install noctalia shell config manually (https://docs.noctalia.dev/getting-started/installation/#manual-install)
+        log_info "Installing noctalia-shell manually (distro not yet supported by noctalia APT repo)..."
+
+        # niri from PPA + common packages
+        install_packages_apt "${NIRI_COMMON[@]}" niri noctalia-qs
+
+        # noctalia manual deps — skip packages already present on a typical Ubuntu install
+        # (git, python3, xdg-desktop-portal are standard; install only what may be missing)
+        local noctalia_deps=(
+            brightnessctl   # laptop/internal monitor brightness
+            imagemagick     # wallpaper resizing + template processing
+            ddcutil         # desktop/external monitor brightness
+            cliphist        # clipboard history
+            wlsunset        # night light
+            evolution-data-server  # calendar widget
+        )
+        install_packages_apt "${noctalia_deps[@]}"
+
+        # Download noctalia shell config to ~/.config/quickshell/noctalia-shell
+        local noctalia_config_dir="${HOME}/.config/quickshell/noctalia-shell"
+        if [ ! -d "${noctalia_config_dir}" ]; then
+            log_info "Downloading noctalia shell config..."
+            mkdir -p "${noctalia_config_dir}"
+            curl -sL https://github.com/noctalia-dev/noctalia-shell/releases/latest/download/noctalia-latest.tar.gz \
+                | tar -xz --strip-components=1 -C "${noctalia_config_dir}"
+            log_success "Noctalia shell config installed to ${noctalia_config_dir}"
+        else
+            log_info "Noctalia shell config already present, skipping download"
+        fi
+    fi
+
     log_success "Niri + Noctalia packages installed"
 }
 {{- end }}

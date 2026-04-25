@@ -174,7 +174,7 @@ packages:
 
     ubuntu:
       - niri
-      - noctalia-shell   # via pkg.noctalia.dev/apt (niri via ppa:avengemedia/danklinux)
+      - noctalia-shell   # only on supported codenames (plucky/questing); unsupported uses manual install
 
     arch:
       - niri
