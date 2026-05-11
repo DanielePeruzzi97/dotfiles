@@ -63,3 +63,38 @@ zshrc/
 {{- if ne .chezmoi.os "windows" }}
 .config/alacritty/alacritty.toml.windows
 {{- end }}
+
+# ---------------------------------------------------------------------------
+# AI workflow exclusions (OpenCode + Claude Code)
+# Added during AI workflow unification.
+# Never sync secrets, runtime state, caches, or generated artifacts.
+# ---------------------------------------------------------------------------
+
+# Claude — secrets and runtime state
+.claude/.credentials.json
+.claude/settings.local.json
+.claude/.last-cleanup
+.claude/.caveman-active
+.claude/mcp-needs-auth-cache.json
+.claude/policy-limits.json
+
+# Claude — runtime/generated/cache directories
+.claude/sessions/
+.claude/projects/
+.claude/file-history/
+.claude/paste-cache/
+.claude/plans/
+.claude/telemetry/
+.claude/transcripts/
+.claude/shell-snapshots/
+.claude/tasks/
+.claude/downloads/
+.claude/history.jsonl
+.claude/plugins/cache/
+.claude/plugins/data/
+.claude/context-mode/sessions/
+
+# OpenCode — runtime/generated
+.config/opencode/node_modules/
+.config/opencode/bun.lock
+.config/opencode/package-lock.json

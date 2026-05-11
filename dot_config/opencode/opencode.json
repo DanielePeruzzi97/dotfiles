@@ -11,27 +11,26 @@
     },
     "drawio": {
       "type": "local",
-      "command": ["npx", "-y", "drawio-mcp-server", "--editor"],
+      "command": ["sh", "-c", "npx -y drawio-mcp-server --editor 2>/dev/null"],
       "enabled": true
     },
     "aws-documentation": {
       "type": "local",
-      "command": [
-        "docker",
-        "run",
-        "--rm",
-        "--interactive",
-        "--env",
-        "FASTMCP_LOG_LEVEL=ERROR",
-        "--env",
-        "AWS_DOCUMENTATION_PARTITION=aws",
-        "mcp/aws-documentation:latest"
-      ],
+      "command": ["uvx", "awslabs.aws-documentation-mcp-server@latest"],
+      "enabled": true,
+      "environment": {
+        "FASTMCP_LOG_LEVEL": "ERROR",
+        "AWS_DOCUMENTATION_PARTITION": "aws"
+      }
+    },
+    "aws-knowledge": {
+      "type": "remote",
+      "url": "https://knowledge-mcp.global.api.aws",
       "enabled": true
     },
     "duckduckgo": {
       "type": "local",
-      "command": ["docker", "run", "--interactive", "--rm", "mcp/duckduckgo"],
+      "command": ["uvx", "duckduckgo-mcp-server"],
       "enabled": true
     },
     "terraform": {
@@ -46,8 +45,45 @@
       "enabled": true
     }
   },
-  "plugin": ["@franlol/opencode-md-table-formatter@0.0.3"],
-  "model": "github-copilot/claude-opus-4.5",
+  "plugin": [
+    "@franlol/opencode-md-table-formatter@0.0.3",
+    "openslimedit@latest",
+    "@ex-machina/opencode-anthropic-auth@1.5.1",
+    "@tarquinen/opencode-dcp@latest"
+  ],
+  "model": "github-copilot/claude-haiku-4.5",
+  "agent": {
+    "build": {
+      "model": "github-copilot/claude-haiku-4.5"
+    },
+    "plan": {
+      "model": "github-copilot/claude-haiku-4.5"
+    },
+    "architect": {
+      "model": "github-copilot/claude-opus-4.7",
+      "description": "deep architecture, system design, complex refactor, multi-file reasoning"
+    },
+    "coder": {
+      "model": "github-copilot/claude-sonnet-4.5",
+      "description": "non-trivial coding tasks, IaC (terraform/ansible), feature implementation"
+    },
+    "quick-edit": {
+      "model": "github-copilot/claude-haiku-4.5",
+      "description": "small targeted edits, single-file changes, docs, commit messages"
+    },
+    "teacher": {
+      "model": "github-copilot/claude-sonnet-4.5",
+      "description": "explain concepts, learning mode, why behind the what, k8s/aws/new tech"
+    },
+    "review": {
+      "model": "github-copilot/claude-opus-4.7",
+      "description": "code review, PR analysis, security audit"
+    },
+    "incident": {
+      "model": "github-copilot/claude-sonnet-4.5",
+      "description": "prod debugging, log triage, incident response, read-only diagnostics first"
+    }
+  },
   "keybinds": {
     "leader": "alt+a",
     "app_exit": "ctrl+c,<leader>q",
