@@ -4,13 +4,20 @@
 {{- $email       := "user@example.com" -}}
 {{- $signingkey  := "" -}}
 {{- $profile     := "workstation" -}}
+{{- $compositor  := "both" -}}
 
 {{- if stdinIsATTY -}}
 {{-   $name       = promptStringOnce . "name"       "Your full name" -}}
 {{-   $email      = promptStringOnce . "email"      "Your email address" -}}
 {{-   $signingkey = promptStringOnce . "signingkey" "GPG signing key id (blank to skip)" "" -}}
 {{-   $profile    = promptChoiceOnce . "profile"    "Profile (minimal|workstation)" (list "minimal" "workstation") "workstation" -}}
+{{-   if eq $profile "workstation" -}}
+{{-     $compositor = promptChoiceOnce . "compositor" "Compositor (niri|hyprland|both)" (list "niri" "hyprland" "both") "both" -}}
+{{-   end -}}
 {{- end -}}
+
+{{- $wantNiri     := or (eq $compositor "niri")     (eq $compositor "both") -}}
+{{- $wantHyprland := or (eq $compositor "hyprland") (eq $compositor "both") -}}
 
 {{- /* Distro detection — fail closed: only arch + ubuntu 25.10 supported */ -}}
 {{- $osid := "" -}}
@@ -28,6 +35,10 @@ sourceDir = {{ .chezmoi.sourceDir | quote }}
     email      = {{ $email      | quote }}
     signingkey = {{ $signingkey | quote }}
     profile    = {{ $profile    | quote }}
+    compositor = {{ $compositor | quote }}
+
+    want_niri     = {{ $wantNiri     }}
+    want_hyprland = {{ $wantHyprland }}
 
     osid      = {{ $osid     | quote }}
     codename  = {{ $codename | quote }}

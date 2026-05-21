@@ -15,6 +15,15 @@ install.sh
 .config/k9s/
 {{- end }}
 
+{{- if and (eq .profile "workstation") (not .want_niri) }}
+# Niri not selected
+.config/niri/
+{{- end }}
+{{- if and (eq .profile "workstation") (not .want_hyprland) }}
+# Hyprland not selected
+.config/hypr/
+{{- end }}
+
 # AI workflow — secrets, runtime state, caches (never sync)
 .claude/.credentials.json
 .claude/settings.local.json

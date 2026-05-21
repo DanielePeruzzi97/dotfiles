@@ -21,8 +21,15 @@ fi
 info "Enabling dms user service"
 systemctl --user enable --now dms.service || true
 
-info "Tying DMS to niri session (add-wants)"
+{{ if .want_niri -}}
+info "Tying DMS to niri session (add-wants niri.service dms.service)"
 systemctl --user add-wants niri.service dms.service || true
+{{- end }}
+
+{{ if .want_hyprland -}}
+info "Tying DMS to hyprland session (add-wants hyprland-session.target dms.service)"
+systemctl --user add-wants hyprland-session.target dms.service || true
+{{- end }}
 
 ok "DMS systemd integration done"
 {{- else -}}

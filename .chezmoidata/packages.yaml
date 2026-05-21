@@ -1,14 +1,16 @@
-# Declarative package lists by profile + distro.
+# Declarative package lists by profile + distro + compositor.
 #
 # Profiles:
 #   minimal     — core CLI only
-#   workstation — minimal + desktop (niri+hyprland+DMS) + flatpak + k8s
+#   workstation — minimal + desktop (compositor choice) + flatpak + k8s
+#
+# Compositors (workstation only): niri | hyprland | both
 #
 # Distros: arch, ubuntu (25.10 questing only)
 #
 # mise-managed tools live in dot_config/mise/config.toml.
 # Flatpaks listed here (cross-distro).
-# AUR (Arch-only) packages listed under aur:
+# AUR (Arch-only) packages listed under .aur sub-keys.
 
 packages:
   minimal:
@@ -38,7 +40,7 @@ packages:
       - python-pip
 
   workstation:
-    # Desktop core (niri + hyprland coexist; GDM picks session at login)
+    # Desktop base — shared by both niri and hyprland sessions.
     common:
       - loupe
       - gnome-text-editor
@@ -51,7 +53,7 @@ packages:
       - iotop
       - nethogs
       - sshfs
-      # Wayland desktop bits used by both niri & hyprland
+      # Wayland desktop bits used by both compositors
       - waybar
       - cliphist
       - wl-clipboard
@@ -75,20 +77,10 @@ packages:
       - matugen
       - i2c-tools
       - cava
-      # Hyprland-specific (Ubuntu: via ppa:cppiber/hyprland)
-      - hyprlock
-      - hypridle
-      - hyprpaper
-      - hyprsunset
-      # Niri-specific
-      - xwayland-satellite
 
     ubuntu:
       - gnome-firmware
-      - niri
       - dms
-      - hyprland
-      - xdg-desktop-portal-hyprland
       - sway-notification-center
       - rofi
       - wlogout
@@ -103,21 +95,44 @@ packages:
       - jack2
       - rate-mirrors
       - paru             # AUR helper
-      - niri
       - dms-shell
-      - hyprland
-      - xdg-desktop-portal-hyprland
       - rofi-wayland
       - wlogout
       - network-manager-applet
       - qt6-multimedia
 
-    # AUR packages (Arch only)
+    # Niri compositor stack (installed when compositor=niri|both)
+    niri:
+      common:
+        - xwayland-satellite
+      ubuntu:
+        - niri
+      arch:
+        - niri
+
+    # Hyprland compositor stack (installed when compositor=hyprland|both)
+    # Ubuntu requires ppa:cppiber/hyprland (added by install-packages script).
+    hyprland:
+      common:
+        - hyprlock
+        - hypridle
+        - hyprpaper
+        - hyprsunset
+      ubuntu:
+        - hyprland
+        - xdg-desktop-portal-hyprland
+      arch:
+        - hyprland
+        - xdg-desktop-portal-hyprland
+      # AUR (Arch only)
+      aur:
+        - hyprpolkitagent-git
+        - grimblast-git
+        - hyprshot
+
+    # AUR packages independent of compositor choice (Arch only)
     aur:
-      - hyprpolkitagent-git
       - swaync
-      - grimblast-git
-      - hyprshot
       - rofi-calc
 
     flatpak:
