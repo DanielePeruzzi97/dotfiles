@@ -125,7 +125,11 @@ fi
 {{   if .want_hyprland -}}
 # hyprdynamicmonitors — pinned v1.4.0 release tarball (no apt source)
 HDM_VERSION="v1.4.0"
-HDM_INSTALLED_VERSION="$(/usr/local/bin/hyprdynamicmonitors --version 2>/dev/null | awk '{print "v"$2}' | head -1)"
+if [ -x /usr/local/bin/hyprdynamicmonitors ]; then
+    HDM_INSTALLED_VERSION="$(/usr/local/bin/hyprdynamicmonitors --version 2>/dev/null | awk '{print "v"$2}' | head -1)"
+else
+    HDM_INSTALLED_VERSION=""
+fi
 if [ "$HDM_INSTALLED_VERSION" != "$HDM_VERSION" ]; then
     info "Installing hyprdynamicmonitors $HDM_VERSION"
     HDM_TMP="$(mktemp -d)"
