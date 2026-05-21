@@ -76,6 +76,13 @@ PKGS=(
 info "Ubuntu apt update"
 sudo apt update
 
+# Neovim PPA — Ubuntu 25.10 ships an older neovim, we want 0.12+
+if ! grep -rq "neovim-ppa" /etc/apt/sources.list.d/ 2>/dev/null; then
+    info "Adding neovim unstable PPA (for nvim 0.12+)"
+    sudo add-apt-repository -y ppa:neovim-ppa/unstable
+    sudo apt update
+fi
+
 # DMS PPA — required before installing the dms package in workstation profile
 {{ if eq .profile "workstation" -}}
 if ! grep -rq "avengemedia/dms" /etc/apt/sources.list.d/ 2>/dev/null; then
