@@ -132,6 +132,7 @@ packages:
         - hyprpolkitagent-git
         - grimblast-git
         - hyprshot
+        - hyprdynamicmonitors
 
     # AUR packages independent of compositor choice (Arch only)
     aur:

@@ -106,11 +106,37 @@ if command -v fdfind >/dev/null && ! command -v fd >/dev/null; then
 fi
 
 {{ if eq .profile "workstation" -}}
-# ghostty — no clean apt source on questing; install via snap
+# ghostty — official .deb via mkasberg installer (supports 24.04/25.10/26.04)
 if ! command -v ghostty >/dev/null; then
-    info "Installing ghostty via snap"
-    sudo snap install ghostty --classic || warn "ghostty snap install failed"
+    info "Installing ghostty via mkasberg installer"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)" \
+        || warn "ghostty install failed"
 fi
+
+{{   if .want_hyprland -}}
+# hyprdynamicmonitors — pinned v1.4.0 release tarball (no apt source)
+HDM_VERSION="v1.4.0"
+HDM_INSTALLED_VERSION="$(/usr/local/bin/hyprdynamicmonitors --version 2>/dev/null | awk '{print "v"$2}' | head -1)"
+if [ "$HDM_INSTALLED_VERSION" != "$HDM_VERSION" ]; then
+    info "Installing hyprdynamicmonitors $HDM_VERSION"
+    HDM_TMP="$(mktemp -d)"
+    trap 'rm -rf "$HDM_TMP"' EXIT
+    HDM_URL="https://github.com/fiffeek/hyprdynamicmonitors/releases/download/${HDM_VERSION}/hyprdynamicmonitors_Linux_x86_64.tar.gz"
+    if curl -fsSL "$HDM_URL" -o "$HDM_TMP/hdm.tar.gz"; then
+        tar -xzf "$HDM_TMP/hdm.tar.gz" -C "$HDM_TMP"
+        sudo install -m 0755 "$HDM_TMP"/hyprdynamicmonitors /usr/local/bin/hyprdynamicmonitors
+        # Systemd units shipped in tarball under systemd/user/
+        if [ -d "$HDM_TMP/systemd/user" ]; then
+            sudo install -m 0644 "$HDM_TMP/systemd/user/"*.service /etc/systemd/user/
+        fi
+        ok "hyprdynamicmonitors $HDM_VERSION installed"
+    else
+        warn "hyprdynamicmonitors download failed"
+    fi
+    trap - EXIT
+    rm -rf "$HDM_TMP"
+fi
+{{-   end }}
 {{- end }}
 
 {{ else if .is_arch -}}

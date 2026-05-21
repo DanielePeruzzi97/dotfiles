@@ -7,6 +7,7 @@ install.sh
 {{- if eq .profile "minimal" }}
 # Desktop configs not deployed on minimal profile
 .config/hypr/
+.config/hyprdynamicmonitors/
 .config/niri/
 .config/waybar/
 .config/rofi/
@@ -22,6 +23,7 @@ install.sh
 {{- if and (eq .profile "workstation") (not .want_hyprland) }}
 # Hyprland not selected
 .config/hypr/
+.config/hyprdynamicmonitors/
 {{- end }}
 
 # Machine-specific hypr overrides — never tracked

@@ -1,0 +1,19 @@
+{{`# Office LG profile with lid detection
+# LG IPS FULLHD + LG HDR 4K with dynamic laptop display management
+{{- $laptop := index .MonitorsByTag "laptop" -}}
+{{- $dell_dx := index .MonitorsByTag "dell-dx" -}}
+{{- $dell_sx := index .MonitorsByTag "dell-sx" -}}
+
+# Primary (right)
+monitor={{$dell_dx.Name}},2560x1440@144,0x0,1.333333
+
+# Secondary (left)
+monitor={{$dell_sx.Name}},2560x1440@72,-1920x0,1.333333
+
+# Laptop display - below both monitors when lid is open (centered)
+{{if isLidClosed}}
+monitor={{$laptop.Name}},disable
+{{else}}
+monitor={{$laptop.Name}},preferred,-960x1080,1
+{{end}}
+`}}

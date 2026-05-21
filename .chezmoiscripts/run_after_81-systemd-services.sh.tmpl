@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Enable systemd user services for Hyprland helpers — workstation only.
+# Enable systemd user services for desktop helpers — workstation only.
 set -euo pipefail
 
 {{ if ne .profile "workstation" -}}
@@ -14,10 +14,15 @@ fi
 systemctl --user daemon-reload
 
 SERVICES=(
+    "swaync.service"
+{{- if .want_hyprland }}
     "hypridle.service"
     "hyprpaper.service"
     "hyprpolkitagent.service"
     "hyprsunset.service"
+    "hyprdynamicmonitors.service"
+    "hyprdynamicmonitors-prepare.service"
+{{- end }}
 )
 
 for s in "${SERVICES[@]}"; do
@@ -25,4 +30,4 @@ for s in "${SERVICES[@]}"; do
         systemctl --user is-enabled "$s" >/dev/null 2>&1 || systemctl --user enable "$s" || true
     fi
 done
-echo "Hyprland systemd services done"
+echo "Desktop systemd services done"
