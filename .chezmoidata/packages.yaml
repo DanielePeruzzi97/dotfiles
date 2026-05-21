@@ -25,6 +25,7 @@ packages:
       - ripgrep
       - zoxide
       - fontconfig
+      - neovim
 
     ubuntu:
       - build-essential
