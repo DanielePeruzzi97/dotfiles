@@ -5,6 +5,7 @@
 {{- $signingkey  := "" -}}
 {{- $profile     := "workstation" -}}
 {{- $compositor  := "both" -}}
+{{- $ageRecipient := "" -}}
 
 {{- if stdinIsATTY -}}
 {{-   $name       = promptStringOnce . "name"       "Your full name" -}}
@@ -14,6 +15,7 @@
 {{-   if eq $profile "workstation" -}}
 {{-     $compositor = promptChoiceOnce . "compositor" "Compositor (niri|hyprland|both)" (list "niri" "hyprland" "both") "both" -}}
 {{-   end -}}
+{{-   $ageRecipient = promptStringOnce . "age_recipient" "Age public recipient (blank to skip private-repo encryption)" "" -}}
 {{- end -}}
 
 {{- $wantNiri     := or (eq $compositor "niri")     (eq $compositor "both") -}}
@@ -51,3 +53,10 @@ sourceDir = {{ .chezmoi.sourceDir | quote }}
 [git]
     autoCommit = true
     autoPush   = true
+{{ if $ageRecipient }}
+encryption = "age"
+
+[age]
+    identity  = {{ (joinPath .chezmoi.homeDir ".config/chezmoi/key.txt") | quote }}
+    recipient = {{ $ageRecipient | quote }}
+{{- end }}
