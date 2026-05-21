@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Install tmux plugins via TPM
+# Hash: {{ include "dot_tmux.conf" | sha256sum }}
+
+set -euo pipefail
+
+TPM_DIR="$HOME/.tmux/plugins/tpm"
+
+if [ ! -d "$TPM_DIR" ]; then
+    echo "TPM not found, skipping tmux plugin installation"
+    exit 0
+fi
+
+echo "Installing tmux plugins..."
+
+# Install plugins non-interactively
+# TPM provides a script for this
+if [ -x "$TPM_DIR/bin/install_plugins" ]; then
+    if "$TPM_DIR/bin/install_plugins"; then
+        echo "Tmux plugins installed"
+    else
+        echo "Warning: one or more tmux plugins failed to install"
+        echo "Run prefix + I inside tmux to retry manually"
+    fi
+else
+    echo "TPM install script not found"
+    echo "Run prefix + I inside tmux to install plugins manually"
+fi

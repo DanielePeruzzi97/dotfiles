@@ -1,0 +1,74 @@
+{
+  "permissions": {
+    "defaultMode": "default",
+    "additionalDirectories": [
+      "{{ .chezmoi.homeDir }}"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"{{ .chezmoi.homeDir }}/.claude/hooks/context-mode-cache-heal.mjs\""
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/usr/bin/node\" \"{{ .chezmoi.homeDir }}/.claude/hooks/caveman-activate.js\"",
+            "timeout": 5,
+            "statusMessage": "Loading caveman mode..."
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/usr/bin/node\" \"{{ .chezmoi.homeDir }}/.claude/hooks/caveman-mode-tracker.js\"",
+            "timeout": 5,
+            "statusMessage": "Tracking caveman mode..."
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash \"{{ .chezmoi.homeDir }}/.claude/plugins/cache/caveman/caveman/63e797cd753b/hooks/caveman-statusline.sh\""
+  },
+  "enabledPlugins": {
+    "context7@claude-plugins-official": true,
+    "gopls-lsp@claude-plugins-official": true,
+    "learning-output-style@claude-plugins-official": true,
+    "lua-lsp@claude-plugins-official": true,
+    "terraform@claude-plugins-official": true,
+    "caveman@caveman": true,
+    "context-mode@context-mode": true
+  },
+  "extraKnownMarketplaces": {
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
+      }
+    },
+    "context-mode": {
+      "source": {
+        "source": "github",
+        "repo": "mksglu/context-mode"
+      }
+    }
+  },
+  "syntaxHighlightingDisabled": false,
+  "effortLevel": "medium",
+  "skipDangerousModePermissionPrompt": true,
+  "skipAutoPermissionPrompt": true
+}

@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Enable systemd user services for desktop helpers — workstation only.
+set -euo pipefail
+
+{{ if ne .profile "workstation" -}}
+exit 0
+{{- end }}
+
+if ! systemctl --user show-environment >/dev/null 2>&1; then
+    echo "user systemd unavailable, skipping"
+    exit 0
+fi
+
+systemctl --user daemon-reload
+
+SERVICES=(
+    "swaync.service"
+{{- if .want_hyprland }}
+    "hypridle.service"
+    "hyprpaper.service"
+    "hyprpolkitagent.service"
+    "hyprsunset.service"
+    "hyprdynamicmonitors.service"
+    "hyprdynamicmonitors-prepare.service"
+{{- end }}
+)
+
+for s in "${SERVICES[@]}"; do
+    if systemctl --user list-unit-files --type=service --all | grep -q "^$s"; then
+        systemctl --user is-enabled "$s" >/dev/null 2>&1 || systemctl --user enable "$s" || true
+    fi
+done
+echo "Desktop systemd services done"

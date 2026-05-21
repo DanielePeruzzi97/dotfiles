@@ -1,0 +1,67 @@
+# Repo-only files (never sync to $HOME)
+README.md
+LICENSE
+install.sh
+.gitignore
+
+{{- if eq .profile "minimal" }}
+# Desktop configs not deployed on minimal profile
+.config/hypr/
+.config/hyprdynamicmonitors/
+.config/niri/
+.config/waybar/
+.config/rofi/
+.config/swaync/
+.config/wlogout/
+.config/k9s/
+.config/gtk-3.0/
+.config/gtk-4.0/
+.config/qt5ct/
+.config/qt6ct/
+{{- end }}
+
+{{- if and (eq .profile "workstation") (not .want_niri) }}
+# Niri not selected
+.config/niri/
+{{- end }}
+{{- if and (eq .profile "workstation") (not .want_hyprland) }}
+# Hyprland not selected
+.config/hypr/
+.config/hyprdynamicmonitors/
+# GTK/Qt static prefs only deployed when hyprland is present;
+# under niri-only, DMS (matugen) owns app theming.
+.config/gtk-3.0/
+.config/gtk-4.0/
+.config/qt5ct/
+.config/qt6ct/
+{{- end }}
+
+# Machine-specific hypr overrides — never tracked
+.config/hypr/local.conf
+.config/hypr/monitors.conf
+
+# AI workflow — secrets, runtime state, caches (never sync)
+.claude/.credentials.json
+.claude/settings.local.json
+.claude/.last-cleanup
+.claude/.caveman-active
+.claude/mcp-needs-auth-cache.json
+.claude/policy-limits.json
+.claude/sessions/
+.claude/projects/
+.claude/file-history/
+.claude/paste-cache/
+.claude/plans/
+.claude/telemetry/
+.claude/transcripts/
+.claude/shell-snapshots/
+.claude/tasks/
+.claude/downloads/
+.claude/history.jsonl
+.claude/plugins/cache/
+.claude/plugins/data/
+.claude/context-mode/sessions/
+
+.config/opencode/node_modules/
+.config/opencode/bun.lock
+.config/opencode/package-lock.json

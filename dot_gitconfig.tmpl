@@ -1,0 +1,62 @@
+[credential]
+	helper = store
+
+[user]
+	name = {{ .name }}
+	email = {{ .email }}
+{{- if .signingkey }}
+	signingkey = {{ .signingkey }}
+{{- end }}
+
+[push]
+	autosetupremote = true
+
+[core]
+	editor = nvim
+
+[alias]
+	glog = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
+
+{{- if .signingkey }}
+[commit]
+	gpgsign = true
+{{- end }}
+
+# Work git identity override — provided by the private dotfiles repo (~/.gitconfig-work).
+# Safe to keep unconditionally: include is silently skipped when the file does not exist.
+[includeif "gitdir:~/omnys/git/"]
+	path = ~/.gitconfig-work
+
+[merge]
+	tool = "nvim"
+
+[mergetool]
+	keepBackup = false
+	prompt = false
+
+[mergetool "nvim"]
+	cmd = "nvim -d -c \"wincmd l\" -c \"norm ]c\" \"$LOCAL\" \"$MERGED\" \"$REMOTE\""
+
+[init]
+	defaultBranch = main
+
+[pull]
+	rebase = true
+
+[diff]
+	colorMoved = default
+
+[pager]
+	diff = delta
+	log = delta
+	reflog = delta
+	show = delta
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true
+	light = false
+	side-by-side = true
+	line-numbers = true

@@ -1,0 +1,84 @@
+# Mise global configuration
+# This file manages development tools that benefit from version control across machines
+# https://mise.jdx.dev/
+#
+# Philosophy (Hybrid Approach):
+#   - System packages (apt/pacman): zsh, git, tmux, fzf, ripgrep, lazygit, zoxide
+#     (tools that are well-maintained in distro repos)
+#   - mise: Languages, cloud tools, and CLI tools not in all repos or where
+#     version consistency matters across Ubuntu/Arch
+#
+# See also: .chezmoidata/packages.yaml for the full package list
+
+[tools]
+# ============================================
+# Languages & Runtimes
+# mise ensures same version on Ubuntu and Arch
+# ============================================
+node = "lts"                    # Node.js LTS
+go = "latest"                   # Go
+python = "3.12"                 # Python
+
+# ============================================
+# CLI Tools (not in all distro repos or version-sensitive)
+# ============================================
+bat = "latest"                  # Better cat with syntax highlighting
+delta = "latest"                # Better git diff
+eza = "latest"                  # Better ls (exa replacement)
+jq = "latest"                   # JSON processor
+yq = "latest"                   # YAML processor
+
+# ============================================
+# Kubernetes & Cloud Tools
+# Version consistency is critical for k8s tooling
+# ============================================
+kubectl = "latest"              # Kubernetes CLI
+helm = "latest"                 # Kubernetes package manager
+k9s = "latest"                  # Kubernetes TUI
+talosctl = "latest"             # Talos OS management
+kubeseal = "latest"             # Sealed secrets
+sops = "latest"                 # Secrets encryption
+age = "latest"                  # Encryption for SOPS
+awscli = "latest"               # AWS CLI v2
+
+# ============================================
+# Development Tools
+# ============================================
+chezmoi = "latest"              # Dotfiles manager
+topgrade = "latest"             # Universal updater
+gh = "latest"                   # GitHub CLI
+
+# ============================================
+# Optional: Uncomment as needed
+# ============================================
+# rust = "stable"
+# java = "21"
+# terraform = "latest"
+# ansible = "latest"
+
+[settings]
+# Enable experimental features
+experimental = true
+
+# Parallel installations
+jobs = 4
+
+# Auto-install missing tools when entering directory
+auto_install = true
+
+# Trust config files in these paths
+trusted_config_paths = [
+    "~/work",
+    "~/projects",
+    "~/personal",
+    "~/omnys",
+]
+
+# Read version files from other managers (.nvmrc, .python-version, etc.)
+idiomatic_version_file_enable_tools = ["node", "python", "go"]
+
+# Status messages when entering directories
+[settings.status]
+missing_tools = "if_other_versions_installed"
+show_env = false
+show_tools = false
