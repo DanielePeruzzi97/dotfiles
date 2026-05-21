@@ -11,8 +11,8 @@ return {
         lsp = { enabled = true },
         blink = { enabled = true },
       },
-      render_modes = true,
-      anti_conceal = { enabled = true },
+      render_modes = { "n", "c", "t" },
+      anti_conceal = { enabled = false },
     })
   end,
 }
