@@ -53,6 +53,13 @@ if ! grep -rq "avengemedia/dms" /etc/apt/sources.list.d/ 2>/dev/null; then
     sudo add-apt-repository -y ppa:avengemedia/dms
     sudo apt update
 fi
+
+# Hyprland PPA — Ubuntu apt doesn't carry hyprlock/hypridle/hyprsunset/hyprpaper
+if ! grep -rq "cppiber/hyprland" /etc/apt/sources.list.d/ 2>/dev/null; then
+    info "Adding hyprland PPA (cppiber)"
+    sudo add-apt-repository -y ppa:cppiber/hyprland
+    sudo apt update
+fi
 {{- end }}
 
 info "Installing ${#PKGS[@]} apt packages"
