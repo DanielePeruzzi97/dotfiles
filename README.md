@@ -9,6 +9,9 @@ Personal dotfiles managed with [chezmoi](https://chezmoi.io/) and
 
 ## Install
 
+**Requirements:** `curl` (everything else is bootstrapped by `install.sh`).
+On Arch: `sudo pacman -S --needed curl`. Ubuntu 25.10 ships curl by default.
+
 ```sh
 curl -fsSL https://raw.githubusercontent.com/DanielePeruzzi97/dotfiles/main/install.sh | bash
 ```
@@ -21,6 +24,7 @@ On first run `chezmoi init` asks for:
 | `email`      | git `[user].email`                                        |
 | `signingkey` | git `[user].signingkey` (leave blank to skip GPG signing) |
 | `profile`    | `minimal` or `workstation` (default: `workstation`)       |
+| `compositor` | `niri`, `hyprland`, or `both` (default: `both`)           |
 
 After install, `~/.config/chezmoi/chezmoi.toml` holds the answers — re-running
 `chezmoi apply` does not re-prompt.
@@ -39,12 +43,19 @@ Headless / server-style box. CLI only.
 ### `workstation` (default)
 Everything in `minimal` plus a full Wayland desktop:
 
-- **Compositors** — Niri **and** Hyprland installed side by side, GDM picks
-  session at login.
-- **Shell** — [DankMaterialShell (DMS)](https://danklinux.com/), enabled as a
-  user systemd unit and tied to `niri.service` via `add-wants`.
-- **Apps** — rofi, waybar, nautilus, pavucontrol, blueman, mpv, drawio
-  (flatpak), Spotify, Obsidian, Bitwarden, GIMP, DBeaver.
+- **Compositor** — `niri`, `hyprland`, or `both` (GDM picks session at login).
+- **Niri shell** — [DankMaterialShell (DMS)](https://danklinux.com/) (bar +
+  notifications + launcher + lock), spawned by niri at startup. `dsearch` is
+  removed (user uses rofi).
+- **Hyprland shell** — waybar + swaync + rofi + wlogout + hyprdynamicmonitors
+  (pinned v1.4.0 from upstream releases).
+- **Browsers** — Google Chrome (default) + Firefox (fallback, ships with
+  Ubuntu GNOME).
+- **Apps** — ghostty (mkasberg installer), VSCode, Teams-for-Linux, AnyDesk,
+  Remmina, gnome-boxes, HeidiSQL (+ libqt6pas dep), Piper, mpv, FileZilla,
+  Wally (ZSA keyboards, with udev rules + plugdev group), nautilus, pavucontrol,
+  blueman, Spotify, Discord, Obsidian, Bitwarden, GIMP, drawio (flatpak).
+- **Editor** — Neovim AppImage pinned to `v0.12.2` (Ubuntu apt lags).
 - **k8s** (via mise) — `kubectl`, `helm`, `k9s`, `talosctl`, `kubeseal`.
 
 ---
@@ -103,13 +114,9 @@ secrets, zero encrypted blobs, zero YubiKey logic**.
 
 ## DMS — manual bits
 
-Once installed and after first `niri-session` login:
+Once installed and after first niri login:
 
 ```sh
-# (run_after_30-dms-systemd already does this, kept here for reference)
-systemctl --user enable --now dms.service
-systemctl --user add-wants niri.service dms.service
-
 # First-run wizard (theme, wallpaper, profile picture):
 dms setup
 
@@ -118,8 +125,10 @@ dms restart        # reload shell
 dms update         # update to latest
 ```
 
-Do **not** add `spawn-at-startup "dms" "run"` to `niri/config.kdl` — the
-systemd unit handles startup and avoids double-launch.
+DMS is spawned by niri itself (`spawn-at-startup "dms" "run"` in
+`niri/config.kdl`); the `run_after_30-dms-systemd.sh.tmpl` script also wires
+a systemd `add-wants` as a safety net. Under `hyprland` (or the hyprland
+half of `compositor=both`), DMS is NOT started — hyprland uses waybar instead.
 
 ---
 

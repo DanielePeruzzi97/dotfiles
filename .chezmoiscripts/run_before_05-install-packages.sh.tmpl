@@ -76,20 +76,58 @@ PKGS=(
 info "Ubuntu apt update"
 sudo apt update
 
-# Neovim PPA — Ubuntu 25.10 ships an older neovim, we want 0.12+
-if ! grep -rq "neovim-ppa" /etc/apt/sources.list.d/ 2>/dev/null; then
-    info "Adding neovim unstable PPA (for nvim 0.12+)"
-    sudo add-apt-repository -y ppa:neovim-ppa/unstable
-    sudo apt update
-fi
+sudo install -d -m 0755 /etc/apt/keyrings
 
-# DMS PPA — required before installing the dms package in workstation profile
+# --- External apt repositories ------------------------------------------------
+NEED_APT_UPDATE=0
+
 {{ if eq .profile "workstation" -}}
+# DMS PPA — required before installing the dms package in workstation profile
 if ! grep -rq "avengemedia/dms" /etc/apt/sources.list.d/ 2>/dev/null; then
     info "Adding DMS + danklinux PPAs"
     sudo add-apt-repository -y ppa:avengemedia/danklinux
     sudo add-apt-repository -y ppa:avengemedia/dms
-    sudo apt update
+    NEED_APT_UPDATE=1
+fi
+
+# Google Chrome
+if [ ! -f /etc/apt/sources.list.d/google-chrome.list ]; then
+    info "Adding Google Chrome apt repo"
+    curl -fsSL https://dl.google.com/linux/linux_signing_key.pub \
+        | sudo gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg
+    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" \
+        | sudo tee /etc/apt/sources.list.d/google-chrome.list >/dev/null
+    NEED_APT_UPDATE=1
+fi
+
+# Visual Studio Code (Microsoft)
+if [ ! -f /etc/apt/sources.list.d/vscode.list ]; then
+    info "Adding VSCode apt repo"
+    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
+        | sudo gpg --dearmor -o /etc/apt/keyrings/packages.microsoft.gpg
+    echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
+        | sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
+    NEED_APT_UPDATE=1
+fi
+
+# Teams for Linux (community client by IsmaelMartinez)
+if [ ! -f /etc/apt/sources.list.d/teams-for-linux.list ]; then
+    info "Adding teams-for-linux apt repo"
+    curl -fsSL https://repo.teamsforlinux.de/teams-for-linux.asc \
+        | sudo tee /etc/apt/keyrings/teams-for-linux.asc >/dev/null
+    echo "deb [signed-by=/etc/apt/keyrings/teams-for-linux.asc arch=$(dpkg --print-architecture)] https://repo.teamsforlinux.de/debian/ stable main" \
+        | sudo tee /etc/apt/sources.list.d/teams-for-linux.list >/dev/null
+    NEED_APT_UPDATE=1
+fi
+
+# AnyDesk
+if [ ! -f /etc/apt/sources.list.d/anydesk-stable.list ]; then
+    info "Adding AnyDesk apt repo"
+    curl -fsSL https://keys.anydesk.com/repos/DEB-GPG-KEY \
+        | sudo gpg --dearmor -o /etc/apt/keyrings/anydesk.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/anydesk.gpg] http://deb.anydesk.com/ all main" \
+        | sudo tee /etc/apt/sources.list.d/anydesk-stable.list >/dev/null
+    NEED_APT_UPDATE=1
 fi
 
 {{   if .want_hyprland -}}
@@ -97,13 +135,24 @@ fi
 if ! grep -rq "cppiber/hyprland" /etc/apt/sources.list.d/ 2>/dev/null; then
     info "Adding hyprland PPA (cppiber)"
     sudo add-apt-repository -y ppa:cppiber/hyprland
-    sudo apt update
+    NEED_APT_UPDATE=1
 fi
 {{-   end }}
 {{- end }}
 
+if [ "$NEED_APT_UPDATE" = "1" ]; then
+    sudo apt update
+fi
+
 info "Installing ${#PKGS[@]} apt packages"
 sudo apt install -y "${PKGS[@]}"
+
+# Workstation-only external apps via apt (after repos are configured)
+{{ if eq .profile "workstation" -}}
+info "Installing google-chrome / code / teams-for-linux / anydesk"
+sudo apt install -y google-chrome-stable code teams-for-linux anydesk \
+    || warn "Some external apt packages failed to install"
+{{- end }}
 
 # Symlink fd-find -> fd (Ubuntu ships it as fdfind)
 if command -v fdfind >/dev/null && ! command -v fd >/dev/null; then
@@ -112,14 +161,114 @@ if command -v fdfind >/dev/null && ! command -v fd >/dev/null; then
     ok "Symlinked fd-find -> ~/.local/bin/fd"
 fi
 
+# --- Neovim AppImage (pinned) -------------------------------------------------
+# Ubuntu apt nvim lags; pin to a known-good upstream release AppImage.
+NVIM_VERSION="v0.12.2"
+NVIM_BIN="/usr/local/bin/nvim"
+NVIM_INSTALLED_VERSION="$([ -x "$NVIM_BIN" ] && "$NVIM_BIN" --version 2>/dev/null | head -1 | awk '{print $2}' || echo "")"
+if [ "$NVIM_INSTALLED_VERSION" != "$NVIM_VERSION" ]; then
+    info "Installing Neovim AppImage $NVIM_VERSION"
+    NVIM_TMP="$(mktemp -d)"
+    NVIM_URL="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux-x86_64.appimage"
+    if curl -fsSL "$NVIM_URL" -o "$NVIM_TMP/nvim.appimage"; then
+        chmod +x "$NVIM_TMP/nvim.appimage"
+        sudo install -m 0755 "$NVIM_TMP/nvim.appimage" "$NVIM_BIN"
+        ok "Neovim $NVIM_VERSION installed at $NVIM_BIN"
+    else
+        warn "Neovim AppImage download failed (asset name changed?)"
+    fi
+    rm -rf "$NVIM_TMP"
+fi
+
 {{ if eq .profile "workstation" -}}
-# ghostty — official .deb via mkasberg installer (supports 24.04/25.10/26.04)
+# --- ghostty — official .deb via mkasberg installer (supports 24.04/25.10/26.04)
 if ! command -v ghostty >/dev/null; then
     info "Installing ghostty via mkasberg installer"
     # run from /tmp so the downloaded .deb is in a dir readable by apt's _apt sandbox user
-    # (apt cannot access files under $HOME with default mode 700)
     ( cd /tmp && /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)" ) \
         || warn "ghostty install failed"
+fi
+
+# --- HeidiSQL (.deb from GitHub) + libqt6pas dep ------------------------------
+# https://github.com/HeidiSQL/HeidiSQL — Ubuntu repos don't have libqt6pas yet.
+HEIDI_VERSION="12.17"
+LIBQT6PAS_VERSION="6.2.10-1"
+if ! command -v heidisql >/dev/null; then
+    info "Installing libqt6pas6 + heidisql $HEIDI_VERSION"
+    HEIDI_TMP="$(mktemp -d)"
+    LIBQT_URL="https://github.com/davidbannon/libqt6pas/releases/download/v${LIBQT6PAS_VERSION%-*}/libqt6pas6_${LIBQT6PAS_VERSION}_amd64.deb"
+    HEIDI_URL="https://github.com/HeidiSQL/HeidiSQL/releases/download/${HEIDI_VERSION}/heidisql_${HEIDI_VERSION}_amd64.deb"
+    if curl -fsSL "$LIBQT_URL" -o "$HEIDI_TMP/libqt6pas6.deb" \
+        && curl -fsSL "$HEIDI_URL" -o "$HEIDI_TMP/heidisql.deb"; then
+        sudo apt install -y "$HEIDI_TMP/libqt6pas6.deb" "$HEIDI_TMP/heidisql.deb" \
+            || warn "heidisql install failed"
+    else
+        warn "heidisql download failed"
+    fi
+    rm -rf "$HEIDI_TMP"
+fi
+
+# --- Wally (ZSA keyboard flasher) ---------------------------------------------
+# https://github.com/zsa/wally — AppImage + udev rules
+WALLY_BIN="$HOME/.local/bin/wally"
+WALLY_UDEV="/etc/udev/rules.d/50-wally.rules"
+if [ ! -x "$WALLY_BIN" ]; then
+    info "Installing Wally (ZSA keyboard flasher)"
+    mkdir -p "$HOME/.local/bin"
+    WALLY_URL="https://configure.zsa.io/wally/linux"
+    if curl -fsSL "$WALLY_URL" -o "$WALLY_BIN"; then
+        chmod +x "$WALLY_BIN"
+        ok "Wally installed at $WALLY_BIN"
+    else
+        warn "Wally download failed"
+    fi
+fi
+if [ ! -f "$WALLY_UDEV" ]; then
+    info "Installing Wally udev rules"
+    sudo tee "$WALLY_UDEV" >/dev/null <<'EOF'
+# Rules for Oryx web flashing and live training
+KERNEL=="hidraw*", ATTRS{idVendor}=="16c0", MODE="0664", GROUP="plugdev"
+KERNEL=="hidraw*", ATTRS{idVendor}=="3297", MODE="0664", GROUP="plugdev"
+
+# Legacy rules for live training over webusb (Not needed for firmware v21+)
+# Rule for all ZSA keyboards
+SUBSYSTEM=="usb", ATTR{idVendor}=="3297", GROUP="plugdev"
+# Rule for the Moonlander
+SUBSYSTEM=="usb", ATTR{idVendor}=="3297", ATTR{idProduct}=="1969", GROUP="plugdev"
+# Rule for the Ergodox EZ
+SUBSYSTEM=="usb", ATTR{idVendor}=="feed", ATTR{idProduct}=="1307", GROUP="plugdev"
+# Rule for the Planck EZ
+SUBSYSTEM=="usb", ATTR{idVendor}=="feed", ATTR{idProduct}=="6060", GROUP="plugdev"
+
+# Wally Flashing rules for the Moonlander and Planck EZ
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="df11", \
+    MODE:="0666", \
+    SYMLINK+="stm32_dfu"
+# Wally Flashing rules for the Ergodox EZ
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="04[789B]?", \
+    ENV{ID_MM_DEVICE_IGNORE}="1"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="04[789A]?", \
+    ENV{MTP_NO_PROBE}="1"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="04[789ABCD]?", \
+    MODE:="0666"
+KERNEL=="ttyACM*", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="04[789B]?", \
+    MODE:="0666"
+EOF
+    sudo udevadm control --reload-rules && sudo udevadm trigger
+    # plugdev group (Ubuntu 25.10 doesn't ship it by default)
+    getent group plugdev >/dev/null || sudo groupadd plugdev
+    sudo usermod -aG plugdev "$USER"
+fi
+
+# --- dsearch removal (user uses rofi, doesn't want dms launcher) --------------
+if dpkg -s dsearch >/dev/null 2>&1; then
+    info "Removing dsearch (user uses rofi as launcher)"
+    sudo apt purge -y dsearch || true
+fi
+
+# --- Default browser → Google Chrome (firefox kept as fallback) ---------------
+if command -v google-chrome-stable >/dev/null && command -v xdg-settings >/dev/null; then
+    xdg-settings set default-web-browser google-chrome.desktop 2>/dev/null || true
 fi
 
 {{   if .want_hyprland -}}
@@ -138,7 +287,6 @@ if [ "$HDM_INSTALLED_VERSION" != "$HDM_VERSION" ]; then
     if curl -fsSL "$HDM_URL" -o "$HDM_TMP/hdm.tar.gz"; then
         tar -xzf "$HDM_TMP/hdm.tar.gz" -C "$HDM_TMP"
         sudo install -m 0755 "$HDM_TMP"/hyprdynamicmonitors /usr/local/bin/hyprdynamicmonitors
-        # Systemd units shipped in tarball under systemd/user/
         if [ -d "$HDM_TMP/systemd/user" ]; then
             sudo install -m 0644 "$HDM_TMP/systemd/user/"*.service /etc/systemd/user/
         fi
@@ -176,6 +324,11 @@ if command -v paru >/dev/null && [ "${#AUR_PKGS[@]}" -gt 0 ]; then
     paru -S --noconfirm --needed "${AUR_PKGS[@]}"
 else
     warn "paru not available — skipping AUR packages"
+fi
+
+# Default browser → Google Chrome (firefox kept as fallback)
+if command -v google-chrome-stable >/dev/null && command -v xdg-settings >/dev/null; then
+    xdg-settings set default-web-browser google-chrome.desktop 2>/dev/null || true
 fi
 {{-   end }}
 {{- end }}

@@ -8,9 +8,17 @@
 #
 # Distros: arch, ubuntu (25.10 questing only)
 #
+# Convention:
+#   common.* — installed on every distro
+#   <distro>.* — distro-specific additions (or items NOT installed on the
+#                other distro because the other distro ships them by default)
+#   aur — Arch-only AUR packages (installed via paru)
+#
+# External apt sources / one-off downloads (chrome, vscode, anydesk, teams,
+# nvim appimage, heidisql, wally, hyprdynamicmonitors) are handled by
+# .chezmoiscripts/run_before_05-install-packages.sh.tmpl.
+#
 # mise-managed tools live in dot_config/mise/config.toml.
-# Flatpaks listed here (cross-distro).
-# AUR (Arch-only) packages listed under .aur sub-keys.
 
 packages:
   minimal:
@@ -25,7 +33,6 @@ packages:
       - ripgrep
       - zoxide
       - fontconfig
-      - neovim
 
     ubuntu:
       - build-essential
@@ -39,16 +46,13 @@ packages:
       - fd
       - xclip
       - python-pip
+      - neovim           # ubuntu uses appimage v0.12.2 (managed by install script)
 
   workstation:
     # Desktop base — shared by both niri and hyprland sessions.
-    # NOTE: ghostty is installed separately (snap on ubuntu, pacman on arch)
-    # by run_before_05-install-packages.sh — no clean apt source on questing.
+    # NOTE: ghostty is installed separately by run_before_05-install-packages.sh
+    # (mkasberg installer on ubuntu, pacman on arch — no clean apt source on questing).
     common:
-      - loupe
-      - gnome-text-editor
-      - file-roller
-      - seahorse
       - mpv
       - flatpak
       - tree
@@ -67,19 +71,23 @@ packages:
       - pavucontrol
       - grim
       - slurp
-      - nautilus
       - qt5ct
       - qt6ct
       - xdg-user-dirs
       - xdg-desktop-portal-gtk
       - gvfs
       - tumbler
-      - accountsservice   # required by DMS for profile pictures
-      # DMS optional companions
+      # DMS optional companions (dgop = system telemetry for widgets;
+      # dsearch is NOT installed — purged post-dms-install, user uses rofi)
       - dgop
       - matugen
       - i2c-tools
       - cava
+      # Apps requested explicitly (apt-native on Ubuntu, Arch repos)
+      - remmina
+      - gnome-boxes
+      - piper
+      - filezilla
 
     ubuntu:
       - gnome-firmware
@@ -87,8 +95,19 @@ packages:
       - rofi
       - wlogout
       - network-manager-gnome
+      # Ubuntu desktop ships these by default; listed under arch only.
+      # (loupe, gnome-text-editor, file-roller, nautilus, seahorse,
+      #  accountsservice, firefox — present on default Ubuntu install)
 
     arch:
+      # GNOME basics that Ubuntu pre-installs but Arch doesn't
+      - loupe
+      - gnome-text-editor
+      - file-roller
+      - nautilus
+      - seahorse
+      - accountsservice
+      - firefox
       - gnome-firmware
       - reflector
       - pkgfile
@@ -102,6 +121,11 @@ packages:
       - wlogout
       - network-manager-applet
       - qt6-multimedia
+      # Apps requested explicitly (Arch repo names)
+      - google-chrome    # via paru → AUR
+      - code             # vscode-oss (community) — for closed source use AUR `visual-studio-code-bin`
+      - heidisql         # AUR
+      - anydesk-bin      # AUR
 
     # Niri compositor stack (installed when compositor=niri|both)
     # DMS is the niri shell (bar + notifications + launcher + lock); it replaces
@@ -130,7 +154,6 @@ packages:
       arch:
         - hyprland
         - xdg-desktop-portal-hyprland
-      # AUR (Arch only)
       aur:
         - hyprpolkitagent-git
         - grimblast-git
@@ -138,15 +161,18 @@ packages:
         - hyprdynamicmonitors
 
     # AUR packages independent of compositor choice (Arch only)
+    # Adds: chrome/vscode/teams/anydesk/heidisql/wally already listed in arch
+    # section; this block holds anything that's strictly AUR-only.
     aur:
       - swaync
       - rofi-calc
+      - teams-for-linux-bin
+      - wally
 
     flatpak:
       - com.spotify.Client
       - com.discordapp.Discord
       - md.obsidian.Obsidian
       - com.bitwarden.desktop
-      - io.dbeaver.DBeaverCommunity
       - org.gimp.GIMP
       - com.jgraph.drawio.desktop
