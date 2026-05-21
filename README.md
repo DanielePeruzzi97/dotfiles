@@ -59,7 +59,8 @@ Everything in `minimal` plus a full Wayland desktop:
 - **Cloud / DevOps** — Docker (official apt repo on Ubuntu, pacman on Arch) +
   compose v2 plugin, Ansible (pipx on Ubuntu, pacman on Arch), `tfswitch` /
   `tgswitch` (warrensbox binaries — they download terraform/terragrunt on
-  first invocation, no separate install needed), `eza`.
+  first invocation, no separate install needed; run `tfswitch` once
+  interactively to install the desired version), `eza`.
 - **AI tooling** — [opencode](https://opencode.ai) + [claude](https://claude.ai)
   CLIs (upstream installers; configs in `dot_config/opencode/` and `dot_claude/`).
 - **k8s** (via mise) — `kubectl`, `helm`, `k9s`, `talosctl`, `kubeseal`.
