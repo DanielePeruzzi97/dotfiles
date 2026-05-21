@@ -14,6 +14,10 @@ install.sh
 .config/swaync/
 .config/wlogout/
 .config/k9s/
+.config/gtk-3.0/
+.config/gtk-4.0/
+.config/qt5ct/
+.config/qt6ct/
 {{- end }}
 
 {{- if and (eq .profile "workstation") (not .want_niri) }}
@@ -24,6 +28,12 @@ install.sh
 # Hyprland not selected
 .config/hypr/
 .config/hyprdynamicmonitors/
+# GTK/Qt static prefs only deployed when hyprland is present;
+# under niri-only, DMS (matugen) owns app theming.
+.config/gtk-3.0/
+.config/gtk-4.0/
+.config/qt5ct/
+.config/qt6ct/
 {{- end }}
 
 # Machine-specific hypr overrides — never tracked
