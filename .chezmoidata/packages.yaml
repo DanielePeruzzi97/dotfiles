@@ -75,20 +75,16 @@ packages:
       - matugen
       - i2c-tools
       - cava
-      # Hyprland-specific
-      - hyprlock
-      - hypridle
-      - hyprpaper
-      - hyprsunset
       # Niri-specific
       - xwayland-satellite
 
     ubuntu:
+      # Ubuntu workstation = niri + DMS only.
+      # Hyprland stack (hyprland/hyprlock/hypridle/hyprsunset/hyprpaper) is
+      # arch-only: not in Ubuntu apt without fragile third-party PPAs.
       - gnome-firmware
       - niri
       - dms
-      - hyprland
-      - xdg-desktop-portal-hyprland
       - sway-notification-center
       - rofi
       - wlogout
@@ -105,7 +101,12 @@ packages:
       - paru             # AUR helper
       - niri
       - dms-shell
+      # Hyprland stack (Arch only)
       - hyprland
+      - hyprlock
+      - hypridle
+      - hyprpaper
+      - hyprsunset
       - xdg-desktop-portal-hyprland
       - rofi-wayland
       - wlogout

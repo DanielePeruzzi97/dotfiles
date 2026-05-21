@@ -15,6 +15,11 @@ install.sh
 .config/k9s/
 {{- end }}
 
+{{- if and (eq .profile "workstation") .is_ubuntu }}
+# Hyprland stack is arch-only (not in Ubuntu apt without third-party PPAs)
+.config/hypr/
+{{- end }}
+
 # AI workflow — secrets, runtime state, caches (never sync)
 .claude/.credentials.json
 .claude/settings.local.json
