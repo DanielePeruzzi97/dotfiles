@@ -130,6 +130,25 @@ if [ ! -f /etc/apt/sources.list.d/anydesk-stable.list ]; then
     NEED_APT_UPDATE=1
 fi
 
+# Docker (official repo — Ubuntu's docker.io lags and lacks compose v2 plugin)
+# https://docs.docker.com/engine/install/ubuntu/
+if [ ! -f /etc/apt/sources.list.d/docker.list ]; then
+    info "Adding Docker apt repo"
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+        | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    sudo chmod a+r /etc/apt/keyrings/docker.gpg
+    # Docker repo may not yet have entries for very recent codenames (questing).
+    # Probe and fall back to the latest LTS (noble) if missing.
+    DOCKER_CODENAME="$(. /etc/os-release && echo "$VERSION_CODENAME")"
+    if ! curl -fsI "https://download.docker.com/linux/ubuntu/dists/${DOCKER_CODENAME}/Release" >/dev/null; then
+        warn "Docker repo has no '${DOCKER_CODENAME}' suite — falling back to 'noble'"
+        DOCKER_CODENAME="noble"
+    fi
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu ${DOCKER_CODENAME} stable" \
+        | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+    NEED_APT_UPDATE=1
+fi
+
 {{   if .want_hyprland -}}
 # Hyprland PPA — Ubuntu apt doesn't carry hyprlock/hypridle/hyprsunset/hyprpaper
 if ! grep -rq "cppiber/hyprland" /etc/apt/sources.list.d/ 2>/dev/null; then
@@ -152,6 +171,15 @@ sudo apt install -y "${PKGS[@]}"
 info "Installing google-chrome / code / teams-for-linux / anydesk"
 sudo apt install -y google-chrome-stable code teams-for-linux anydesk \
     || warn "Some external apt packages failed to install"
+
+info "Installing docker-ce + compose plugin"
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
+    || warn "Docker install failed"
+if getent group docker >/dev/null && ! id -nG "$USER" | grep -qw docker; then
+    sudo usermod -aG docker "$USER"
+    warn "Added $USER to docker group — log out/in for it to take effect"
+fi
+sudo systemctl enable --now docker.service 2>/dev/null || true
 {{- end }}
 
 # Symlink fd-find -> fd (Ubuntu ships it as fdfind)
@@ -326,9 +354,57 @@ else
     warn "paru not available — skipping AUR packages"
 fi
 
+# Docker post-install (pkg installed via pacman list)
+if command -v docker >/dev/null; then
+    if getent group docker >/dev/null && ! id -nG "$USER" | grep -qw docker; then
+        sudo usermod -aG docker "$USER"
+        warn "Added $USER to docker group — log out/in for it to take effect"
+    fi
+    sudo systemctl enable --now docker.service 2>/dev/null || true
+fi
+
 # Default browser → Google Chrome (firefox kept as fallback)
 if command -v google-chrome-stable >/dev/null && command -v xdg-settings >/dev/null; then
     xdg-settings set default-web-browser google-chrome.desktop 2>/dev/null || true
+fi
+{{-   end }}
+{{- end }}
+
+# --- Cross-distro binary installers (workstation only) ------------------------
+# tfswitch/tgswitch manage terraform/terragrunt versions; opencode/claude are
+# upstream-managed binaries with their own installers; ansible via pipx on Ubuntu.
+{{ if eq .profile "workstation" -}}
+# tfswitch (warrensbox) — single binary in /usr/local/bin
+if ! command -v tfswitch >/dev/null; then
+    info "Installing tfswitch (warrensbox)"
+    curl -fsSL https://raw.githubusercontent.com/warrensbox/terraform-switcher/release/install.sh \
+        | sudo bash || warn "tfswitch install failed"
+fi
+
+# tgswitch (warrensbox) — terragrunt counterpart
+if ! command -v tgswitch >/dev/null; then
+    info "Installing tgswitch (warrensbox)"
+    curl -fsSL https://raw.githubusercontent.com/warrensbox/tgswitch/release/install.sh \
+        | sudo bash || warn "tgswitch install failed"
+fi
+
+# opencode — installs to ~/.opencode/bin/opencode (added to PATH via shell rc)
+if [ ! -x "$HOME/.opencode/bin/opencode" ] && ! command -v opencode >/dev/null; then
+    info "Installing opencode"
+    curl -fsSL https://opencode.ai/install | bash || warn "opencode install failed"
+fi
+
+# claude (Anthropic native installer) — installs to ~/.local/bin/claude
+if [ ! -x "$HOME/.local/bin/claude" ] && ! command -v claude >/dev/null; then
+    info "Installing claude (Anthropic CLI)"
+    curl -fsSL https://claude.ai/install.sh | bash || warn "claude install failed"
+fi
+
+{{   if .is_ubuntu -}}
+# ansible — pipx (Arch installs via pacman in package list)
+if ! command -v ansible >/dev/null; then
+    info "Installing ansible via pipx"
+    pipx install --include-deps ansible || warn "ansible (pipx) install failed"
 fi
 {{-   end }}
 {{- end }}

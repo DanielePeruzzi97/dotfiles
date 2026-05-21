@@ -32,6 +32,7 @@ packages:
       - fzf
       - ripgrep
       - zoxide
+      - eza
       - fontconfig
 
     ubuntu:
@@ -40,12 +41,14 @@ packages:
       - fd-find          # symlinked to `fd` by post-script
       - xclip
       - python3-pip
+      - pipx             # for ansible install
 
     arch:
       - base-devel
       - fd
       - xclip
       - python-pip
+      - python-pipx
       - neovim           # ubuntu uses appimage v0.12.2 (managed by install script)
 
   workstation:
@@ -77,9 +80,7 @@ packages:
       - xdg-desktop-portal-gtk
       - gvfs
       - tumbler
-      # DMS optional companions (dgop = system telemetry for widgets;
-      # dsearch is NOT installed — purged post-dms-install, user uses rofi)
-      - dgop
+      # DMS optional companions (dgop removed — user choice)
       - matugen
       - i2c-tools
       - cava
@@ -126,6 +127,11 @@ packages:
       - code             # vscode-oss (community) — for closed source use AUR `visual-studio-code-bin`
       - heidisql         # AUR
       - anydesk-bin      # AUR
+      # Cloud / DevOps (ubuntu: docker via official apt repo in install script,
+      # ansible via pipx, tfswitch/tgswitch as binaries)
+      - docker
+      - docker-compose
+      - ansible
 
     # Niri compositor stack (installed when compositor=niri|both)
     # DMS is the niri shell (bar + notifications + launcher + lock); it replaces

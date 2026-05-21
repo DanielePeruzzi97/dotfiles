@@ -1,0 +1,28 @@
+{
+  "files.autoSave": "afterDelay",
+  "editor.autoIndent": "full",
+  "editor.minimap.enabled": false,
+  "editor.formatOnSaveMode": "file",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "editor.defaultFormatter": "ms-python.black-formatter",
+  "workbench.colorTheme": "Vim Dark Hard",
+  "workbench.sideBar.location": "right",
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "extensions.ignoreRecommendations": true,
+  "editor.cursorStyle": "block",
+  "extensions.experimental.affinity": {
+    "asvetliakov.vscode-neovim": 1
+  },
+  "workbench.startupEditor": "none",
+  "git.autofetch": true,
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "editor.accessibilitySupport": "off",
+  "redhat.telemetry.enabled": true,
+  "git.confirmSync": false
+}

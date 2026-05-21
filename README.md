@@ -56,6 +56,12 @@ Everything in `minimal` plus a full Wayland desktop:
   Wally (ZSA keyboards, with udev rules + plugdev group), nautilus, pavucontrol,
   blueman, Spotify, Discord, Obsidian, Bitwarden, GIMP, drawio (flatpak).
 - **Editor** — Neovim AppImage pinned to `v0.12.2` (Ubuntu apt lags).
+- **Cloud / DevOps** — Docker (official apt repo on Ubuntu, pacman on Arch) +
+  compose v2 plugin, Ansible (pipx on Ubuntu, pacman on Arch), `tfswitch` /
+  `tgswitch` (warrensbox binaries — they download terraform/terragrunt on
+  first invocation, no separate install needed), `eza`.
+- **AI tooling** — [opencode](https://opencode.ai) + [claude](https://claude.ai)
+  CLIs (upstream installers; configs in `dot_config/opencode/` and `dot_claude/`).
 - **k8s** (via mise) — `kubectl`, `helm`, `k9s`, `talosctl`, `kubeseal`.
 
 ---
