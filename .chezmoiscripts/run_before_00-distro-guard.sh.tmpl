@@ -1,0 +1,13 @@
+{{- /* Distro guard — fail closed on unsupported systems */ -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+{{ if not (or .is_arch .is_ubuntu) -}}
+echo "ERROR: Unsupported distro." >&2
+echo "  os-release id  : {{ .osid }}" >&2
+echo "  codename       : {{ .codename }}" >&2
+echo "  Supported      : arch, ubuntu 25.10 (questing)" >&2
+exit 1
+{{- else -}}
+echo "[+] Distro OK: {{ .osid }} {{ .codename }}"
+{{- end }}

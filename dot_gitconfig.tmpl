@@ -2,10 +2,10 @@
 	helper = store
 
 [user]
-	email = {{ .email }}
 	name = {{ .name }}
-{{- if .is_work_machine }}
-	signingkey = 1395B76D386CE4BA
+	email = {{ .email }}
+{{- if .signingkey }}
+	signingkey = {{ .signingkey }}
 {{- end }}
 
 [push]
@@ -17,15 +17,15 @@
 [alias]
 	glog = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
 
-{{- if .is_work_machine }}
+{{- if .signingkey }}
 [commit]
 	gpgsign = true
 {{- end }}
 
-{{- if .is_work_machine }}
+# Work git identity override — provided by the private dotfiles repo (~/.gitconfig-work).
+# Safe to keep unconditionally: include is silently skipped when the file does not exist.
 [includeif "gitdir:~/omnys/git/"]
 	path = ~/.gitconfig-work
-{{- end }}
 
 [merge]
 	tool = "nvim"

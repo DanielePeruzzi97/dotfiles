@@ -1,5 +1,10 @@
 // Niri compositor config — minimal bootstrap
 // See: https://github.com/niri-wm/niri/wiki/Configuration
+//
+// DMS (DankMaterialShell) is NOT spawned here — it is enabled as a systemd user
+// service and bound to niri.service via:
+//   systemctl --user enable --now dms
+//   systemctl --user add-wants niri.service dms
 
 // ============================================
 // Input
@@ -46,7 +51,6 @@ layout {
 // Startup programs
 // ============================================
 
-spawn-at-startup "qs" "-c" "noctalia-shell"
 spawn-at-startup "xwayland-satellite"
 
 // ============================================

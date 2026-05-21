@@ -1,84 +1,27 @@
-# Chezmoi ignore rules
-# Files in this list are excluded from management
-
-# Repository files (never sync to home)
+# Repo-only files (never sync to $HOME)
 README.md
 LICENSE
-Vagrantfile
-setup.sh
-.stow-local-ignore
-bootstrap.private.env.age
-bootstrap.private.env.age.example
-
-# Legacy install scripts (kept for reference but not synced)
 install.sh
-install/
-dotfiles.sh
-scripts/check-manual-updates.sh
+.gitignore
 
-# Legacy stow layout kept temporarily for migration safety.
-# Must never be applied by chezmoi.
-alacritty/
-bin/
-ghostty/
-git/
-hyprland/
-k9s/
-nvim/
-opencode/
-scripts/
-tmux/
-topgrade/
-zen/
-zshrc/
-
-# Desktop-specific configs (only if desktop not installed)
-{{- if not .install_desktop }}
+{{- if eq .profile "minimal" }}
+# Desktop configs not deployed on minimal profile
 .config/hypr/
+.config/niri/
 .config/waybar/
 .config/rofi/
 .config/swaync/
-.config/swayosd/
 .config/wlogout/
-.config/hyprdynamicmonitors/
-{{- end }}
-
-# Kubernetes configs (only if k8s not installed)
-{{- if not .install_k8s }}
 .config/k9s/
 {{- end }}
 
-# OS-specific ignores
-{{- if eq .chezmoi.os "darwin" }}
-# macOS doesn't need these Linux-specific configs
-.config/hypr/
-.config/waybar/
-.config/rofi/
-.config/swaync/
-.config/swayosd/
-.config/wlogout/
-{{- end }}
-
-# Windows-specific configs on Linux
-{{- if ne .chezmoi.os "windows" }}
-.config/alacritty/alacritty.toml.windows
-{{- end }}
-
-# ---------------------------------------------------------------------------
-# AI workflow exclusions (OpenCode + Claude Code)
-# Added during AI workflow unification.
-# Never sync secrets, runtime state, caches, or generated artifacts.
-# ---------------------------------------------------------------------------
-
-# Claude — secrets and runtime state
+# AI workflow — secrets, runtime state, caches (never sync)
 .claude/.credentials.json
 .claude/settings.local.json
 .claude/.last-cleanup
 .claude/.caveman-active
 .claude/mcp-needs-auth-cache.json
 .claude/policy-limits.json
-
-# Claude — runtime/generated/cache directories
 .claude/sessions/
 .claude/projects/
 .claude/file-history/
@@ -94,7 +37,6 @@ zshrc/
 .claude/plugins/data/
 .claude/context-mode/sessions/
 
-# OpenCode — runtime/generated
 .config/opencode/node_modules/
 .config/opencode/bun.lock
 .config/opencode/package-lock.json

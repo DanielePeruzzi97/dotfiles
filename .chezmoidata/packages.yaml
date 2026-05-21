@@ -1,88 +1,44 @@
-# Declarative package management for dotfiles
-# This file defines all packages to install across distributions
+# Declarative package lists by profile + distro.
 #
-# Structure:
-#   system.*   - Installed via apt (debian) or pacman (arch)
-#   mise.*     - Installed via mise (version-controlled, cross-distro consistent)
-#   desktop.*  - Only installed if install_desktop=true
-#   flatpak.*  - Installed via flatpak (cross-distro)
+# Profiles:
+#   minimal     — core CLI only
+#   workstation — minimal + desktop (niri+hyprland+DMS) + flatpak + k8s
 #
-# Workflow to add a new package:
-#   1. Edit this file, add package to appropriate section
-#   2. Commit: git add -A && git commit -m "Add package-name"
-#   3. Push: git push
-#   4. On each machine: chezmoi update (pulls and re-applies)
+# Distros: arch, ubuntu (25.10 questing only)
+#
+# mise-managed tools live in dot_config/mise/config.toml.
+# Flatpaks listed here (cross-distro).
+# AUR (Arch-only) packages listed under aur:
 
 packages:
-  # ============================================
-  # System packages (via apt/pacman)
-  # These are core tools that need OS integration
-  # ============================================
-  system:
+  minimal:
     common:
       - zsh
       - git
       - tmux
       - curl
       - wget
-      - xclip
+      - unzip
       - fzf
       - ripgrep
       - zoxide
-      - unzip
       - fontconfig
-      - python3-pip
 
-    debian:
+    ubuntu:
       - build-essential
-      - fd-find           # Note: symlinked to 'fd' in install script
       - software-properties-common
+      - fd-find          # symlinked to `fd` by post-script
+      - xclip
+      - python3-pip
 
     arch:
       - base-devel
       - fd
-      - python-pip        # Different package name on Arch
+      - xclip
+      - python-pip
 
-  # ============================================
-  # mise-managed tools
-  # Version-controlled, identical across distros
-  # ============================================
-  mise:
-    # CLI tools not in all distro repos or where version matters
-    tools:
-      - bat               # Better cat with syntax highlighting
-      - delta             # Better git diff
-      - eza               # Better ls (replacement for exa)
-      - jq                # JSON processor
-      - yq                # YAML processor
-
-    # Programming languages - mise ensures same version everywhere
-    languages:
-      node: "lts"
-      go: "latest"
-      python: "3.12"
-
-    # Kubernetes & Cloud tools
-    k8s:
-      - kubectl
-      - helm
-      - k9s
-      - talosctl
-      - kubeseal
-      - sops
-      - age
-      - awscli
-
-    # Development tools
-    dev:
-      - chezmoi
-      - topgrade
-      - gh                # GitHub CLI
-
-  # ============================================
-  # Desktop packages (only if install_desktop=true)
-  # ============================================
-  desktop:
+  workstation:
+    # Desktop core (niri + hyprland coexist; GDM picks session at login)
     common:
       - loupe
       - gnome-text-editor
@@ -90,33 +46,12 @@ packages:
       - seahorse
       - mpv
       - flatpak
-      - curl
-      - jq
       - tree
       - btop
       - iotop
       - nethogs
       - sshfs
-
-    debian:
-      - gnome-firmware
-
-    arch:
-      - gnome-firmware
-      - reflector
-      - pkgfile
-      - pacman-contrib
-      - gnome-keyring
-      - jack2
-      - session-manager-plugin
-      - rate-mirrors
-      - paru              # AUR helper
-
-  # ============================================
-  # Hyprland/Wayland packages (only if install_desktop=true)
-  # ============================================
-  hyprland:
-    common:
+      # Wayland desktop bits used by both niri & hyprland
       - waybar
       - cliphist
       - wl-clipboard
@@ -127,10 +62,6 @@ packages:
       - pavucontrol
       - grim
       - slurp
-      - hyprlock
-      - hypridle
-      - hyprpaper
-      - hyprsunset
       - nautilus
       - qt5ct
       - qt6ct
@@ -138,60 +69,62 @@ packages:
       - xdg-desktop-portal-gtk
       - gvfs
       - tumbler
+      - accountsservice   # required by DMS for profile pictures
+      # DMS optional companions
+      - dgop
+      - matugen
+      - i2c-tools
+      - cava
+      # Hyprland-specific
+      - hyprlock
+      - hypridle
+      - hyprpaper
+      - hyprsunset
+      # Niri-specific
+      - xwayland-satellite
 
-    debian:
+    ubuntu:
+      - gnome-firmware
+      - niri
+      - dms
       - hyprland
       - xdg-desktop-portal-hyprland
-      - hyprpolkitagent          # Hyprland-native polkit agent (from cppiber PPA)
       - sway-notification-center
       - rofi
       - wlogout
       - network-manager-gnome
 
     arch:
+      - gnome-firmware
+      - reflector
+      - pkgfile
+      - pacman-contrib
+      - gnome-keyring
+      - jack2
+      - rate-mirrors
+      - paru             # AUR helper
+      - niri
+      - dms-shell
       - hyprland
       - xdg-desktop-portal-hyprland
       - rofi-wayland
       - wlogout
       - network-manager-applet
+      - qt6-multimedia
 
     # AUR packages (Arch only)
     aur:
-      - hyprpolkitagent-git      # Hyprland-native polkit agent
+      - hyprpolkitagent-git
       - swaync
       - grimblast-git
       - hyprshot
       - rofi-calc
 
-  # ============================================
-  # Niri/Noctalia packages (only if install_niri=true)
-  # Ubuntu 25.10+ and Arch only
-  # ============================================
-  niri:
-    common:
-      - xwayland-satellite
-      - kanshi
-
-    ubuntu:
-      - niri
-      - noctalia-shell   # only on supported codenames (plucky/questing); unsupported uses manual install
-
-    arch:
-      - niri
-
-    # AUR packages (Arch only)
-    aur:
-      - noctalia-qs
-      - noctalia-shell
-
-  # ============================================
-  # Flatpak applications (cross-distro)
-  # ============================================
-  flatpak:
-    - com.spotify.Client
-    - com.discordapp.Discord
-    - md.obsidian.Obsidian
-    - com.bitwarden.desktop
-    - io.dbeaver.DBeaverCommunity
-    - org.gimp.GIMP
-    - com.jgraph.drawio.desktop
+    flatpak:
+      - com.spotify.Client
+      - com.discordapp.Discord
+      - md.obsidian.Obsidian
+      - com.bitwarden.desktop
+      - io.dbeaver.DBeaverCommunity
+      - org.gimp.GIMP
+      - com.jgraph.drawio.desktop

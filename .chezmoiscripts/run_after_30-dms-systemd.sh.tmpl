@@ -1,0 +1,31 @@
+{{- /* Enable DMS user service + tie to niri.service */ -}}
+{{- if and (eq .profile "workstation") (not (env "CI")) -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+info() { printf "\033[0;34m[*]\033[0m %s\n" "$*"; }
+ok()   { printf "\033[0;32m[+]\033[0m %s\n" "$*"; }
+
+if ! command -v dms >/dev/null; then
+    echo "dms binary not found — skipping systemd integration"
+    exit 0
+fi
+
+# Need a user-bus session; in a fresh VM during chezmoi apply this is usually fine,
+# but be defensive: only run if the user systemd manager is up.
+if ! systemctl --user show-environment >/dev/null 2>&1; then
+    echo "user systemd not available in this context — skipping"
+    exit 0
+fi
+
+info "Enabling dms user service"
+systemctl --user enable --now dms.service || true
+
+info "Tying DMS to niri session (add-wants)"
+systemctl --user add-wants niri.service dms.service || true
+
+ok "DMS systemd integration done"
+{{- else -}}
+#!/usr/bin/env bash
+exit 0
+{{- end }}

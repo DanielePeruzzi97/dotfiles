@@ -1,50 +1,28 @@
 #!/usr/bin/env bash
-# Setup systemd user services
-# Only runs on desktop machines
-
+# Enable systemd user services for Hyprland helpers — workstation only.
 set -euo pipefail
 
-{{- if not .install_desktop }}
+{{ if ne .profile "workstation" -}}
 exit 0
 {{- end }}
 
-echo "Setting up systemd user services..."
+if ! systemctl --user show-environment >/dev/null 2>&1; then
+    echo "user systemd unavailable, skipping"
+    exit 0
+fi
 
-# Pick up chezmoi-managed user units from ~/.config/systemd/user
 systemctl --user daemon-reload
 
-CHEZMOI_SERVICES=(
-    "hyprdynamicmonitors-prepare.service"
-    "hyprdynamicmonitors.service"
-)
-
-PACKAGE_SERVICES=(
+SERVICES=(
     "hypridle.service"
     "hyprpaper.service"
     "hyprpolkitagent.service"
     "hyprsunset.service"
 )
 
-for service in "${CHEZMOI_SERVICES[@]}"; do
-    if systemctl --user list-unit-files "$service" &>/dev/null; then
-        if ! systemctl --user is-enabled "$service" &>/dev/null; then
-            systemctl --user enable "$service"
-            echo "Enabled $service"
-        fi
-    else
-        echo "Service $service not found, skipping"
+for s in "${SERVICES[@]}"; do
+    if systemctl --user list-unit-files --type=service --all | grep -q "^$s"; then
+        systemctl --user is-enabled "$s" >/dev/null 2>&1 || systemctl --user enable "$s" || true
     fi
 done
-
-for service in "${PACKAGE_SERVICES[@]}"; do
-    if systemctl --user list-unit-files --type=service --all | grep -q "^$service"; then
-        if ! systemctl --user is-enabled "$service" &>/dev/null; then
-            systemctl --user enable "$service"
-            echo "Enabled $service"
-        fi
-    else
-        echo "Service $service not found, skipping"
-    fi
-done
-
-echo "Systemd user services setup complete"
+echo "Hyprland systemd services done"

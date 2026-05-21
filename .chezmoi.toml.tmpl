@@ -1,61 +1,42 @@
-{{- /* Chezmoi configuration template */ -}}
-{{- /* This file is processed once during `chezmoi init` */ -}}
+{{- /* Chezmoi configuration template — processed once on `chezmoi init` */ -}}
 
-{{- $name := "" -}}
-{{- $email := "" -}}
-{{- $isWorkMachine := false -}}
-{{- $installDesktop := true -}}
-{{- $installNiri := false -}}
-{{- $installK8s := true -}}
+{{- $name        := "User" -}}
+{{- $email       := "user@example.com" -}}
+{{- $signingkey  := "" -}}
+{{- $profile     := "workstation" -}}
 
-{{- /* Detect if running interactively */ -}}
-{{- $interactive := stdinIsATTY -}}
-
-{{- if $interactive -}}
-{{-   $name = promptStringOnce . "name" "Your full name" -}}
-{{-   $email = promptStringOnce . "email" "Your email address" -}}
-{{-   $isWorkMachine = promptBoolOnce . "is_work_machine" "Is this a work machine" -}}
-{{-   $installDesktop = promptBoolOnce . "install_desktop" "Install desktop environment (Hyprland)" -}}
-{{-   $installNiri = promptBoolOnce . "install_niri" "Install Niri + Noctalia shell" -}}
-{{-   $installK8s = promptBoolOnce . "install_k8s" "Install Kubernetes tools (kubectl, helm, k9s, etc.)" -}}
-{{- else -}}
-{{-   $name = "User" -}}
-{{-   $email = "user@example.com" -}}
-{{-   $isWorkMachine = false -}}
-{{-   $installDesktop = true -}}
-{{-   $installK8s = false -}}
+{{- if stdinIsATTY -}}
+{{-   $name       = promptStringOnce . "name"       "Your full name" -}}
+{{-   $email      = promptStringOnce . "email"      "Your email address" -}}
+{{-   $signingkey = promptStringOnce . "signingkey" "GPG signing key id (blank to skip)" "" -}}
+{{-   $profile    = promptChoiceOnce . "profile"    "Profile (minimal|workstation)" (list "minimal" "workstation") "workstation" -}}
 {{- end -}}
 
-{{- /* Detect OS and distribution */ -}}
-{{- $osid := .chezmoi.os -}}
-{{- if hasKey .chezmoi.osRelease "id" -}}
-{{-   $osid = .chezmoi.osRelease.id -}}
-{{- end -}}
+{{- /* Distro detection — fail closed: only arch + ubuntu 25.10 supported */ -}}
+{{- $osid := "" -}}
+{{- $codename := "" -}}
+{{- if hasKey .chezmoi.osRelease "id" -}}{{- $osid = .chezmoi.osRelease.id -}}{{- end -}}
+{{- if hasKey .chezmoi.osRelease "versionCodename" -}}{{- $codename = .chezmoi.osRelease.versionCodename -}}{{- end -}}
 
-{{- /* Determine if Arch-based */ -}}
-{{- $isArch := or (eq $osid "arch") (eq $osid "manjaro") (eq $osid "cachyos") (eq $osid "endeavouros") -}}
-
-{{- /* Determine if Debian-based */ -}}
-{{- $isDebian := or (eq $osid "ubuntu") (eq $osid "debian") (eq $osid "pop") -}}
+{{- $isArch   := eq $osid "arch" -}}
+{{- $isUbuntu := and (eq $osid "ubuntu") (eq $codename "questing") -}}
 
 sourceDir = {{ .chezmoi.sourceDir | quote }}
 
 [data]
-    name = {{ $name | quote }}
-    email = {{ $email | quote }}
-    is_work_machine = {{ $isWorkMachine }}
-    install_desktop = {{ $installDesktop }}
-    install_niri = {{ $installNiri }}
-    install_k8s = {{ $installK8s }}
-    
-    # OS detection
-    osid = {{ $osid | quote }}
-    is_arch = {{ $isArch }}
-    is_debian = {{ $isDebian }}
+    name       = {{ $name       | quote }}
+    email      = {{ $email      | quote }}
+    signingkey = {{ $signingkey | quote }}
+    profile    = {{ $profile    | quote }}
+
+    osid      = {{ $osid     | quote }}
+    codename  = {{ $codename | quote }}
+    is_arch   = {{ $isArch   }}
+    is_ubuntu = {{ $isUbuntu }}
 
 [edit]
     command = "nvim"
 
 [git]
-    autoCommit = false
-    autoPush = false
+    autoCommit = true
+    autoPush   = true

@@ -1,351 +1,143 @@
-# dotfiles
+# Dotfiles
 
-Modern development environment configuration for Linux systems with Neovim, Tmux, Zsh, Hyprland, and Ghostty.
+Personal dotfiles managed with [chezmoi](https://chezmoi.io/) and
+[mise](https://mise.jdx.dev/).
 
-## Quick Start
+**Hard-gated to Arch Linux and Ubuntu 25.10 (questing).** Anything else fails fast.
 
-### One-Liner Bootstrap (Fresh Machine)
+---
 
-```bash
+## Install
+
+```sh
 curl -fsSL https://raw.githubusercontent.com/DanielePeruzzi97/dotfiles/main/install.sh | bash
 ```
 
-During migration branch testing:
+On first run `chezmoi init` asks for:
 
-```bash
-DOTFILES_BRANCH=feat/chezmoi-migration \
-curl -fsSL "https://raw.githubusercontent.com/DanielePeruzzi97/dotfiles/feat%2Fchezmoi-migration/install.sh" | bash
-```
+| prompt       | what it sets                                              |
+|--------------|-----------------------------------------------------------|
+| `name`       | git `[user].name`                                         |
+| `email`      | git `[user].email`                                        |
+| `signingkey` | git `[user].signingkey` (leave blank to skip GPG signing) |
+| `profile`    | `minimal` or `workstation` (default: `workstation`)       |
 
-This single command will:
-1. Install chezmoi (dotfiles manager)
-2. Clone this repository
-3. Prompt for your preferences (name, email, work/personal, desktop/server)
-4. Install all system packages (via apt/pacman)
-5. Install all development tools (via mise)
-6. Apply all configurations
-7. Set up oh-my-zsh, tmux plugins, fonts, and more
+After install, `~/.config/chezmoi/chezmoi.toml` holds the answers — re-running
+`chezmoi apply` does not re-prompt.
 
-### Manual Installation
+---
 
-If you prefer manual control:
+## Profiles
 
-```bash
-# Install chezmoi
-sh -c "$(curl -fsLS get.chezmoi.io)"
+### `minimal`
+Headless / server-style box. CLI only.
 
-# Initialize and apply dotfiles
-chezmoi init --apply DanielePeruzzi97/dotfiles
-```
+- `zsh`, `git`, `tmux`, `curl`, `wget`, `fzf`, `ripgrep`, `zoxide`, `fd`, `unzip`
+- `mise` + every dev tool from `dot_config/mise/config.toml`
+- `oh-my-zsh` + plugins, `tpm` (via `.chezmoiexternal.toml`)
 
-### After Installation
+### `workstation` (default)
+Everything in `minimal` plus a full Wayland desktop:
 
-1. Log out and back in (or `exec zsh`) for shell change to take effect
-2. Tmux plugins install automatically; or press `Alt+a` then `I` manually
-3. Open nvim - plugins auto-install via lazy.nvim
-4. For Hyprland: plugins install automatically when Hyprland is running
+- **Compositors** — Niri **and** Hyprland installed side by side, GDM picks
+  session at login.
+- **Shell** — [DankMaterialShell (DMS)](https://danklinux.com/), enabled as a
+  user systemd unit and tied to `niri.service` via `add-wants`.
+- **Apps** — rofi, waybar, nautilus, pavucontrol, blueman, mpv, drawio
+  (flatpak), Spotify, Obsidian, Bitwarden, GIMP, DBeaver.
+- **k8s** (via mise) — `kubectl`, `helm`, `k9s`, `talosctl`, `kubeseal`.
 
-## What Gets Installed
+---
 
-### System Packages (via apt/pacman)
-
-Core tools installed via native package manager for deep OS integration:
-- **Shell:** zsh, git, stow, tmux, curl, wget
-- **CLI:** fzf, ripgrep, lazygit, zoxide, xclip
-- **Build:** build-essential (debian) / base-devel (arch)
-
-### Development Tools (via mise)
-
-All development tools are managed by [mise](https://mise.jdx.dev/) - ensuring **identical versions** across Ubuntu and Arch:
-
-- **Languages:** Node.js (lts), Python (3.12), Go (latest)
-- **CLI Tools:** bat, delta, eza, jq, yq
-- **K8s/Cloud:** kubectl, helm, k9s, talosctl, kubeseal, sops, age, awscli
-- **Dev:** chezmoi, topgrade, gh (GitHub CLI)
-
-Configuration: `~/.config/mise/config.toml`
-
-### Desktop Packages (optional)
-
-Only install if you select "desktop" during setup:
-- **Hyprland:** waybar, rofi, hyprlock, hypridle, wlogout, etc.
-- **Flatpak apps:** Spotify, Discord, Obsidian, Bitwarden, etc.
-
-Package lists: `.chezmoidata/packages.yaml`
-
-## Configuration Structure
+## Layout
 
 ```
-~/.dotfiles/
-├── install.sh                  # Bootstrap script (curl-able)
-├── setup.sh                    # Legacy bootstrap entrypoint
-├── .chezmoi.toml.tmpl          # User preferences template
-├── .chezmoiexternal.toml       # External dependencies (oh-my-zsh, TPM)
-├── .chezmoiignore.tmpl         # Conditional file inclusion
-├── .chezmoidata/               # Declarative data files
-│   └── packages.yaml           # Package lists for all distros
-├── .chezmoiscripts/            # Automation scripts
-│   ├── run_before_00-install-packages.sh.tmpl
-│   ├── run_before_10-ensure-mise.sh
-│   ├── run_onchange_after_50-mise-install.sh.tmpl
-│   ├── run_onchange_after_60-install-fonts.sh
-│   ├── run_after_70-change-shell.sh
-│   ├── run_onchange_after_71-tmux-plugins.sh.tmpl
-│   ├── run_after_80-hyprland-plugins.sh.tmpl
-│   ├── run_after_81-systemd-services.sh.tmpl
-│   └── run_after_99-private-dotfiles.sh.tmpl
-├── dot_config/                 # ~/.config/ files
-│   ├── nvim/                   # Neovim configuration
-│   ├── ghostty/                # Ghostty terminal
-│   ├── alacritty/              # Alacritty terminal
-│   ├── mise/                   # Mise tool versions
-│   ├── hypr/                   # Hyprland WM
-│   ├── waybar/                 # Status bar
-│   ├── rofi/                   # App launcher
-│   ├── tmux-sessionizer/       # Project navigator
-│   ├── k9s/                    # Kubernetes TUI
-│   ├── opencode/               # AI assistant
-│   └── topgrade/               # System updater
-├── dot_local/bin/              # User scripts
-├── dot_zshrc                   # Zsh configuration
-├── dot_tmux.conf               # Tmux configuration
-└── dot_gitconfig.tmpl          # Git config (templated)
+.chezmoi.toml.tmpl                         # prompts + profile + distro detection
+.chezmoidata/packages.yaml                 # declarative pkg lists per profile + distro
+.chezmoiexternal.toml                      # oh-my-zsh, zsh plugins, tpm
+.chezmoiignore.tmpl                        # what to keep out of $HOME (per profile)
+.chezmoiscripts/
+  run_before_00-distro-guard.sh.tmpl       # fail closed on unsupported OS
+  run_before_05-install-packages.sh.tmpl   # apt / pacman / paru / flatpak
+  run_before_10-ensure-mise.sh             # install mise if missing
+  run_onchange_after_50-mise-install.sh.tmpl
+  run_onchange_after_60-install-fonts.sh
+  run_after_30-dms-systemd.sh.tmpl         # enable dms + add-wants niri
+  run_after_70-change-shell.sh             # chsh -> zsh
+  run_after_80-hyprland-plugins.sh.tmpl    # hyprpm (workstation only)
+  run_after_81-systemd-services.sh.tmpl    # enable hypridle/hyprpaper/...
+  run_onchange_after_71-tmux-plugins.sh.tmpl
+dot_config/                                # ~/.config payload
+dot_gitconfig.tmpl                         # personal git identity (+ work include)
+dot_zshrc, dot_tmux.conf
+install.sh                                 # curl-friendly bootstrap (<100 LOC)
 ```
 
-## Updating Dotfiles
+`mise` config lives in `dot_config/mise/config.toml` and is the single source
+of truth for languages + dev/cloud CLIs. Edit it directly.
 
-```bash
-# Pull latest changes and apply
-chezmoi update
+---
 
-# Or manually:
-chezmoi git pull
-chezmoi apply
+## Updating
+
+```sh
+chezmoi update              # pull repo + re-apply
+chezmoi cd                  # jump into the source dir
+chezmoi diff                # preview pending changes
 ```
 
-## Adding New Packages
+`autoCommit = true` + `autoPush = true` are enabled in
+`.chezmoi.toml.tmpl` — local edits to managed files are committed and pushed
+automatically by chezmoi.
 
-All packages are managed declaratively in `.chezmoidata/packages.yaml`.
+---
 
-### Package Management Philosophy (Hybrid Approach)
+## Private dotfiles (separate repo)
 
-| Type | Managed By | Examples |
-|------|------------|----------|
-| **Core system tools** | apt/pacman | zsh, git, tmux, neovim, fzf, ripgrep |
-| **Dev tools (version matters)** | mise | bat, delta, eza, jq, yq |
-| **Languages** | mise | node, python, go |
-| **K8s/Cloud tools** | mise | kubectl, helm, k9s, awscli |
-| **Desktop apps** | flatpak | Spotify, Discord, Obsidian |
+Secrets, work git overrides (`~/.gitconfig-work`), private mise configs, etc.
+live in [`dotfiles_private`](https://github.com/DanielePeruzzi97/dotfiles_private)
+and are installed with a separate one-liner. This repo contains **zero
+secrets, zero encrypted blobs, zero YubiKey logic**.
 
-### Workflow: Add a New Package
+---
 
-1. **Edit the package list:**
-   ```bash
-   vim ~/.dotfiles/.chezmoidata/packages.yaml
+## DMS — manual bits
+
+Once installed and after first `niri-session` login:
+
+```sh
+# (run_after_30-dms-systemd already does this, kept here for reference)
+systemctl --user enable --now dms.service
+systemctl --user add-wants niri.service dms.service
+
+# First-run wizard (theme, wallpaper, profile picture):
+dms setup
+
+# Useful subcommands:
+dms restart        # reload shell
+dms update         # update to latest
+```
+
+Do **not** add `spawn-at-startup "dms" "run"` to `niri/config.kdl` — the
+systemd unit handles startup and avoids double-launch.
+
+---
+
+## Forking
+
+1. Fork on GitHub.
+2. Override the install one-liner:
+
+   ```sh
+   DOTFILES_REPO="<your-user>/dotfiles" \
+     curl -fsSL https://raw.githubusercontent.com/<your-user>/dotfiles/main/install.sh | bash
    ```
+3. Adjust `.chezmoidata/packages.yaml` to taste.
+4. If you don't use `omnys.lan`, edit the `includeIf` block at the bottom of
+   `dot_gitconfig.tmpl`.
 
-2. **Add to the appropriate section:**
-   ```yaml
-   packages:
-     system:
-       common:
-         - new-cli-tool    # For system packages
-     mise:
-       tools:
-         - new-dev-tool    # For mise-managed tools
-   ```
-
-3. **Commit and push:**
-   ```bash
-   cd ~/.dotfiles
-   git add -A && git commit -m "Add new-tool"
-   git push
-   ```
-
-4. **Apply on all machines:**
-   ```bash
-   chezmoi update   # Pulls changes and re-applies
-   ```
-
-### Add a mise tool (alternative)
-
-You can also edit `~/.dotfiles/dot_config/mise/config.toml` directly:
-
-```toml
-[tools]
-newtool = "latest"
-```
-
-Then: `chezmoi apply` (triggers mise install automatically)
-
-## Platform Notes
-
-### Arch Linux
-Clean slate - install scripts add Hyprland and all tools on top of base system.
-
-### Ubuntu Desktop
-These dotfiles are **additive** - they install Hyprland alongside your existing desktop environment. At login (GDM), you can choose between GNOME and Hyprland sessions.
-
-## Private Dotfiles
-
-The setup includes integration with a private dotfiles repository containing:
-- SSH keys and config
-- AWS credentials and profiles
-- Work git configuration
-
-The private repo is automatically cloned and applied when your YubiKey SSH key is available.
-
-### Optional: Encrypted Bootstrap Env (YubiKey Touch)
-
-If you want first-run bootstrap to include secrets (for example `GITHUB_TOKEN` for `mise` GitHub API limits),
-you can commit an encrypted file that only you can decrypt with YubiKey (via `age-plugin-yubikey`):
-
-1. Create plaintext env file locally (do **not** commit):
-
-```bash
-cat > bootstrap.private.env <<'EOF'
-GITHUB_TOKEN=ghp_xxx
-EOF
-```
-
-2. Encrypt it with your YubiKey age recipient (`age1yubikey...`):
-
-```bash
-age -r <your-age1yubikey-recipient> -o bootstrap.private.env.age bootstrap.private.env
-rm -f bootstrap.private.env
-```
-
-3. Commit only `bootstrap.private.env.age`.
-
-During bootstrap, chezmoi will try to decrypt this file into:
-`~/.local/share/dotfiles/bootstrap.private.env` and load it for tool installation.
-If decryption fails (no key/token/user), setup continues without breaking public installation.
-
-By default bootstrap expects YubiKey identities at:
-- `~/.config/age/yubikey-identities.txt`
-
-This file is managed by these dotfiles at:
-- `dot_config/age/yubikey-identities.txt`
-
-Software age key fallback is not supported: bootstrap decryption is YubiKey-only.
-
-## Keyboard-Centric Workflow
-
-This dotfile configuration implements a **unified keyboard-centric workflow** across Zsh, Tmux, and Neovim with consistent keybindings for maximum muscle memory retention.
-
-### Core Principles
-- **hjkl navigation** everywhere (vim-style)
-- **Alt+hjkl** for window/pane resizing
-- **Ctrl+hjkl** for seamless pane switching (Neovim ↔ Tmux)
-- **Alt+1/2/3** for quick session access
-- **Ctrl+d/u** for half-page scrolling with centering
-- **No vi-mode in Zsh** - uses intuitive emacs mode with vim-style enhancements
-
-### Quick Reference
-- Full reference: `cat ~/.dotfiles/KEYBINDINGS.md`
-- Quick card: `cat ~/.dotfiles/KEYBINDINGS-QUICK-REF.txt`
-
-## Key Features
-
-### Hyprland (Wayland Desktop)
-- **Window Manager:** Hyprland with hyprsplit plugin (per-monitor workspaces)
-- **Bar:** Waybar with system info, workspaces, updates indicator
-- **Launcher:** Rofi (drun, window switcher, clipboard history)
-- **Notifications:** SwayNC (notification center + power menu)
-- **Lock Screen:** Hyprlock
-- **Theme:** Rose Pine inspired
-
-**Essential Keybindings:**
-
-| Key | Action |
-|-----|--------|
-| `Super+T` | Open terminal (Ghostty) |
-| `Super+Q` | Close window |
-| `Super+S` | App launcher (Rofi) |
-| `Super+B` | Open browser (Zen) |
-| `Super+E` | File manager |
-| `Super+M` | Fullscreen |
-| `Super+V` | Toggle floating |
-| `Super+Escape` | Lock screen |
-| `Super+Shift+Q` | Notification center / Power menu |
-
-### Neovim
-- **Plugin Manager:** lazy.nvim (auto-installs on first run)
-- **LSP:** Built-in LSP configuration
-- **Autocomplete:** blink.cmp with snippets
-- **Theme:** Rose Pine
-- **Key Features:** Oil file explorer, Harpoon, Gitsigns, Telescope, Treesitter
-
-### Tmux
-- **Prefix:** `Alt+a` (instead of default `Ctrl+b`)
-- **Plugin Manager:** TPM (auto-installed)
-- **Theme:** Rose Pine inspired
-- **Session Manager:** tmux-sessionizer integration
-
-### Zsh
-- **Framework:** oh-my-zsh (auto-installed)
-- **Theme:** robbyrussell
-- **Plugins:** syntax-highlighting, autosuggestions, history-substring-search
-- **Key Features:** fzf integration, zoxide, tmux-sessionizer
-
-### Ghostty
-- **Theme:** Rose Pine (custom colors)
-- **Font:** JetBrainsMono Nerd Font (auto-installed)
-
-## System Updates
-
-System updates are handled by **Topgrade**:
-
-```bash
-topgrade  # Update everything
-```
-
-## Troubleshooting
-
-### Chezmoi Issues
-
-```bash
-# See what would change
-chezmoi diff
-
-# Apply with verbose output
-chezmoi apply -v
-
-# Re-run setup prompts
-chezmoi init --prompt
-```
-
-### Neovim Plugins Not Installing
-
-Open nvim and run `:Lazy sync`
-
-### Tmux Plugins Not Installing
-
-In tmux, press: `Alt+a` then `Shift+i`
-
-### Font Icons Not Showing
-
-Ensure JetBrainsMono Nerd Font is installed: `ls ~/.local/share/fonts/JetBrainsMonoNerd*`
-
-If missing: `chezmoi apply` (will re-run font installation)
-
-## Migration from Stow
-
-If you were using the old stow-based setup:
-
-```bash
-# Remove old stow symlinks
-cd ~/.dotfiles
-stow -D nvim tmux zshrc git ghostty hyprland # etc.
-
-# Apply new chezmoi setup
-chezmoi init --apply DanielePeruzzi97/dotfiles
-```
+---
 
 ## License
 
-MIT
-
-## Credits
-
-Configuration inspired by ThePrimeagen, TJ DeVries, and the broader Neovim community.
+MIT — do whatever you want, no warranty.
