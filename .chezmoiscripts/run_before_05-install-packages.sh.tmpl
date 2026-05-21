@@ -109,7 +109,9 @@ fi
 # ghostty — official .deb via mkasberg installer (supports 24.04/25.10/26.04)
 if ! command -v ghostty >/dev/null; then
     info "Installing ghostty via mkasberg installer"
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)" \
+    # run from /tmp so the downloaded .deb is in a dir readable by apt's _apt sandbox user
+    # (apt cannot access files under $HOME with default mode 700)
+    ( cd /tmp && /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)" ) \
         || warn "ghostty install failed"
 fi
 
