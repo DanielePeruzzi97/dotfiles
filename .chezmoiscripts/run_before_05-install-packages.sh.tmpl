@@ -180,6 +180,9 @@ if getent group docker >/dev/null && ! id -nG "$USER" | grep -qw docker; then
     warn "Added $USER to docker group — log out/in for it to take effect"
 fi
 sudo systemctl enable --now docker.service 2>/dev/null || true
+
+# YubiKey — enable pcscd socket so ykman + GUI can talk to the key
+sudo systemctl enable --now pcscd.socket 2>/dev/null || true
 {{- end }}
 
 # Symlink fd-find -> fd (Ubuntu ships it as fdfind)
@@ -362,6 +365,9 @@ if command -v docker >/dev/null; then
     fi
     sudo systemctl enable --now docker.service 2>/dev/null || true
 fi
+
+# YubiKey — enable pcscd socket
+sudo systemctl enable --now pcscd.socket 2>/dev/null || true
 
 # Default browser → Google Chrome (firefox kept as fallback)
 if command -v google-chrome-stable >/dev/null && command -v xdg-settings >/dev/null; then

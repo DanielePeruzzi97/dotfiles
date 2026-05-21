@@ -63,6 +63,9 @@ Everything in `minimal` plus a full Wayland desktop:
   interactively to install the desired version), `eza`.
 - **AI tooling** — [opencode](https://opencode.ai) + [claude](https://claude.ai)
   CLIs (upstream installers; configs in `dot_config/opencode/` and `dot_claude/`).
+- **YubiKey** — `ykman` CLI + `yubikey-manager-qt` GUI + `pcscd` socket
+  enabled + udev rules (`libyubikey-udev` on Ubuntu, `yubikey-manager` ships
+  rules on Arch).
 - **k8s** (via mise) — `kubectl`, `helm`, `k9s`, `talosctl`, `kubeseal`.
 
 ---

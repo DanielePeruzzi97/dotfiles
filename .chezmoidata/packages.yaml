@@ -96,6 +96,11 @@ packages:
       - rofi
       - wlogout
       - network-manager-gnome
+      # YubiKey
+      - yubikey-manager
+      - yubikey-manager-qt
+      - libyubikey-udev
+      - pcscd
       # Ubuntu desktop ships these by default; listed under arch only.
       # (loupe, gnome-text-editor, file-roller, nautilus, seahorse,
       #  accountsservice, firefox — present on default Ubuntu install)
@@ -132,6 +137,11 @@ packages:
       - docker
       - docker-compose
       - ansible
+      # YubiKey
+      - yubikey-manager
+      - ccid
+      - libusb-compat
+      - pcsclite
 
     # Niri compositor stack (installed when compositor=niri|both)
     # DMS is the niri shell (bar + notifications + launcher + lock); it replaces
@@ -174,6 +184,7 @@ packages:
       - rofi-calc
       - teams-for-linux-bin
       - wally
+      - yubikey-manager-qt    # deprecated upstream, AUR only
 
     flatpak:
       - com.spotify.Client
