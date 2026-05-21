@@ -27,8 +27,16 @@ systemctl --user add-wants niri.service dms.service || true
 {{- end }}
 
 {{ if .want_hyprland -}}
-info "Tying DMS to hyprland session (add-wants hyprland-session.target dms.service)"
-systemctl --user add-wants hyprland-session.target dms.service || true
+# DMS .deb post-install already symlinks dms.service into
+# graphical-session.target.wants/, which any hyprland session pulls in.
+# Only do an explicit add-wants if the target unit actually exists
+# (newer hyprland builds ship hyprland-session.target; cppiber's PPA does not).
+if systemctl --user list-unit-files hyprland-session.target 2>/dev/null | grep -q hyprland-session.target; then
+    info "Tying DMS to hyprland session (add-wants hyprland-session.target dms.service)"
+    systemctl --user add-wants hyprland-session.target dms.service || true
+else
+    info "hyprland-session.target absent (PPA build); relying on graphical-session.target symlink"
+fi
 {{- end }}
 
 ok "DMS systemd integration done"
