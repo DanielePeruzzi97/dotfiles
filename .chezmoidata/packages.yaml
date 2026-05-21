@@ -41,6 +41,8 @@ packages:
 
   workstation:
     # Desktop base — shared by both niri and hyprland sessions.
+    # NOTE: ghostty is installed separately (snap on ubuntu, pacman on arch)
+    # by run_before_05-install-packages.sh — no clean apt source on questing.
     common:
       - loupe
       - gnome-text-editor
@@ -96,6 +98,7 @@ packages:
       - rate-mirrors
       - paru             # AUR helper
       - dms-shell
+      - ghostty
       - rofi-wayland
       - wlogout
       - network-manager-applet

@@ -18,8 +18,8 @@ if ! systemctl --user show-environment >/dev/null 2>&1; then
     exit 0
 fi
 
-info "Enabling dms user service"
-systemctl --user enable --now dms.service || true
+info "Enabling dms user service (will start on next compositor session)"
+systemctl --user enable dms.service 2>/dev/null || true
 
 {{ if .want_niri -}}
 info "Tying DMS to niri session (add-wants niri.service dms.service)"
