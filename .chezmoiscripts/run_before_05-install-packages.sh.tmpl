@@ -412,6 +412,12 @@ if ! command -v ansible >/dev/null; then
     info "Installing ansible via pipx"
     pipx install --include-deps ansible || warn "ansible (pipx) install failed"
 fi
+
+# uv (Astral) — installs to ~/.local/bin/uv (Arch installs via pacman)
+if ! command -v uv >/dev/null && [ ! -x "$HOME/.local/bin/uv" ]; then
+    info "Installing uv (Astral)"
+    curl -LsSf https://astral.sh/uv/install.sh | sh || warn "uv install failed"
+fi
 {{-   end }}
 {{- end }}
 

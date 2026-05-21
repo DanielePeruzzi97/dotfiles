@@ -137,6 +137,7 @@ packages:
       - docker
       - docker-compose
       - ansible
+      - uv               # ubuntu installs via Astral script in install script
       # YubiKey
       - yubikey-manager
       - ccid

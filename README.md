@@ -60,7 +60,8 @@ Everything in `minimal` plus a full Wayland desktop:
   compose v2 plugin, Ansible (pipx on Ubuntu, pacman on Arch), `tfswitch` /
   `tgswitch` (warrensbox binaries — they download terraform/terragrunt on
   first invocation, no separate install needed; run `tfswitch` once
-  interactively to install the desired version), `eza`.
+  interactively to install the desired version), `eza`, `uv` (Astral
+  Python package manager — Astral installer on Ubuntu, pacman on Arch).
 - **AI tooling** — [opencode](https://opencode.ai) + [claude](https://claude.ai)
   CLIs (upstream installers; configs in `dot_config/opencode/` and `dot_claude/`).
 - **YubiKey** — `ykman` CLI + `yubikey-manager-qt` GUI + `pcscd` socket
