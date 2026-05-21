@@ -83,7 +83,6 @@ packages:
 
     ubuntu:
       - gnome-firmware
-      - dms
       - sway-notification-center
       - rofi
       - wlogout
@@ -98,7 +97,6 @@ packages:
       - jack2
       - rate-mirrors
       - paru             # AUR helper
-      - dms-shell
       - ghostty
       - rofi-wayland
       - wlogout
@@ -106,13 +104,17 @@ packages:
       - qt6-multimedia
 
     # Niri compositor stack (installed when compositor=niri|both)
+    # DMS is the niri shell (bar + notifications + launcher + lock); it replaces
+    # waybar/swaync/rofi/wlogout under niri. Hyprland uses those instead.
     niri:
       common:
         - xwayland-satellite
       ubuntu:
         - niri
+        - dms
       arch:
         - niri
+        - dms-shell
 
     # Hyprland compositor stack (installed when compositor=hyprland|both)
     # Ubuntu requires ppa:cppiber/hyprland (added by install-packages script).
