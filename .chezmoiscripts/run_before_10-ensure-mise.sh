@@ -24,7 +24,7 @@ fi
 
 # Install mise
 log_info "Installing mise..."
-curl https://mise.run | sh
+curl -fsSL https://mise.run | sh
 
 if [ -x "$HOME/.local/bin/mise" ]; then
     log_success "mise installed successfully"

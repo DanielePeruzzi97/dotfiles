@@ -29,6 +29,11 @@ On first run `chezmoi init` asks for:
 After install, `~/.config/chezmoi/chezmoi.toml` holds the answers — re-running
 `chezmoi apply` does not re-prompt.
 
+> **Note:** `mise install` pulls tools from GitHub releases. On a clean machine
+> without a GitHub token you may hit API rate limits. Export
+> `GITHUB_TOKEN=<your-pat>` before running `install.sh` if installs fail with
+> 403/rate-limit errors.
+
 ---
 
 ## Profiles
@@ -80,17 +85,16 @@ Everything in `minimal` plus a full Wayland desktop:
 .chezmoiignore.tmpl                        # what to keep out of $HOME (per profile)
 .chezmoiscripts/
   run_before_00-distro-guard.sh.tmpl       # fail closed on unsupported OS
-  run_before_05-install-packages.sh.tmpl   # apt / pacman / paru / flatpak
+  run_onchange_before_05-install-packages.sh.tmpl   # apt / pacman / paru / flatpak
   run_before_10-ensure-mise.sh             # install mise if missing
   run_onchange_after_50-mise-install.sh.tmpl
   run_onchange_after_60-install-fonts.sh
   run_after_30-dms-systemd.sh.tmpl         # enable dms + add-wants niri
   run_after_70-change-shell.sh             # chsh -> zsh
-  run_after_80-hyprland-plugins.sh.tmpl    # hyprpm (workstation only)
   run_after_81-systemd-services.sh.tmpl    # enable hypridle/hyprpaper/...
   run_onchange_after_71-tmux-plugins.sh.tmpl
 dot_config/                                # ~/.config payload
-dot_gitconfig.tmpl                         # personal git identity (+ work include)
+dot_gitconfig.tmpl                         # git identity (+ optional work include)
 dot_zshrc, dot_tmux.conf
 install.sh                                 # curl-friendly bootstrap (<100 LOC)
 ```
@@ -153,8 +157,8 @@ half of `compositor=both`), DMS is NOT started — hyprland uses waybar instead.
      curl -fsSL https://raw.githubusercontent.com/<your-user>/dotfiles/main/install.sh | bash
    ```
 3. Adjust `.chezmoidata/packages.yaml` to taste.
-4. If you don't use `omnys.lan`, edit the `includeIf` block at the bottom of
-   `dot_gitconfig.tmpl`.
+4. Work git identity goes in `~/.gitconfig-work` (provided by your private
+   dotfiles; silently ignored if absent).
 
 ---
 
