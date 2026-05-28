@@ -16,7 +16,6 @@ environment {
     QT_QPA_PLATFORMTHEME_QT6 "gtk3"
     QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
     SDL_VIDEODRIVER "wayland"
-    GSK_RENDERER "ngl"
     ELECTRON_OZONE_PLATFORM_HINT "auto"
     WLR_NO_HARDWARE_CURSORS "1"
 }
@@ -135,13 +134,6 @@ window-rule {
 
 spawn-at-startup "xwayland-satellite"
 spawn-at-startup "dms" "run"
-
-// GTK theme — DMS/matugen applies colors on top of this base theme
-spawn-at-startup "gsettings" "set" "org.gnome.desktop.interface" "gtk-theme" "adw-gtk3"
-spawn-at-startup "gsettings" "set" "org.gnome.desktop.interface" "icon-theme" "Adwaita"
-spawn-at-startup "gsettings" "set" "org.gnome.desktop.interface" "cursor-theme" "Adwaita"
-spawn-at-startup "gsettings" "set" "org.gnome.desktop.interface" "cursor-size" "24"
-spawn-at-startup "gsettings" "set" "org.gnome.desktop.interface" "color-scheme" "prefer-dark"
 
 // Clipboard history — requires cliphist + wl-clipboard packages
 // spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
