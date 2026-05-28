@@ -47,6 +47,9 @@ fi
 export PATH="$HOME/.local/bin:$PATH"
 MISE="$HOME/.local/bin/mise"
 
+# Helper: run chezmoi via mise (no symlink dependency)
+chezmoi() { "$MISE" exec chezmoi@latest -- chezmoi "$@"; }
+
 # --- Clone / update repo ------------------------------------------------------
 if [ -d "$DEST/.git" ]; then
     info "Updating $DEST"
@@ -60,22 +63,17 @@ fi
 
 # --- chezmoi init -------------------------------------------------------------
 info "chezmoi init"
-"$MISE" exec chezmoi@latest -- chezmoi init --source="$DEST"
-
-# Convenience symlink so `chezmoi` is on PATH without `mise exec`.
-chezmoi_bin="$($MISE which chezmoi 2>/dev/null || true)"
-[ -n "$chezmoi_bin" ] && ln -sf "$chezmoi_bin" "$HOME/.local/bin/chezmoi"
-CHEZMOI="$HOME/.local/bin/chezmoi"
+chezmoi init --source="$DEST"
 
 # --- Phase 1: apply public content --------------------------------------------
 # Personal .age files will fail gracefully if age key not yet present.
 # The packages script (run_onchange_before_05) installs bw CLI in this phase.
 info "chezmoi apply (phase 1 — public content)"
-"$CHEZMOI" apply --source="$DEST" --keep-going || true
+chezmoi apply --source="$DEST" --keep-going || true
 
 # --- Phase 2: personal content (age-encrypted) --------------------------------
 # Only triggered when personal=true was answered on chezmoi init.
-PERSONAL=$("$CHEZMOI" data --format=json \
+PERSONAL=$(chezmoi data --format=json \
     | python3 -c "import sys,json; d=json.load(sys.stdin); print(str(d.get('personal',False)).lower())" \
     2>/dev/null || echo "false")
 
@@ -102,9 +100,13 @@ if [ "$PERSONAL" = "true" ]; then
 
     if [ -f "$KEY_FILE" ]; then
         info "chezmoi apply (phase 2 — personal content)"
-        "$CHEZMOI" apply --source="$DEST"
+        chezmoi apply --source="$DEST"
     fi
 fi
+
+# Convenience symlink so `chezmoi` is on PATH after install
+chezmoi_bin="$("$MISE" which chezmoi 2>/dev/null || true)"
+[ -n "$chezmoi_bin" ] && ln -sf "$chezmoi_bin" "$HOME/.local/bin/chezmoi"
 
 ok "Done."
 echo
