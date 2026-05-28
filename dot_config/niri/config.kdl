@@ -134,9 +134,8 @@ window-rule {
 
 spawn-at-startup "xwayland-satellite"
 spawn-at-startup "dms" "run"
-
-// Clipboard history — requires cliphist + wl-clipboard packages
-// spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
+spawn-at-startup "udiskie"
+spawn-at-startup "nm-applet"
 
 // ============================================
 // Key bindings

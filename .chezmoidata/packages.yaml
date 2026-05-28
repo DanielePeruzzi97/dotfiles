@@ -66,13 +66,13 @@ packages:
       # - nethogs
       # - sshfs
       # Wayland desktop
-      # - cliphist
-      # - wl-clipboard
-      # - brightnessctl
-      # - playerctl
-      # - udiskie
-      # - blueman
-      # - pavucontrol
+      - wl-clipboard        # wl-paste for X11 clipboard sync via xwayland
+      - udiskie             # auto-mount USB drives (no DMS equivalent)
+      - blueman             # BT manager GUI for pairing/profiles (DMS has basic toggle only)
+      - pavucontrol         # advanced audio routing (DMS has simple slider only)
+      # - cliphist          # not needed — DMS has native clipboard history
+      # - brightnessctl     # replaced by dms ipc call brightness
+      # - playerctl         # replaced by dms ipc call mpris
       # - grim
       # - slurp
       # - xdg-user-dirs
@@ -92,7 +92,7 @@ packages:
     ubuntu:
       # - gnome-firmware
       - rofi
-      # - network-manager-gnome
+      - network-manager-gnome  # nm-applet tray + nm-connection-editor for VPN config
       # Qt image formats for DMS (kimageformats)
       - qt6-image-formats-plugins
       # YubiKey
