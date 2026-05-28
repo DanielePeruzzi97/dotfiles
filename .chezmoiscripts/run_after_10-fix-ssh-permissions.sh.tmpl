@@ -1,42 +1,5 @@
-{{- if not .personal -}}{{ "" }}{{- else -}}
-#!/usr/bin/env bash
-# Fix SSH file permissions after chezmoi apply.
-# SSH is strict: private keys must be 0600, dirs 0700.
-set -euo pipefail
-
-info() { printf "\033[0;34m[*]\033[0m %s\n" "$*"; }
-ok()   { printf "\033[0;32m[+]\033[0m %s\n" "$*"; }
-
-info "Fixing SSH permissions"
-
-# Top-level directory
-chmod 700 "$HOME/.ssh"
-chmod 700 "$HOME/.ssh/config.d" 2>/dev/null || true
-
-# Config files
-chmod 600 "$HOME/.ssh/config" 2>/dev/null || true
-chmod 600 "$HOME/.ssh/config.d/"* 2>/dev/null || true
-
-# Private keys in ~/.ssh root
-find "$HOME/.ssh" -maxdepth 1 -type f -name "id_*"    ! -name "*.pub" -exec chmod 600 {} \;
-find "$HOME/.ssh" -maxdepth 1 -type f -name "*_rsa"   ! -name "*.pub" -exec chmod 600 {} \;
-find "$HOME/.ssh" -maxdepth 1 -type f -name "*.pem"                    -exec chmod 600 {} \;
-
-# Public keys in ~/.ssh root
-find "$HOME/.ssh" -maxdepth 1 -type f -name "*.pub" -exec chmod 644 {} \;
-
-# Per-client key subdirectories
-for dir in beforweb clever digitalificio hyled ieg keys novamind nur omnys studioindaco thingsmobile; do
-    if [ -d "$HOME/.ssh/$dir" ]; then
-        chmod 700 "$HOME/.ssh/$dir"
-        find "$HOME/.ssh/$dir" -type f ! -name "*.pub" -exec chmod 600 {} \;
-        find "$HOME/.ssh/$dir" -type f   -name "*.pub" -exec chmod 644 {} \;
-    fi
-done
-
-# Sockets dir
-mkdir -p "$HOME/.ssh/sockets"
-chmod 700 "$HOME/.ssh/sockets"
-
-ok "SSH permissions fixed"
-{{- end }}
+{{- "" -}}
+{{- /* SSH permissions script — disabled while testing chezmoi native private_ handling.
+       Re-enable if SSH keys end up with wrong permissions after chezmoi apply.
+       To re-enable: restore the original content from git history.
+*/ -}}
