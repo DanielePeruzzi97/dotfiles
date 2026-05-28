@@ -35,6 +35,9 @@
 {{- $isUbuntu := and (eq $osid "ubuntu") (eq $codename "questing") -}}
 
 sourceDir = {{ .chezmoi.sourceDir | quote }}
+{{- if $personal }}
+encryption = "age"
+{{- end }}
 
 [data]
     name       = {{ $name       | quote }}
@@ -62,9 +65,6 @@ sourceDir = {{ .chezmoi.sourceDir | quote }}
     autoPush   = true
 
 {{- if $personal }}
-
-encryption = "age"
-
 [age]
     identity  = "{{ .chezmoi.homeDir }}/.config/chezmoi/key.txt"
     recipient = {{ $ageRecipient | quote }}
