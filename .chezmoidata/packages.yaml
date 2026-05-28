@@ -157,6 +157,7 @@ packages:
       - wally
       - yubikey-manager-qt    # deprecated upstream, AUR only
       - bitwarden-cli          # bw CLI for age key bootstrap (personal machines)
+      - adw-gtk3               # GTK3 theme for DMS/matugen theming
 
     flatpak:
       - com.spotify.Client
@@ -165,3 +166,6 @@ packages:
       - com.bitwarden.desktop
       - org.gimp.GIMP
       - com.jgraph.drawio.desktop
+      # GTK3 theme for flatpak apps (DMS/matugen theming)
+      - org.gtk.Gtk3theme.adw-gtk3
+      - org.gtk.Gtk3theme.adw-gtk3-dark
