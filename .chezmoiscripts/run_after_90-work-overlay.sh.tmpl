@@ -36,7 +36,10 @@ else
 fi
 
 # Apply work overlay — reuses ~/.config/chezmoi/chezmoi.toml (same age key + template data)
+# Separate persistent-state avoids lock conflict with the parent chezmoi apply.
 info "Applying work dotfiles overlay"
-chezmoi apply --source="$WORK_SRC" --no-pager
+chezmoi apply --source="$WORK_SRC" \
+    --persistent-state="$HOME/.local/share/chezmoi/chezmoi-work.db" \
+    --no-pager
 ok "Work dotfiles applied"
 {{- end }}
