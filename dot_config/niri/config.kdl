@@ -127,13 +127,12 @@ binds {
 // ============================================
 // DMS integration
 // ============================================
-// DMS writes these files (colors, layout, alttab binds, outputs) from its
-// Settings UI. We pre-create empty stubs via chezmoi so the includes don't
-// fail on first niri start before DMS has written anything.
+// DMS writes these files after first-run setup (dms setup).
+// Un-comment once DMS has been configured on this machine.
 // See: https://danklinux.com/docs/dankmaterialshell/compositors
-
-include "dms/colors.kdl"
-include "dms/layout.kdl"
-include "dms/alttab.kdl"
-include "dms/binds.kdl"
-include "dms/outputs.kdl"
+//
+// include "dms/colors.kdl"
+// include "dms/layout.kdl"
+// include "dms/alttab.kdl"
+// include "dms/binds.kdl"
+// include "dms/outputs.kdl"
