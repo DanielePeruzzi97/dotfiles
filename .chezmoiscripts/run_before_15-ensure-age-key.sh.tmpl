@@ -26,14 +26,18 @@ if ! command -v bw &>/dev/null; then
   Or manually place your age key at: $KEY_FILE (mode 0600)"
 fi
 
-# Ensure logged in
+# Ensure logged in — if not, exit gracefully.
+# During first install, install.sh phase 2 handles interactive bw login.
+# On manual re-run, user must be already logged in (bw login first).
 if ! bw login --check &>/dev/null; then
-    info "Bitwarden login required"
-    bw login || die "Bitwarden login failed"
+    warn "Bitwarden not logged in — age key fetch skipped."
+    warn "Run: bw login && chezmoi apply"
+    exit 0
 fi
 
 # Unlock vault and fetch the age identity key
-BW_SESSION=$(bw unlock --raw) || die "Bitwarden unlock failed"
+# </dev/tty ensures password prompt works even when stdin is a pipe
+BW_SESSION=$(bw unlock --raw </dev/tty) || die "Bitwarden unlock failed"
 export BW_SESSION
 
 mkdir -p "$(dirname "$KEY_FILE")"

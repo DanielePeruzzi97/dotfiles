@@ -83,8 +83,9 @@ if [ "$PERSONAL" = "true" ]; then
     if [ ! -f "$KEY_FILE" ]; then
         info "Personal machine — fetching age key from Bitwarden"
         if command -v bw &>/dev/null; then
-            bw login --check &>/dev/null || bw login || die "Bitwarden login failed"
-            BW_SESSION=$(bw unlock --raw) || die "Bitwarden unlock failed"
+            # </dev/tty: interactive prompts work even when run via curl|bash
+            bw login --check &>/dev/null || bw login </dev/tty || die "Bitwarden login failed"
+            BW_SESSION=$(bw unlock --raw </dev/tty) || die "Bitwarden unlock failed"
             export BW_SESSION
             mkdir -p "$(dirname "$KEY_FILE")"
             bw get notes "chezmoi-age-key" --session "$BW_SESSION" > "$KEY_FILE" \
