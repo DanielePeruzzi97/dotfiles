@@ -1,10 +1,4 @@
-// Niri compositor config — minimal bootstrap
-// See: https://github.com/niri-wm/niri/wiki/Configuration
-//
-// DMS (DankMaterialShell) is the niri shell — bar, notifications,
-// launcher, lock. Spawned explicitly here so it starts regardless of
-// whether niri was launched as `niri-session` (systemd) or plain `niri`
-// from GDM. The systemd add-wants is a no-op when DMS is already running.
+// vim: set ts=4 sw=4 et:
 
 // ============================================
 // Environment
@@ -12,10 +6,19 @@
 
 environment {
     XDG_CURRENT_DESKTOP "niri"
-    QT_QPA_PLATFORM "wayland"
-    ELECTRON_OZONE_PLATFORM_HINT "auto"
+    CLUTTER_BACKEND "wayland"
+    GDK_BACKEND "wayland,x11,*"
+    GDK_SCALE "1"
+    GDK_DPI_SCALE "1"
+    QT_AUTO_SCREEN_SCALE_FACTOR "1"
+    QT_QPA_PLATFORM "wayland;xcb"
     QT_QPA_PLATFORMTHEME "gtk3"
     QT_QPA_PLATFORMTHEME_QT6 "gtk3"
+    QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
+    SDL_VIDEODRIVER "wayland"
+    GSK_RENDERER "ngl"
+    ELECTRON_OZONE_PLATFORM_HINT "auto"
+    WLR_NO_HARDWARE_CURSORS "1"
 }
 
 // ============================================
@@ -49,6 +52,12 @@ layout {
     gaps 16
     background-color "transparent"
 
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+    }
+
     focus-ring {
         width 4
         active-color "#ebbcba"
@@ -58,6 +67,18 @@ layout {
     border {
         off
     }
+}
+
+prefer-no-csd
+
+// ============================================
+// Cursor
+// ============================================
+
+cursor {
+    xcursor-theme "Adwaita"
+    xcursor-size 24
+    hide-when-typing
 }
 
 // ============================================
@@ -75,11 +96,55 @@ layer-rule {
 }
 
 // ============================================
+// Window rules
+// ============================================
+
+window-rule {
+    geometry-corner-radius 8
+    clip-to-geometry true
+    draw-border-with-background false
+}
+
+// Float common dialog windows
+window-rule {
+    match app-id="confirm"
+    match app-id="pavucontrol"
+    match app-id="blueman-manager"
+    match app-id="nm-connection-editor"
+    match app-id="org.gnome.PowerStats"
+    match app-id="xdg-desktop-portal-gtk"
+    match app-id="gnome-control-center"
+    open-floating true
+    default-column-width { proportion 0.45; }
+    default-window-height { proportion 0.45; }
+}
+
+// Picture-in-picture
+window-rule {
+    match title="^Picture-in-Picture$"
+    open-floating true
+    open-focused false
+    default-floating-position x=32 y=32 relative-to="bottom-right"
+    default-column-width { proportion 0.3; }
+    default-window-height { proportion 0.3; }
+}
+
+// ============================================
 // Startup programs
 // ============================================
 
 spawn-at-startup "xwayland-satellite"
 spawn-at-startup "dms" "run"
+
+// GTK theme — DMS/matugen applies colors on top of this base theme
+spawn-at-startup "gsettings" "set" "org.gnome.desktop.interface" "gtk-theme" "adw-gtk3"
+spawn-at-startup "gsettings" "set" "org.gnome.desktop.interface" "icon-theme" "Adwaita"
+spawn-at-startup "gsettings" "set" "org.gnome.desktop.interface" "cursor-theme" "Adwaita"
+spawn-at-startup "gsettings" "set" "org.gnome.desktop.interface" "cursor-size" "24"
+spawn-at-startup "gsettings" "set" "org.gnome.desktop.interface" "color-scheme" "prefer-dark"
+
+// Clipboard history — requires cliphist + wl-clipboard packages
+// spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
 
 // ============================================
 // Key bindings
@@ -89,66 +154,86 @@ binds {
     // Apps
     Mod+T { spawn "ghostty"; }
     Mod+S { spawn "rofi" "-show" "drun"; }
+    Mod+Space { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
     Mod+E { spawn "nautilus"; }
 
+    // DMS controls
+    Mod+N     { spawn "dms" "ipc" "call" "notifications" "toggle"; }
+    Mod+X     { spawn "dms" "ipc" "call" "powermenu" "toggle"; }
+    Mod+Alt+V { spawn "dms" "ipc" "call" "clipboard" "toggle"; }
+
     // Window management
-    Mod+Q { close-window; }
-    Mod+F { maximize-column; }
-    Mod+Shift+F { fullscreen-window; }
-    Mod+V { toggle-window-floating; }
+    Mod+Q repeat=false { close-window; }
+    Mod+F              { maximize-column; }
+    Mod+Shift+F        { fullscreen-window; }
+    Mod+V              { toggle-window-floating; }
+    Mod+O repeat=false { toggle-overview; }
+    Mod+C              { center-column; }
+    Mod+R              { switch-preset-column-width; }
+    Mod+Minus          { set-column-width "-10%"; }
+    Mod+Equal          { set-column-width "+10%"; }
+    Mod+Alt+Minus      { set-window-height "-10%"; }
+    Mod+Alt+Equal      { set-window-height "+10%"; }
 
     // Focus — columns (horizontal)
-    Mod+Left  { focus-column-left; }
-    Mod+Right { focus-column-right; }
     Mod+H     { focus-column-left; }
     Mod+L     { focus-column-right; }
+    Mod+Left  { focus-column-left; }
+    Mod+Right { focus-column-right; }
 
     // Focus — windows in column (vertical)
-    Mod+Up   { focus-window-up; }
-    Mod+Down { focus-window-down; }
     Mod+K    { focus-window-up; }
     Mod+J    { focus-window-down; }
+    Mod+Up   { focus-window-up; }
+    Mod+Down { focus-window-down; }
 
     // Move columns
-    Mod+Shift+Left  { move-column-left; }
-    Mod+Shift+Right { move-column-right; }
     Mod+Shift+H     { move-column-left; }
     Mod+Shift+L     { move-column-right; }
+    Mod+Shift+Left  { move-column-left; }
+    Mod+Shift+Right { move-column-right; }
+    Mod+Shift+K     { move-window-up-or-to-workspace-up; }
+    Mod+Shift+J     { move-window-down-or-to-workspace-down; }
 
-    // Column widths
-    Mod+R       { switch-preset-column-width; }
-
-    // Workspaces (1–5 per monitor)
+    // Workspaces
     Mod+1 { focus-workspace 1; }
     Mod+2 { focus-workspace 2; }
     Mod+3 { focus-workspace 3; }
     Mod+4 { focus-workspace 4; }
     Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
 
     Mod+Shift+1 { move-column-to-workspace 1; }
     Mod+Shift+2 { move-column-to-workspace 2; }
     Mod+Shift+3 { move-column-to-workspace 3; }
     Mod+Shift+4 { move-column-to-workspace 4; }
     Mod+Shift+5 { move-column-to-workspace 5; }
+    Mod+Shift+6 { move-column-to-workspace 6; }
+    Mod+Shift+7 { move-column-to-workspace 7; }
+    Mod+Shift+8 { move-column-to-workspace 8; }
+    Mod+Shift+9 { move-column-to-workspace 9; }
 
-    // System
-    Mod+Escape { spawn "swaylock"; }
-    Mod+Shift+E { quit skip-confirmation=true; }
+    // Media — via DMS IPC (shows OSD overlay)
+    XF86AudioRaiseVolume  allow-when-locked=true { spawn "dms" "ipc" "call" "audio" "increment" "3"; }
+    XF86AudioLowerVolume  allow-when-locked=true { spawn "dms" "ipc" "call" "audio" "decrement" "3"; }
+    XF86AudioMute         allow-when-locked=true { spawn "dms" "ipc" "call" "audio" "mute"; }
+    XF86AudioMicMute      allow-when-locked=true { spawn "dms" "ipc" "call" "audio" "micmute"; }
+    XF86MonBrightnessUp   allow-when-locked=true { spawn "dms" "ipc" "call" "brightness" "increment" "5"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "dms" "ipc" "call" "brightness" "decrement" "5"; }
+    XF86AudioPlay  { spawn "dms" "ipc" "call" "mpris" "playPause"; }
+    XF86AudioNext  { spawn "dms" "ipc" "call" "mpris" "next"; }
+    XF86AudioPrev  { spawn "dms" "ipc" "call" "mpris" "previous"; }
 
     // Screenshots
-    Print { screenshot; }
+    Print       { screenshot; }
     Shift+Print { screenshot-screen; }
-    Mod+Print { screenshot-window; }
+    Mod+Print   { screenshot-window; }
 
-    // Media keys
-    XF86AudioRaiseVolume  allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"; }
-    XF86AudioLowerVolume  allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"; }
-    XF86AudioMute         allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
-    XF86MonBrightnessUp   { spawn "brightnessctl" "set" "10%+"; }
-    XF86MonBrightnessDown { spawn "brightnessctl" "set" "10%-"; }
-    XF86AudioPlay         { spawn "playerctl" "play-pause"; }
-    XF86AudioNext         { spawn "playerctl" "next"; }
-    XF86AudioPrev         { spawn "playerctl" "previous"; }
+    // Keyboard shortcuts inhibit (for VMs / nested compositors)
+    Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
 }
 
 // ============================================
