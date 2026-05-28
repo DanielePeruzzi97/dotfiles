@@ -1,3 +1,4 @@
+---
 # Declarative package lists by profile + distro.
 #
 # Profiles:
@@ -32,15 +33,15 @@ packages:
       - zoxide
       - eza
       - fontconfig
-      - age              # secrets encryption for chezmoi (private repo)
+      - age # secrets encryption for chezmoi (private repo)
 
     ubuntu:
       - build-essential
       - software-properties-common
-      - fd-find          # symlinked to `fd` by post-script
+      - fd-find # symlinked to `fd` by post-script
       - xclip
       - python3-pip
-      - pipx             # for ansible install
+      - pipx # for ansible install
 
     arch:
       - base-devel
@@ -48,7 +49,7 @@ packages:
       - xclip
       - python-pip
       - python-pipx
-      - neovim           # ubuntu uses appimage v0.12.2 (managed by install script)
+      - neovim # ubuntu uses appimage v0.12.2 (managed by install script)
 
   workstation:
     # Desktop base — niri + DMS session.
@@ -61,26 +62,26 @@ packages:
       - tree
       - btop
       - iotop
-      - nethogs
-      - sshfs
+      # - nethogs
+      # - sshfs
       # Wayland desktop
-      - cliphist
-      - wl-clipboard
-      - brightnessctl
-      - playerctl
-      - udiskie
-      - blueman
-      - pavucontrol
-      - grim
-      - slurp
-      - xdg-user-dirs
-      - xdg-desktop-portal-gtk
-      - gvfs
-      - tumbler
+      # - cliphist
+      # - wl-clipboard
+      # - brightnessctl
+      # - playerctl
+      # - udiskie
+      # - blueman
+      # - pavucontrol
+      # - grim
+      # - slurp
+      # - xdg-user-dirs
+      # - xdg-desktop-portal-gtk
+      # - gvfs
+      # - tumbler
       # DMS dependencies
-      - matugen
-      - i2c-tools
-      - cava
+      # - matugen
+      # - i2c-tools
+      # - cava
       # Apps
       - remmina
       - gnome-boxes
@@ -88,11 +89,11 @@ packages:
       - filezilla
 
     ubuntu:
-      - gnome-firmware
+      # - gnome-firmware
       - rofi
-      - network-manager-gnome
+      # - network-manager-gnome
       # Qt image formats for DMS (kimageformats)
-      - qt6-image-formats-plugins
+      # - qt6-image-formats-plugins
       # YubiKey
       - yubikey-manager
       - yubikey-manager-qt
@@ -115,7 +116,7 @@ packages:
       - gnome-keyring
       - jack2
       - rate-mirrors
-      - paru             # AUR helper
+      - paru # AUR helper
       - ghostty
       - rofi-wayland
       - network-manager-applet
@@ -123,15 +124,15 @@ packages:
       # Qt image formats for DMS (kimageformats)
       - qt6-imageformats
       # Apps
-      - google-chrome    # via paru → AUR
-      - code             # vscode-oss (community) — for closed source use AUR `visual-studio-code-bin`
-      - heidisql         # AUR
-      - anydesk-bin      # AUR
+      - google-chrome # via paru → AUR
+      - code # vscode-oss (community) — for closed source use AUR `visual-studio-code-bin`
+      - heidisql # AUR
+      - anydesk-bin # AUR
       # Cloud / DevOps
       - docker
       - docker-compose
       - ansible
-      - uv               # ubuntu installs via Astral script in install script
+      - uv # ubuntu installs via Astral script in install script
       # YubiKey
       - yubikey-manager
       - ccid
@@ -155,9 +156,9 @@ packages:
       - rofi-calc
       - teams-for-linux-bin
       - wally
-      - yubikey-manager-qt    # deprecated upstream, AUR only
-      - bitwarden-cli          # bw CLI for age key bootstrap (personal machines)
-      - adw-gtk3               # GTK3 theme for DMS/matugen theming
+      - yubikey-manager-qt # deprecated upstream, AUR only
+      - bitwarden-cli # bw CLI for age key bootstrap (personal machines)
+      - adw-gtk3 # GTK3 theme for DMS/matugen theming
 
     flatpak:
       - com.spotify.Client
@@ -167,5 +168,5 @@ packages:
       - org.gimp.GIMP
       - com.jgraph.drawio.desktop
       # GTK3 theme for flatpak apps (DMS/matugen theming)
-      - org.gtk.Gtk3theme.adw-gtk3
-      - org.gtk.Gtk3theme.adw-gtk3-dark
+      # - org.gtk.Gtk3theme.adw-gtk3
+      # - org.gtk.Gtk3theme.adw-gtk3-dark
