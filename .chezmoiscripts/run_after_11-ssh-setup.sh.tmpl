@@ -1,0 +1,12 @@
+{{- if not .personal -}}{{ "" }}{{- else -}}
+#!/usr/bin/env bash
+# SSH post-deploy setup — runs after SSH keys are applied.
+set -euo pipefail
+
+ok() { printf "\033[0;32m[+]\033[0m %s\n" "$*"; }
+
+# ControlMaster socket dir — required by 99-defaults.conf ControlPath
+mkdir -p "$HOME/.ssh/sockets"
+chmod 700 "$HOME/.ssh/sockets"
+ok "SSH sockets dir ready"
+{{- end }}

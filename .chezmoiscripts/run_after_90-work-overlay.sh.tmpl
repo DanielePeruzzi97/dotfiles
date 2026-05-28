@@ -13,9 +13,13 @@ WORK_SRC="$HOME/.dotfiles_work"
 WORK_REPO="git@github.com:DanielePeruzzi97/dotfiles_work.git"
 SSH_KEY="{{ .chezmoi.homeDir }}/.ssh/id_ed25519"
 
+# SSH sockets dir required by ControlMaster in 99-defaults.conf
+mkdir -p "$HOME/.ssh/sockets"
+
 # Use key directly — no ssh-agent required. If key has passphrase, ssh prompts on /dev/tty.
+# ControlMaster disabled to avoid socket issues on first clone.
 if [ -f "$SSH_KEY" ]; then
-    export GIT_SSH_COMMAND="ssh -i $SSH_KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+    export GIT_SSH_COMMAND="ssh -i $SSH_KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o ControlMaster=no"
 fi
 
 if [ -d "$WORK_SRC/.git" ]; then
