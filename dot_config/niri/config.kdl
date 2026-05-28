@@ -7,6 +7,18 @@
 // from GDM. The systemd add-wants is a no-op when DMS is already running.
 
 // ============================================
+// Environment
+// ============================================
+
+environment {
+    XDG_CURRENT_DESKTOP "niri"
+    QT_QPA_PLATFORM "wayland"
+    ELECTRON_OZONE_PLATFORM_HINT "auto"
+    QT_QPA_PLATFORMTHEME "gtk3"
+    QT_QPA_PLATFORMTHEME_QT6 "gtk3"
+}
+
+// ============================================
 // Input
 // ============================================
 
@@ -35,6 +47,7 @@ input {
 
 layout {
     gaps 16
+    background-color "transparent"
 
     focus-ring {
         width 4
@@ -45,6 +58,20 @@ layout {
     border {
         off
     }
+}
+
+// ============================================
+// Layer rules (DMS/quickshell integration)
+// ============================================
+
+layer-rule {
+    match namespace="^quickshell$"
+    place-within-backdrop true
+}
+
+layer-rule {
+    match namespace="dms:blurwallpaper"
+    place-within-backdrop true
 }
 
 // ============================================

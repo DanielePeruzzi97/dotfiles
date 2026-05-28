@@ -62,6 +62,7 @@ packages:
       - tree
       - btop
       - iotop
+      - khal              # calendar (DMS optional feature)
       # - nethogs
       # - sshfs
       # Wayland desktop
@@ -93,7 +94,7 @@ packages:
       - rofi
       # - network-manager-gnome
       # Qt image formats for DMS (kimageformats)
-      # - qt6-image-formats-plugins
+      - qt6-image-formats-plugins
       # YubiKey
       - yubikey-manager
       - yubikey-manager-qt

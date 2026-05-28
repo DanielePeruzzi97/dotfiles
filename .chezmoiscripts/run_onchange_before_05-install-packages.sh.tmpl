@@ -363,24 +363,17 @@ fi
 {{-   end }}
 
 {{   if .is_ubuntu -}}
-# adw-gtk3 — not in Ubuntu apt repos; install from GitHub release
-# Required by DMS/matugen for GTK3 app theming
-ADW_THEME_DIR="/usr/share/themes"
-if [ ! -d "$ADW_THEME_DIR/adw-gtk3" ] || [ ! -d "$ADW_THEME_DIR/adw-gtk3-dark" ]; then
-    info "Installing adw-gtk3 theme from GitHub"
-    ADW_VERSION="$(curl -fsSL https://api.github.com/repos/lassekongo83/adw-gtk3/releases/latest \
-        | python3 -c "import sys,json; print(json.load(sys.stdin)['tag_name'])" 2>/dev/null || echo "v5.4")"
-    ADW_TMP="$(mktemp -d)"
-    ADW_URL="https://github.com/lassekongo83/adw-gtk3/releases/download/${ADW_VERSION}/adw-gtk3-${ADW_VERSION#v}.tar.xz"
-    if curl -fsSL "$ADW_URL" -o "$ADW_TMP/adw-gtk3.tar.xz"; then
-        tar -xJf "$ADW_TMP/adw-gtk3.tar.xz" -C "$ADW_TMP"
-        sudo cp -r "$ADW_TMP/adw-gtk3" "$ADW_TMP/adw-gtk3-dark" "$ADW_THEME_DIR/" 2>/dev/null \
-            || sudo tar -xJf "$ADW_TMP/adw-gtk3.tar.xz" -C "$ADW_THEME_DIR"
-        ok "adw-gtk3 theme installed ($ADW_VERSION)"
-    else
-        warn "adw-gtk3 download failed"
-    fi
-    rm -rf "$ADW_TMP"
+# adw-gtk3 — not in Ubuntu apt repos; install via snap
+# Required by DMS/matugen for GTK3 app theming (Remmina, Filezilla, etc.)
+if ! snap list adw-gtk3-theme &>/dev/null; then
+    info "Installing adw-gtk3-theme via snap"
+    sudo snap install adw-gtk3-theme || warn "adw-gtk3-theme snap install failed"
+fi
+
+# dgop — installed as DMS dependency but not wanted
+if dpkg -s dgop >/dev/null 2>&1; then
+    info "Removing dgop (DMS dependency, not wanted)"
+    sudo apt purge -y dgop || true
 fi
 {{-   end }}
 {{- end }}
