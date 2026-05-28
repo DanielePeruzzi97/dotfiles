@@ -63,7 +63,8 @@ fi
 
 # --- chezmoi init -------------------------------------------------------------
 info "chezmoi init"
-chezmoi init --source="$DEST"
+# Redirect stdin from /dev/tty so stdinIsATTY=true even when run via curl|bash
+chezmoi init --source="$DEST" </dev/tty
 
 # --- Phase 1: apply public content --------------------------------------------
 # Personal .age files will fail gracefully if age key not yet present.
