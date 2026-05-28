@@ -52,9 +52,13 @@ if [ ! -x "$HOME/.local/bin/mise" ] && ! command -v mise >/dev/null; then
 fi
 
 # --- chezmoi ------------------------------------------------------------------
-if [ ! -x "$HOME/.local/bin/chezmoi" ] && ! command -v chezmoi >/dev/null; then
+# Install via package manager → /usr/bin/chezmoi, in PATH immediately in any shell
+if ! command -v chezmoi >/dev/null; then
     info "Installing chezmoi"
-    curl -fsLS https://chezmoi.io/get | sh -s -- -b "$HOME/.local/bin"
+    case "$PM" in
+        apt)    sudo apt install -y chezmoi ;;
+        pacman) sudo pacman -S --noconfirm chezmoi ;;
+    esac
 fi
 
 # --- Clone / update repo ------------------------------------------------------
