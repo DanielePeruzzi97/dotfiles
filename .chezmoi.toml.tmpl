@@ -5,6 +5,8 @@
 {{- $signingkey  := "" -}}
 {{- $profile     := "workstation" -}}
 {{- $compositor  := "both" -}}
+{{- $personal    := false -}}
+{{- $ageRecipient := "age17v8ymwgcczxthzjg6kpfduxqyhgf0n93csvzz3ra5xylnc6uk3vqx4enpy" -}}
 
 {{- if stdinIsATTY -}}
 {{-   $name       = promptStringOnce . "name"       "Your full name" -}}
@@ -13,6 +15,10 @@
 {{-   $profile    = promptChoiceOnce . "profile"    "Profile (minimal|workstation)" (list "minimal" "workstation") "workstation" -}}
 {{-   if eq $profile "workstation" -}}
 {{-     $compositor = promptChoiceOnce . "compositor" "Compositor (niri|hyprland|both)" (list "niri" "hyprland" "both") "both" -}}
+{{-   end -}}
+{{-   $personal = promptBoolOnce . "personal" "Personal machine (enable private dotfiles + age decryption)" -}}
+{{-   if $personal -}}
+{{-     $ageRecipient = promptStringOnce . "age_recipient" "Age recipient public key" $ageRecipient -}}
 {{-   end -}}
 {{- end -}}
 
@@ -45,9 +51,22 @@ sourceDir = {{ .chezmoi.sourceDir | quote }}
     is_arch   = {{ $isArch   }}
     is_ubuntu = {{ $isUbuntu }}
 
+    personal      = {{ $personal }}
+    age_recipient = {{ $ageRecipient | quote }}
+
 [edit]
     command = "nvim"
 
 [git]
     autoCommit = true
     autoPush   = true
+
+{{- if $personal }}
+
+[encryption]
+    tool = "age"
+
+[age]
+    identity  = "{{ .chezmoi.homeDir }}/.config/chezmoi/key.txt"
+    recipient = {{ $ageRecipient | quote }}
+{{- end }}

@@ -84,18 +84,27 @@ Everything in `minimal` plus a full Wayland desktop:
 .chezmoiexternal.toml                      # oh-my-zsh, zsh plugins, tpm
 .chezmoiignore.tmpl                        # what to keep out of $HOME (per profile)
 .chezmoiscripts/
-  run_before_00-distro-guard.sh.tmpl       # fail closed on unsupported OS
+  run_before_00-distro-guard.sh.tmpl                # fail closed on unsupported OS
+  run_before_10-ensure-mise.sh                      # install mise if missing
+  run_before_15-ensure-age-key.sh.tmpl              # bw fetch → key.txt (personal only)
   run_onchange_before_05-install-packages.sh.tmpl   # apt / pacman / paru / flatpak
-  run_before_10-ensure-mise.sh             # install mise if missing
   run_onchange_after_50-mise-install.sh.tmpl
   run_onchange_after_60-install-fonts.sh
-  run_after_30-dms-systemd.sh.tmpl         # enable dms + add-wants niri
-  run_after_70-change-shell.sh             # chsh -> zsh
-  run_after_81-systemd-services.sh.tmpl    # enable hypridle/hyprpaper/...
+  run_after_10-fix-ssh-permissions.sh.tmpl          # chmod SSH keys (personal only)
+  run_after_30-dms-systemd.sh.tmpl                  # enable dms + add-wants niri
+  run_after_70-change-shell.sh                      # chsh -> zsh
+  run_after_81-systemd-services.sh.tmpl             # enable hypridle/hyprpaper/...
   run_onchange_after_71-tmux-plugins.sh.tmpl
 dot_config/                                # ~/.config payload
 dot_gitconfig.tmpl                         # git identity (+ optional work include)
+dot_gitconfig-work                         # work identity (personal only, no template)
 dot_zshrc, dot_tmux.conf
+encrypted_dot_credentials.sh.age          # shell API keys (personal only, age-encrypted)
+private_dot_ssh/                           # SSH keys + configs (personal only)
+private_dot_aws/                           # AWS profiles + creds (personal only)
+private_dot_kube/                          # kubeconfig (personal only, age-encrypted)
+private_dot_docker/                        # docker auth (personal only, age-encrypted)
+private_dot_config/gh/                     # GitHub CLI multi-account (personal only)
 install.sh                                 # curl-friendly bootstrap (<100 LOC)
 ```
 
@@ -118,12 +127,26 @@ automatically by chezmoi.
 
 ---
 
-## Private dotfiles (separate repo)
+## Personal / private content
 
-Secrets, work git overrides (`~/.gitconfig-work`), private mise configs, etc.
-live in [`dotfiles_private`](https://github.com/DanielePeruzzi97/dotfiles_private)
-and are installed with a separate one-liner. This repo contains **zero
-secrets, zero encrypted blobs, zero YubiKey logic**.
+Private dotfiles (SSH keys, kubeconfig, work git identity, credentials) live
+**in this repo**, gated by the `personal` flag set on `chezmoi init`.
+
+When `personal = true`:
+- Age encryption is enabled (`[encryption] tool = "age"`)
+- `run_before_15-ensure-age-key.sh.tmpl` fetches the age identity key from
+  Bitwarden (note name: `chezmoi-age-key`) and writes it to
+  `~/.config/chezmoi/key.txt`
+- All encrypted `.age` blobs are decrypted on apply
+
+**Requirements for personal machines:**
+- Bitwarden CLI (`bw`) must be in `PATH` and logged in before `chezmoi apply`
+- Install: `npm install -g @bitwarden/cli`
+
+When `personal = false` (default for forks / non-personal machines):
+- All personal files are excluded via `.chezmoiignore.tmpl`
+- No Bitwarden or age key needed
+- Encrypted blobs in the repo are harmless (useless without the age key)
 
 ---
 
@@ -157,8 +180,10 @@ half of `compositor=both`), DMS is NOT started — hyprland uses waybar instead.
      curl -fsSL https://raw.githubusercontent.com/<your-user>/dotfiles/main/install.sh | bash
    ```
 3. Adjust `.chezmoidata/packages.yaml` to taste.
-4. Work git identity goes in `~/.gitconfig-work` (provided by your private
-   dotfiles; silently ignored if absent).
+4. Answer `personal: false` on `chezmoi init` — personal content is gated and
+   won't apply. To use personal features, set up your own age key and re-encrypt
+   the personal files for your recipient.
+5. Work git identity goes in `~/.gitconfig-work` (silently ignored if absent).
 
 ---
 

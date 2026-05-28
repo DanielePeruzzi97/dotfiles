@@ -436,4 +436,20 @@ if command -v flatpak >/dev/null; then
 fi
 {{- end }}
 
+# --- Bitwarden CLI wrapper (Ubuntu personal only) -----------------------------
+# Ubuntu: com.bitwarden.desktop flatpak (installed above) includes the CLI.
+# Create ~/.local/bin/bw wrapper so scripts can call `bw` directly.
+# Arch: bitwarden-cli installed from AUR (packages.yaml), provides native `bw`.
+{{- if and .personal .is_ubuntu }}
+if ! command -v bw &>/dev/null; then
+    mkdir -p "$HOME/.local/bin"
+    cat > "$HOME/.local/bin/bw" << 'BWWRAPPER'
+#!/usr/bin/env bash
+exec flatpak run --command=bw com.bitwarden.desktop "$@"
+BWWRAPPER
+    chmod +x "$HOME/.local/bin/bw"
+    ok "bw wrapper installed at ~/.local/bin/bw"
+fi
+{{- end }}
+
 ok "Package installation complete"

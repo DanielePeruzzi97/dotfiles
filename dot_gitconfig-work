@@ -1,0 +1,20 @@
+[credential]
+	helper = /usr/lib/git-core/git-credential-libsecret
+
+[user]
+	email = daniele.peruzzi@omnys.com
+	name = Daniele Peruzzi
+    signingkey = B14E233ED2FF6215
+
+[push]
+	autosetupremote = true
+
+[core]
+	editor = vim
+
+[alias]
+	glog = log --graph --pretty=format:'%cred%h%creset -%c(yellow)%d%creset %s %cgreen(%cr) %c(bold blue)<%an>%creset'
+
+[commit]
+	gpgsign = true
+

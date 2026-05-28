@@ -187,6 +187,7 @@ packages:
       - teams-for-linux-bin
       - wally
       - yubikey-manager-qt    # deprecated upstream, AUR only
+      - bitwarden-cli          # bw CLI for age key bootstrap (personal machines)
 
     flatpak:
       - com.spotify.Client
