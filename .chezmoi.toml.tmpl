@@ -63,8 +63,7 @@ sourceDir = {{ .chezmoi.sourceDir | quote }}
 
 {{- if $personal }}
 
-[encryption]
-    tool = "age"
+encryption = "age"
 
 [age]
     identity  = "{{ .chezmoi.homeDir }}/.config/chezmoi/key.txt"
