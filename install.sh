@@ -30,6 +30,12 @@ case "${ID}:${VERSION_CODENAME:-}" in
 esac
 ok "Distro: ${ID} ${VERSION_CODENAME:-} (${PM})"
 
+# --- PATH setup ---------------------------------------------------------------
+export PATH="$HOME/.local/bin:$PATH"
+
+# Flatpak exports in XDG_DATA_DIRS — prevents 'not in search path' warnings
+export XDG_DATA_DIRS="${XDG_DATA_DIRS:-/usr/local/share:/usr/share}:/var/lib/flatpak/exports/share:$HOME/.local/share/flatpak/exports/share"
+
 # --- Base deps (curl + git) ---------------------------------------------------
 if ! command -v curl >/dev/null || ! command -v git >/dev/null; then
     info "Installing curl + git"
@@ -44,11 +50,12 @@ if [ ! -x "$HOME/.local/bin/mise" ] && ! command -v mise >/dev/null; then
     info "Installing mise"
     curl -fsSL https://mise.run | sh
 fi
-export PATH="$HOME/.local/bin:$PATH"
-MISE="$HOME/.local/bin/mise"
 
-# Helper: run chezmoi via mise (no symlink dependency)
-chezmoi() { "$MISE" exec chezmoi@latest -- chezmoi "$@"; }
+# --- chezmoi ------------------------------------------------------------------
+if [ ! -x "$HOME/.local/bin/chezmoi" ] && ! command -v chezmoi >/dev/null; then
+    info "Installing chezmoi"
+    curl -fsLS https://chezmoi.io/get | sh -s -- -b "$HOME/.local/bin"
+fi
 
 # --- Clone / update repo ------------------------------------------------------
 if [ -d "$DEST/.git" ]; then
@@ -105,10 +112,6 @@ if [ "$PERSONAL" = "true" ]; then
         chezmoi apply --source="$DEST"
     fi
 fi
-
-# Convenience symlink so `chezmoi` is on PATH after install
-chezmoi_bin="$("$MISE" which chezmoi 2>/dev/null || true)"
-[ -n "$chezmoi_bin" ] && ln -sf "$chezmoi_bin" "$HOME/.local/bin/chezmoi"
 
 ok "Done."
 echo
