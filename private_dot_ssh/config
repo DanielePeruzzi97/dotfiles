@@ -4,8 +4,8 @@
 # This file includes modular SSH configurations organized by category.
 # 
 # Structure:
-#   00-defaults.conf  - Default SSH settings for all connections
-#   10-github.conf    - GitHub personal & work accounts, AWS CodeCommit
+#   99-defaults.conf  - Default SSH settings for all connections
+#   10-github.conf    - GitHub personal & work accounts, Bitbucket
 #   20-homelab.conf   - Personal homelab infrastructure (Proxmox, Talos, etc.)
 #   30-work.conf      - Omnys work infrastructure (client hosts)
 # ============================================================================
