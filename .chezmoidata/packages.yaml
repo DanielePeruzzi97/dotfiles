@@ -1,10 +1,8 @@
-# Declarative package lists by profile + distro + compositor.
+# Declarative package lists by profile + distro.
 #
 # Profiles:
 #   minimal     — core CLI only
-#   workstation — minimal + desktop (compositor choice) + flatpak + k8s
-#
-# Compositors (workstation only): niri | hyprland | both
+#   workstation — minimal + desktop (niri + DMS) + flatpak + k8s
 #
 # Distros: arch, ubuntu (25.10 questing only)
 #
@@ -15,7 +13,7 @@
 #   aur — Arch-only AUR packages (installed via paru)
 #
 # External apt sources / one-off downloads (chrome, vscode, anydesk, teams,
-# nvim appimage, heidisql, wally, hyprdynamicmonitors) are handled by
+# nvim appimage, heidisql, wally) are handled by
 # .chezmoiscripts/run_before_05-install-packages.sh.tmpl.
 #
 # mise-managed tools live in dot_config/mise/config.toml.
@@ -53,7 +51,8 @@ packages:
       - neovim           # ubuntu uses appimage v0.12.2 (managed by install script)
 
   workstation:
-    # Desktop base — shared by both niri and hyprland sessions.
+    # Desktop base — niri + DMS session.
+    # DMS manages: bar, notifications, theming (matugen), session menu.
     # NOTE: ghostty is installed separately by run_before_05-install-packages.sh
     # (mkasberg installer on ubuntu, pacman on arch — no clean apt source on questing).
     common:
@@ -64,8 +63,7 @@ packages:
       - iotop
       - nethogs
       - sshfs
-      # Wayland desktop bits used by both compositors
-      - waybar
+      # Wayland desktop
       - cliphist
       - wl-clipboard
       - brightnessctl
@@ -75,17 +73,15 @@ packages:
       - pavucontrol
       - grim
       - slurp
-      - qt5ct
-      - qt6ct
       - xdg-user-dirs
       - xdg-desktop-portal-gtk
       - gvfs
       - tumbler
-      # DMS optional companions (dgop removed — user choice)
+      # DMS dependencies
       - matugen
       - i2c-tools
       - cava
-      # Apps requested explicitly (apt-native on Ubuntu, Arch repos)
+      # Apps
       - remmina
       - gnome-boxes
       - piper
@@ -93,18 +89,15 @@ packages:
 
     ubuntu:
       - gnome-firmware
-      - sway-notification-center
       - rofi
-      - wlogout
       - network-manager-gnome
+      # Qt image formats for DMS (kimageformats)
+      - qt6-image-formats-plugins
       # YubiKey
       - yubikey-manager
       - yubikey-manager-qt
       - libyubikey-udev
       - pcscd
-      # Ubuntu desktop ships these by default; listed under arch only.
-      # (loupe, gnome-text-editor, file-roller, nautilus, seahorse,
-      #  accountsservice, firefox — present on default Ubuntu install)
 
     arch:
       # GNOME basics that Ubuntu pre-installs but Arch doesn't
@@ -125,16 +118,16 @@ packages:
       - paru             # AUR helper
       - ghostty
       - rofi-wayland
-      - wlogout
       - network-manager-applet
       - qt6-multimedia
-      # Apps requested explicitly (Arch repo names)
+      # Qt image formats for DMS (kimageformats)
+      - qt6-imageformats
+      # Apps
       - google-chrome    # via paru → AUR
       - code             # vscode-oss (community) — for closed source use AUR `visual-studio-code-bin`
       - heidisql         # AUR
       - anydesk-bin      # AUR
-      # Cloud / DevOps (ubuntu: docker via official apt repo in install script,
-      # ansible via pipx, tfswitch/tgswitch as binaries)
+      # Cloud / DevOps
       - docker
       - docker-compose
       - ansible
@@ -145,9 +138,8 @@ packages:
       - libusb-compat
       - pcsclite
 
-    # Niri compositor stack (installed when compositor=niri|both)
-    # DMS is the niri shell (bar + notifications + launcher + lock); it replaces
-    # waybar/swaync/rofi/wlogout under niri. Hyprland uses those instead.
+    # Niri compositor stack + DMS shell
+    # DMS is the niri shell (bar + notifications + launcher + lock)
     niri:
       common:
         - xwayland-satellite
@@ -158,31 +150,8 @@ packages:
         - niri
         - dms-shell
 
-    # Hyprland compositor stack (installed when compositor=hyprland|both)
-    # Ubuntu requires ppa:cppiber/hyprland (added by install-packages script).
-    hyprland:
-      common:
-        - hyprlock
-        - hypridle
-        - hyprpaper
-        - hyprsunset
-      ubuntu:
-        - hyprland
-        - xdg-desktop-portal-hyprland
-      arch:
-        - hyprland
-        - xdg-desktop-portal-hyprland
-      aur:
-        - hyprpolkitagent-git
-        - grimblast-git
-        - hyprshot
-        - hyprdynamicmonitors
-
-    # AUR packages independent of compositor choice (Arch only)
-    # Adds: chrome/vscode/teams/anydesk/heidisql/wally already listed in arch
-    # section; this block holds anything that's strictly AUR-only.
+    # AUR packages (Arch only)
     aur:
-      - swaync
       - rofi-calc
       - teams-for-linux-bin
       - wally

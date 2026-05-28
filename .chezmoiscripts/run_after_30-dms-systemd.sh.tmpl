@@ -1,7 +1,6 @@
 {{- /* Enable DMS user service + tie to niri.service.
-       DMS is the niri shell — under hyprland we use waybar+swaync+rofi+wlogout
-       instead, so only run this integration when niri is selected. */ -}}
-{{- if and (eq .profile "workstation") .want_niri (not (env "CI")) -}}
+       DMS is the niri shell (bar + notifications + launcher + lock). */ -}}
+{{- if and (eq .profile "workstation") (not (env "CI")) -}}
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -23,18 +22,6 @@ systemctl --user enable dms.service 2>/dev/null || true
 
 info "Tying DMS to niri session (add-wants niri.service dms.service)"
 systemctl --user add-wants niri.service dms.service || true
-
-{{ if .want_hyprland -}}
-# compositor=both: DMS .deb post-install symlinks dms.service into
-# graphical-session.target.wants/ which would auto-start DMS under hyprland
-# too, colliding with waybar. Remove that symlink so DMS only starts via
-# the explicit add-wants on niri.service above.
-DMS_WANTS="$HOME/.config/systemd/user/graphical-session.target.wants/dms.service"
-if [ -L "$DMS_WANTS" ]; then
-    info "Removing dms.service from graphical-session.target.wants (avoid collision with waybar under hyprland)"
-    rm -f "$DMS_WANTS"
-fi
-{{- end }}
 
 ok "DMS systemd integration done"
 {{- else -}}

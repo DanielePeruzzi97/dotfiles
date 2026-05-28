@@ -7,6 +7,9 @@ install.sh
 # Source-only data dirs (not deployed to home)
 gpg-keys/
 
+# Archived configs — kept for reference, never deployed
+dot_config/old/
+
 {{- if not .personal }}
 # Personal content — skipped on non-personal machines and forks.
 # Set personal=true on chezmoi init to enable (requires age key in Bitwarden).
@@ -42,39 +45,10 @@ dot_config/private_filezilla/queue.sqlite3
 
 {{- if eq .profile "minimal" }}
 # Desktop configs not deployed on minimal profile
-.config/hypr/
-.config/hyprdynamicmonitors/
 .config/niri/
-.config/waybar/
 .config/rofi/
-.config/swaync/
-.config/wlogout/
 .config/k9s/
-.config/gtk-3.0/
-.config/gtk-4.0/
-.config/qt5ct/
-.config/qt6ct/
 {{- end }}
-
-{{- if and (eq .profile "workstation") (not .want_niri) }}
-# Niri not selected
-.config/niri/
-{{- end }}
-{{- if and (eq .profile "workstation") (not .want_hyprland) }}
-# Hyprland not selected
-.config/hypr/
-.config/hyprdynamicmonitors/
-# GTK/Qt static prefs only deployed when hyprland is present;
-# under niri-only, DMS (matugen) owns app theming.
-.config/gtk-3.0/
-.config/gtk-4.0/
-.config/qt5ct/
-.config/qt6ct/
-{{- end }}
-
-# Machine-specific hypr overrides — never tracked
-.config/hypr/local.conf
-.config/hypr/monitors.conf
 
 # AI workflow — secrets, runtime state, caches (never sync)
 .claude/.credentials.json
