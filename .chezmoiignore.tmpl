@@ -21,11 +21,11 @@ private_dot_ssh/encrypted_private_villaburi_ansible_rsa.age
 private_dot_aws
 private_dot_kube
 private_dot_docker
-private_dot_config/gh
-private_dot_config/remmina
-private_dot_config/filezilla
-private_dot_config/heidisql
-private_dot_local/share/remmina
+dot_config/private_gh
+dot_config/private_remmina
+dot_config/private_filezilla
+dot_config/private_heidisql
+dot_local/share/private_remmina
 dot_gitconfig-work
 encrypted_dot_credentials.sh.age
 {{- end }}
@@ -36,11 +36,11 @@ private_dot_aws/sso
 private_dot_ssh/sockets
 private_dot_ssh/known_hosts
 private_dot_ssh/known_hosts.old
-private_dot_config/gh/state.yml
-private_dot_config/remmina/plugins
-private_dot_config/heidisql/Highlighters
-private_dot_config/heidisql/Backups
-private_dot_config/filezilla/queue.sqlite3
+dot_config/private_gh/state.yml
+dot_config/private_remmina/plugins
+dot_config/private_heidisql/Highlighters
+dot_config/private_heidisql/Backups
+dot_config/private_filezilla/queue.sqlite3
 
 {{- if eq .profile "minimal" }}
 # Desktop configs not deployed on minimal profile
