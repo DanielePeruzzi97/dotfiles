@@ -39,14 +39,14 @@ packages:
       - build-essential
       - software-properties-common
       - fd-find # symlinked to `fd` by post-script
-      - xclip
+      - wl-clipboard        # wl-copy/wl-paste for neovim/tmux clipboard on Wayland
       - python3-pip
       - pipx # for ansible install
 
     arch:
       - base-devel
       - fd
-      - xclip
+      - wl-clipboard        # wl-copy/wl-paste for neovim/tmux clipboard on Wayland
       - python-pip
       - python-pipx
       - neovim # ubuntu uses appimage v0.12.2 (managed by install script)
