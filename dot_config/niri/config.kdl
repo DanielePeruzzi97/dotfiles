@@ -133,7 +133,7 @@ window-rule {
 // ============================================
 
 spawn-at-startup "xwayland-satellite"
-spawn-at-startup "dms" "run"
+// dms started by systemd user service (set up by DMS installer)
 spawn-at-startup "udiskie"
 spawn-at-startup "nm-applet"
 
@@ -151,6 +151,7 @@ binds {
     // DMS controls
     Mod+N     { spawn "dms" "ipc" "call" "notifications" "toggle"; }
     Mod+X     { spawn "dms" "ipc" "call" "powermenu" "toggle"; }
+    Mod+Alt+L { spawn "dms" "ipc" "call" "lock" "lock"; }
     Mod+Alt+V { spawn "dms" "ipc" "call" "clipboard" "toggle"; }
 
     // Window management

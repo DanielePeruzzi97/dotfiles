@@ -72,16 +72,6 @@ if ! grep -rq "avengemedia/dms" /etc/apt/sources.list.d/ 2>/dev/null; then
     NEED_APT_UPDATE=1
 fi
 
-# Google Chrome
-if [ ! -f /etc/apt/sources.list.d/google-chrome.list ]; then
-    info "Adding Google Chrome apt repo"
-    curl -fsSL https://dl.google.com/linux/linux_signing_key.pub \
-        | sudo gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg
-    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" \
-        | sudo tee /etc/apt/sources.list.d/google-chrome.list >/dev/null
-    NEED_APT_UPDATE=1
-fi
-
 # Visual Studio Code (Microsoft)
 if [ ! -f /etc/apt/sources.list.d/vscode.list ]; then
     info "Adding VSCode apt repo"
@@ -89,26 +79,6 @@ if [ ! -f /etc/apt/sources.list.d/vscode.list ]; then
         | sudo gpg --dearmor -o /etc/apt/keyrings/packages.microsoft.gpg
     echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
         | sudo tee /etc/apt/sources.list.d/vscode.list >/dev/null
-    NEED_APT_UPDATE=1
-fi
-
-# Teams for Linux (community client by IsmaelMartinez)
-if [ ! -f /etc/apt/sources.list.d/teams-for-linux.list ]; then
-    info "Adding teams-for-linux apt repo"
-    curl -fsSL https://repo.teamsforlinux.de/teams-for-linux.asc \
-        | sudo tee /etc/apt/keyrings/teams-for-linux.asc >/dev/null
-    echo "deb [signed-by=/etc/apt/keyrings/teams-for-linux.asc arch=$(dpkg --print-architecture)] https://repo.teamsforlinux.de/debian/ stable main" \
-        | sudo tee /etc/apt/sources.list.d/teams-for-linux.list >/dev/null
-    NEED_APT_UPDATE=1
-fi
-
-# AnyDesk
-if [ ! -f /etc/apt/sources.list.d/anydesk-stable.list ]; then
-    info "Adding AnyDesk apt repo"
-    curl -fsSL https://keys.anydesk.com/repos/DEB-GPG-KEY \
-        | sudo gpg --dearmor -o /etc/apt/keyrings/anydesk.gpg
-    echo "deb [signed-by=/etc/apt/keyrings/anydesk.gpg] http://deb.anydesk.com/ all main" \
-        | sudo tee /etc/apt/sources.list.d/anydesk-stable.list >/dev/null
     NEED_APT_UPDATE=1
 fi
 
@@ -142,9 +112,9 @@ sudo apt install -y "${PKGS[@]}"
 
 # Workstation-only external apps via apt (after repos are configured)
 {{ if eq .profile "workstation" -}}
-info "Installing google-chrome / code / teams-for-linux / anydesk"
-sudo apt install -y google-chrome-stable code teams-for-linux anydesk \
-    || warn "Some external apt packages failed to install"
+info "Installing code (VSCode)"
+sudo apt install -y code \
+    || warn "VSCode apt install failed"
 
 info "Installing docker-ce + compose plugin"
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
@@ -265,15 +235,9 @@ EOF
     sudo usermod -aG plugdev "$USER"
 fi
 
-# --- dsearch removal (user uses rofi, doesn't want dms launcher) --------------
-if dpkg -s dsearch >/dev/null 2>&1; then
-    info "Removing dsearch (user uses rofi as launcher)"
-    sudo apt purge -y dsearch || true
-fi
-
-# --- Default browser → Google Chrome (firefox kept as fallback) ---------------
-if command -v google-chrome-stable >/dev/null && command -v xdg-settings >/dev/null; then
-    xdg-settings set default-web-browser google-chrome.desktop 2>/dev/null || true
+# --- Default browser → Google Chrome Flatpak (firefox kept as fallback) ------
+if flatpak info com.google.Chrome >/dev/null 2>&1 && command -v xdg-settings >/dev/null; then
+    xdg-settings set default-web-browser com.google.Chrome.desktop 2>/dev/null || true
 fi
 
 {{- end }}
@@ -370,11 +334,6 @@ if ! snap list adw-gtk3-theme &>/dev/null; then
     sudo snap install adw-gtk3-theme || warn "adw-gtk3-theme snap install failed"
 fi
 
-# dgop — installed as DMS dependency but not wanted
-if dpkg -s dgop >/dev/null 2>&1; then
-    info "Removing dgop (DMS dependency, not wanted)"
-    sudo apt purge -y dgop || true
-fi
 {{-   end }}
 {{- end }}
 

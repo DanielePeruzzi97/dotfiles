@@ -69,19 +69,19 @@ packages:
       - udiskie             # auto-mount USB drives (no DMS equivalent)
       - blueman             # BT manager GUI for pairing/profiles (DMS has basic toggle only)
       - pavucontrol         # advanced audio routing (DMS has simple slider only)
-      # - cliphist          # not needed — DMS has native clipboard history
-      # - brightnessctl     # replaced by dms ipc call brightness
+      # - cliphist          # replaced by DMS native clipboard (dms cl / Mod+Alt+V)
+      # - brightnessctl     # DMS brightness IPC backend — add back if XF86Brightness keys don't work
       # - playerctl         # replaced by dms ipc call mpris
-      # - grim
-      # - slurp
+      # - grim              # replaced by niri native screenshot action (Print key)
+      # - slurp             # replaced by niri native screenshot action (Print key)
       # - xdg-user-dirs
       # - xdg-desktop-portal-gtk
       # - gvfs
       # - tumbler
-      # DMS dependencies
-      # - matugen
+      # DMS pulls these automatically as apt deps — no need to list here:
+      # matugen, cava, qt6ct, fuzzel, quickshell, alacritty, yt-dlp, ffmpeg
+      # - brightnessctl  # NOT a DMS dep — add if XF86MonBrightness keys don't work
       # - i2c-tools
-      # - cava
       # Apps
       - remmina
       - gnome-boxes
@@ -92,8 +92,9 @@ packages:
       # - gnome-firmware
       - rofi
       - network-manager-gnome  # nm-applet tray + nm-connection-editor for VPN config
-      # Qt image formats for DMS (kimageformats)
-      - qt6-image-formats-plugins
+      # Qt image formats for DMS
+      - qt6-image-formats-plugins  # WEBP/TIFF/TGA
+      # kimageformats (AVIF/HEIF) not in Ubuntu 25.10 repos — PNG/JPG/WebP wallpapers work fine
       # YubiKey
       - yubikey-manager
       - yubikey-manager-qt
@@ -121,13 +122,12 @@ packages:
       - rofi-wayland
       - network-manager-applet
       - qt6-multimedia
-      # Qt image formats for DMS (kimageformats)
-      - qt6-imageformats
+      # Qt image formats for DMS
+      - qt6-imageformats  # WEBP/TIFF/TGA
+      - kimageformats     # AVIF/HEIF/JXL/PSD — DMS requires this
       # Apps
-      - google-chrome # via paru → AUR
       - code # vscode-oss (community) — for closed source use AUR `visual-studio-code-bin`
       - heidisql # AUR
-      - anydesk-bin # AUR
       # Cloud / DevOps
       - docker
       - docker-compose
@@ -154,7 +154,6 @@ packages:
     # AUR packages (Arch only)
     aur:
       - rofi-calc
-      - teams-for-linux-bin
       - wally
       - yubikey-manager-qt # deprecated upstream, AUR only
       - bitwarden-cli # bw CLI for age key bootstrap (personal machines)
@@ -167,6 +166,10 @@ packages:
       - com.bitwarden.desktop
       - org.gimp.GIMP
       - com.jgraph.drawio.desktop
+      # Moved from native apt/AUR — distro-agnostic, no GPG repo setup needed
+      - com.google.Chrome
+      - com.github.IsmaelMartinez.teams_for_linux
+      - com.anydesk.Anydesk
       # GTK3 theme for flatpak apps (DMS/matugen theming)
       # - org.gtk.Gtk3theme.adw-gtk3
       # - org.gtk.Gtk3theme.adw-gtk3-dark
