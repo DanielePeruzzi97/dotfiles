@@ -66,7 +66,6 @@ packages:
       # - nethogs
       # - sshfs
       # Wayland desktop
-      - wl-clipboard        # wl-paste for X11 clipboard sync via xwayland
       - udiskie             # auto-mount USB drives (no DMS equivalent)
       - blueman             # BT manager GUI for pairing/profiles (DMS has basic toggle only)
       - pavucontrol         # advanced audio routing (DMS has simple slider only)
